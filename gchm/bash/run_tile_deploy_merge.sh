@@ -4,6 +4,8 @@
 export BASH_PATH="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 source ${BASH_PATH}/config.sh
 
+export GCHM_DEPLOY_DIR="${GCHM_DEPLOY_DIR}/${tile_name}"
+
 sentinel2_dir=${GCHM_DEPLOY_SENTINEL2_DIR}
 # get image paths text file for current tile_name
 image_paths_file=${GCHM_DEPLOY_IMAGE_PATHS_DIR}/${tile_name}.txt
@@ -23,7 +25,6 @@ echo 'tile_name:                   ' ${tile_name}
 echo 'GCHM_DEPLOY_DIR:             ' ${GCHM_DEPLOY_DIR}
 echo 'GCHM_MODEL_DIR:              ' ${GCHM_MODEL_DIR}
 echo 'GCHM_NUM_MODELS:             ' ${GCHM_NUM_MODELS}
-echo 'finetune_strategy:           ' ${finetune_strategy}
 echo 'filepath_failed_image_paths: ' ${filepath_failed_image_paths}
 echo 'sentinel2_dir:               ' ${sentinel2_dir}
 
@@ -102,12 +103,14 @@ worldcover_path="${GCHM_DEPLOY_PARENT_DIR}/ESAworldcover/${wcover}/sentinel2_til
 # mask height prediction
 input_file_path="${out_dir}/${tile_name}_pred.tif"
 output_file_path="${out_dir}/${tile_name}_${experiment}_pred.tif"
-python3 gchm/postprocess/mask_with_ESAworldcover.py ${worldcover_path} ${input_file_path} ${output_file_path}
+mv $input_file_path $output_file_path
+python3 gchm/postprocess/mask_with_ESAworldcover.py ${worldcover_path} ${$output_file_path} ${output_file_path}
 
 # mask standard deviation
 input_file_path="${out_dir}/${tile_name}_std.tif"
 output_file_path="${out_dir}/${tile_name}_${experiment}_std.tif"
-python3 gchm/postprocess/mask_with_ESAworldcover.py ${worldcover_path} ${input_file_path} ${output_file_path}
+mv $input_file_path $output_file_path
+python3 gchm/postprocess/mask_with_ESAworldcover.py ${worldcover_path} ${output_file_path} ${output_file_path}
 
 echo "final maps saved at:         ${out_dir}"
 echo "failed image paths saved at: ${filepath_failed_image_paths}"

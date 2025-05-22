@@ -220,9 +220,13 @@ if __name__ == "__main__":
     print('train_target_std', train_target_std)
 
     # setup input transforms
+    print(args.modify_bands)
+    print(args.modify_percentage)
+    print(args.modify_decrease)
+    modify_bands = [int(x) for x in args.modify_bands[0].split(",")]
     input_transforms = Transformer(transforms=[
         Normalize(mean=train_input_mean, std=train_input_std),
-        ModifyBands(bands=args.modify_bands, percentage=args.modify_percentage,decrease=args.modify_decrease)
+        ModifyBands(bands=modify_bands, percentage=args.modify_percentage,decrease=args.modify_decrease)
     ])
 
     # create dataset

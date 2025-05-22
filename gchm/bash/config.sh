@@ -3,7 +3,6 @@
 # ----------------------------
 # ---------- DEPLOY ----------
 # ----------------------------
-
 export GCHM_DEPLOY_PARENT_DIR="./deploy_example"
 export GCHM_DEPLOY_IMAGE_PATHS_DIR="${GCHM_DEPLOY_PARENT_DIR}/image_paths/${YEAR}"
 export GCHM_DEPLOY_IMAGE_PATHS_LOG_DIR="${GCHM_DEPLOY_PARENT_DIR}/image_paths_logs/${YEAR}"
@@ -28,6 +27,6 @@ mkdir -p ${GCHM_DEPLOY_IMAGE_PATHS_LOG_DIR}
 export GCHM_TRAINING_DATA_DIR="/cluster/work/igp_psr/nlang/global_vhm/gchm_public_data/training_data/GLOBAL_GEDI_2019_2020/all_shuffled"
 export GCHM_TRAINING_EXPERIMENT_DIR="/cluster/work/igp_psr/nlang/experiments/gchm"
 # Set path to python
-export PYTHON="$HOME/venvs/gchm/bin/python"
+export PYTHON="$HOME/miniforge3/envs/gchm/bin/python"
 
 
