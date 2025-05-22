@@ -104,7 +104,7 @@ worldcover_path="${GCHM_DEPLOY_PARENT_DIR}/ESAworldcover/${wcover}/sentinel2_til
 input_file_path="${out_dir}/${tile_name}_pred.tif"
 output_file_path="${out_dir}/${tile_name}_${experiment}_pred.tif"
 mv $input_file_path $output_file_path
-python3 gchm/postprocess/mask_with_ESAworldcover.py ${worldcover_path} ${$output_file_path} ${output_file_path}
+python3 gchm/postprocess/mask_with_ESAworldcover.py ${worldcover_path} ${output_file_path} ${output_file_path}
 
 # mask standard deviation
 input_file_path="${out_dir}/${tile_name}_std.tif"
