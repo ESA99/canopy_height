@@ -1,9 +1,5 @@
-#!/bin/bash
+# #!/bin/bash
 # This script runs one job per sentinel-2 tile name. It runs the prediction on a list of images and merges the individual predictions.
-
-# ---- SET tile_name ----
-tile_name="32TMT"
-# -----------------------
 
 export BASH_PATH="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 source ${BASH_PATH}/config.sh
@@ -45,6 +41,7 @@ for tile_image_filename in ${tile_image_filenames}; do
     	deploy_image_path=${tile_image_filename}
     else
 	# set path to image on disk
+	tile_image_filename="${tile_name}/${tile_image_filename}"   # added tile name to the path to fit my strucutre
 	deploy_image_path=${sentinel2_dir}/${tile_image_filename}
     fi
     echo 'deploy_image_path:' ${deploy_image_path}
@@ -61,7 +58,10 @@ for tile_image_filename in ${tile_image_filenames}; do
                       	   --filepath_failed_image_paths=${filepath_failed_image_paths} \
                       	   --download_from_aws=${GCHM_DOWNLOAD_FROM_AWS} \
                       	   --sentinel2_dir=${sentinel2_dir} \
-                      	   --remove_image_after_pred="False"
+                      	   --remove_image_after_pred="False" \
+                           --modify_bands=${MODIFY_BANDS} \
+                           --modify_percentage=${MODIFY_PERCENTAGE} \
+                           --modify_decrease=${MODIFY_DECREASE}
 
     # check if proxy error
     exit_status=$?  # store the exit status for later use
@@ -75,7 +75,7 @@ done
 #############################
 # merge per image predictions
 reduction="inv_var_mean"
-out_dir=${GCHM_DEPLOY_DIR}_merge/${year}/preds_${reduction}/
+out_dir=${GCHM_DEPLOY_DIR}_merge/${year}/${tile_name}/preds_${reduction}/
 mkdir -p ${out_dir}
 
 echo "*************************************"
@@ -96,16 +96,17 @@ python3 gchm/merge_predictions_tile.py --tile_name=${tile_name} \
 #############################
 # filter with ESA WorldCover land cover classification
 echo "filtering with ESA WorldCover..."
-worldcover_path="${GCHM_DEPLOY_PARENT_DIR}/ESAworldcover/2020/sentinel2_tiles/ESA_WorldCover_10m_2020_v100_${tile_name}.tif"
+#worldcover_path="${GCHM_DEPLOY_PARENT_DIR}/ESAworldcover/${wcover}/sentinel2_tiles/ESA_WorldCover_10m_${wcover}_v100_${tile_name#T}.tif"
+worldcover_path="${GCHM_DEPLOY_PARENT_DIR}/ESAworldcover/${wcover}/sentinel2_tiles/ESA_WorldCover_10m_${wcover}_v100_${tile_name#T}.tif"
 
 # mask height prediction
 input_file_path="${out_dir}/${tile_name}_pred.tif"
-output_file_path=${input_file_path}
+output_file_path="${out_dir}/${tile_name}_${experiment}_pred.tif"
 python3 gchm/postprocess/mask_with_ESAworldcover.py ${worldcover_path} ${input_file_path} ${output_file_path}
 
 # mask standard deviation
 input_file_path="${out_dir}/${tile_name}_std.tif"
-output_file_path=${input_file_path}
+output_file_path="${out_dir}/${tile_name}_${experiment}_std.tif"
 python3 gchm/postprocess/mask_with_ESAworldcover.py ${worldcover_path} ${input_file_path} ${output_file_path}
 
 echo "final maps saved at:         ${out_dir}"

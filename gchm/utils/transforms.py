@@ -1,3 +1,47 @@
+class ModifyImage(object):
+    """ Perturb an image by a percentage. """
+
+    def __init__(self, percentage=None, decrease=True):
+        self.percentage = percentage
+        self.decrease=decrease
+
+    def __call__(self, x):
+        if self.percentage is None:
+            return x
+        if self.decrease:
+            x = x * (1-self.percentage)
+        else:
+            x = x * (1+self.percentage)
+        return x
+
+class ModifyBands(object):
+    """ Perturb bands by a percentage. """
+
+    def __init__(self, bands, percentage=0.05, decrease=True):
+        self.bands = bands
+        self.percentage = percentage
+        self.decrease = decrease
+
+    def __call__(self, x):
+        if self.percentage is None:
+            return x
+        if self.decrease:
+            x[:,:,self.bands] = x[:,:,self.bands] * (1-self.percentage)
+        else:
+            x[:,:,self.bands] = x[:,:,self.bands] * (1+self.percentage)
+        return x
+
+class Transformer(object):
+    """Calls a list of transforms on an image"""
+
+    def __init__(self, transforms):
+        self.transforms = transforms
+
+    def __call__(self, x):
+        for transform in self.transforms:
+            x = transform(x)
+        return x
+
 
 class Normalize(object):
     """ Normalize tensor with mean and std. """

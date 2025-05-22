@@ -5,7 +5,6 @@
 # ----------------------------
 
 export GCHM_DEPLOY_PARENT_DIR="./deploy_example"
-export YEAR="2020"
 export GCHM_DEPLOY_IMAGE_PATHS_DIR="${GCHM_DEPLOY_PARENT_DIR}/image_paths/${YEAR}"
 export GCHM_DEPLOY_IMAGE_PATHS_LOG_DIR="${GCHM_DEPLOY_PARENT_DIR}/image_paths_logs/${YEAR}"
 export GCHM_DEPLOY_SENTINEL2_DIR="${GCHM_DEPLOY_PARENT_DIR}/sentinel2/${YEAR}"
