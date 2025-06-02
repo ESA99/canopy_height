@@ -14,3 +14,8 @@ venv/
 *.pt
 *.json
 
+.Rproj.user
+.Rhistory
+.Rdata
+.httr-oauth
+.quarto
