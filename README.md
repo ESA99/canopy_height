@@ -11,7 +11,8 @@ For a full explanation of the installation, setup and deployment see the origina
 3. [Citation](https://github.com/ESA99/canopy_height#citation)
 
 ## Results
-First example of a result plot. X axis shows the increment by which the Bands were increased or decreased (0.05 -> Band*1.05), and Y axis shows the average difference of the prediction in meters (prediction unit).
+Example plot illustrating the impact of band value modifications on prediction outcomes. The x-axis represents the relative increment applied to each spectral band (e.g., 0.05 corresponds to a 5% increase: Band × 1.05), while the y-axis shows the average change in prediction values, measured in meters. Positive values indicate an increase in the predicted variable, and negative values indicate a decrease.
+
 ![Examplary result plot](plots/2025-06-03_3T_B03+08_lineplot.png)
 
 
