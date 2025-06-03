@@ -22,7 +22,7 @@ c(
 
 # Input of the parameters
 variables <- dandelion::create_param_df(tiles = c("T31UGT", "T32ULB","T33UUT"), 
-                                        bands = c("B03", "B08"),
+                                        bands = c("B03", "B08", "B04"),
                                         increments = c(0.05, 0.1, 0.15, 0.2),
                                         decrease = c("False", "True"),              # False meaning increase...
                                         year = "2020",
@@ -155,7 +155,9 @@ for (v in 1:nrow(variables)) {
   avg_diff <- mean(values(difference), na.rm = TRUE)  
   avg_abs_diff <- mean(abs(values(difference)), na.rm = TRUE)
   # korrelationskoeffizient manipulated_pred, original_pred 
-  # std deviation difference
+  correlation <- cor(values(manipulated_pred), values(original_pred), method = "pearson")
+  # std deviation of difference
+  std_dev <- sd(na.omit(values(difference)))
   
   ## save difference rasters if wanted
   if (DIFF_TIF == TRUE) {
@@ -182,6 +184,8 @@ for (v in 1:nrow(variables)) {
     decrease = variables$decrease[v],
     average_difference = avg_diff,
     avg_diff_absoluteVals = avg_abs_diff,
+    correlation = correlation,
+    std_dev = std_dev,
     out_name = variables$out_name[v],
     year = variables$year[v]
   )
