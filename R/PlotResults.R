@@ -11,6 +11,9 @@ library(dplyr)
 result_table <- read.csv("/home/emilio/canopy_height/final_results/2025-06-03_result_table.csv")
 head(result_table)
 
+result_table <- result_table %>%
+  filter(band != "B01")
+
 # Recreate or modify your data with tile_band
 result_table <- result_table %>%
   mutate(tile_band = paste(tile, band, sep = "_"))
