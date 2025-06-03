@@ -5,13 +5,24 @@ For a full explanation of the installation, setup and deployment see the origina
 
 
 ## Table of Contents
-1. [Results](https://github.com/ESA99/canopy_height#results)
-2. [Citation](https://github.com/ESA99/canopy_height#citation)
+1. [Results](#results)
+2. [Workflow](#workflow)
+   - [2.1 Tiles](#tiles)
+3. [Citation](https://github.com/ESA99/canopy_height#citation)
 
 ## Results
-
+First example of a result plot. X axis shows the increment by which the Bands were increased or decreased (0.05 -> Band*1.05), and Y axis shows the average difference of the prediction in meters (prediction unit).
 ![Examplary result plot](plots/2025-06-03_3T_B03+08_lineplot.png)
 
+
+## Workflow
+The deploy.R script contains the full workflow and is deployed from bash after setting the correct conda environment and directory.
+
+### Tiles
+How many global tiles?
+-> select randomly
+
+Worldcover tiles
 
 ## Citation
 
