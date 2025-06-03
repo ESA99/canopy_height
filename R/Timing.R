@@ -26,7 +26,8 @@ df <- df %>%
 mean(df$StepTime)
 which.min(df$StepTime)
 which.max(df$StepTime)
-
+min(df$StepTime)
+max(df$StepTime)
 # View result
 print(df)
 
