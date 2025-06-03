@@ -20,6 +20,8 @@ Example plot illustrating the impact of band value modifications on prediction o
 The deploy.R script contains the full workflow and is deployed from bash after setting the correct conda environment and directory.
 At the beginning Tile-Name, Bands, Increment and direction are Set and then the script is deployed. The original code (deploy.py etc.) were modified to fit the script.
 
+Fuctions from the package "dandelion" (https://github.com/ESA99/dandelion) were used and written specifically for this usecase.
+
 #### Working Time
 At the moment the deployment on the Supercomputer at ILÖK takes on average 00:10:43 per loop (Tile-Band-increment-combination).
 
