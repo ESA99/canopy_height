@@ -24,11 +24,14 @@ c(
 variables <- dandelion::create_param_df(tiles = c("T31UGT", "T32ULB","T33UUT"), 
                                         bands = c("B03", "B08"),
                                         increments = c(0.05, 0.1, 0.15, 0.2),
-                                        decrease = c("False"),              # False meaning increase...
+                                        decrease = c("False", "True"),              # False meaning increase...
                                         year = "2020",
                                         base_folder = "/home/emilio/canopy_height"
 )
+# Should the difference rasters be saved?
+DIFF_TIF <- FALSE
 
+## SETUP
 # create empty result list in correct length for more efficient deployment.
 results_list <- vector("list", nrow(variables)) # create empty list, convert to df later -> more efficient
 
@@ -151,6 +154,23 @@ for (v in 1:nrow(variables)) {
   difference <- manipulated_pred - original_pred     # Eventually layer has to be selected -> [[1]] or pattern _pred -> select above...
   avg_diff <- mean(values(difference), na.rm = TRUE)  
   avg_abs_diff <- mean(abs(values(difference)), na.rm = TRUE)
+  # korrelationskoeffizient manipulated_pred, original_pred 
+  # std deviation difference
+  
+  ## save difference rasters if wanted
+  if (DIFF_TIF == TRUE) {
+
+    diff_path <- file.path(variables$out_dir[v], variables$tile_name[v], "DIFF")
+    diff_file <- file.path(diff_path, paste0("DIFF_", variables$out_name[v], ".tif"))
+    
+    if (!dir.exists(diff_path)) {
+      dir.create(diff_path, recursive = TRUE)
+    }
+    
+    writeRaster(difference, diff_file)
+  }
+  
+
 
   cat("*****",variables$out_name[v], "| Average difference:", avg_diff, "| Avg absolut diff:", avg_abs_diff, "*****\n")
   
