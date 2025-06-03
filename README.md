@@ -5,8 +5,12 @@ For a full explanation of the installation, setup and deployment see the origina
 
 
 ## Table of Contents
-1. [Citation](https://github.com/ESA99/canopy_height#citation)
-2. 
+1. [Results](https://github.com/ESA99/canopy_height#results)
+2. [Citation](https://github.com/ESA99/canopy_height#citation)
+
+## Results
+
+![Examplary result plot](plots/2025-06-03_3T_B03+08_lineplot.png)
 
 
 ## Citation
