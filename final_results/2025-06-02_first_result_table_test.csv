@@ -1,0 +1,6 @@
+"tile","band","increment","decrease","avg_diff","out_name","year"
+"T33UUT","B01",0,"True",0,"T33UUT_original","2020"
+"T33UUT","B03",0.05,"False",-2.90955008539311,"T33UUT_B03_0.05_I","2020"
+"T33UUT","B03",0.1,"False",1.3882413211871,"T33UUT_B03_0.1_I","2020"
+"T33UUT","B03",0.15,"False",-1.516586849669,"T33UUT_B03_0.15_I","2020"
+"T33UUT","B03",0.2,"False",-0.821350999705448,"T33UUT_B03_0.2_I","2020"
