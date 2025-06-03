@@ -18,12 +18,17 @@ Example plot illustrating the impact of band value modifications on prediction o
 
 ## Workflow
 The deploy.R script contains the full workflow and is deployed from bash after setting the correct conda environment and directory.
+At the beginning Tile-Name, Bands, Increment and direction are Set and then the script is deployed. The original code (deploy.py etc.) were modified to fit the script.
+
+#### Working Time
+At the moment the deployment on the Supercomputer at ILÖK takes on average 00:10:43 per loop (Tile-Band-increment-combination).
 
 ### Tiles
-How many global tiles?
+How many global tiles? 30, 50, 100?
 -> select randomly
 
-Worldcover tiles
+Corresponding Worldcover as tiles needed!
+
 
 ## Citation
 
