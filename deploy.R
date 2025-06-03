@@ -1,6 +1,13 @@
 # Document setup  ----------------------------------------------------------
 start_time <- Sys.time()
 
+# Create empty data frame to store timing info
+timing_results <- data.frame(
+  Step = character(),
+  Duration = character(),
+  stringsAsFactors = FALSE
+)
+
 # setwd("/home/emilio/canopy_height")
 c(
   "sf", "terra", "tmap", "dandelion",
@@ -14,8 +21,8 @@ c(
 # Create variables df -----------------------------------------------------
 
 # Input of the parameters
-variables <- dandelion::create_param_df(tiles = c("T33UUT"), 
-                                        bands = c("B03"),
+variables <- dandelion::create_param_df(tiles = c("T31UGT", "T32ULB","T33UUT"), 
+                                        bands = c("B03", "B08"),
                                         increments = c(0.05, 0.1, 0.15, 0.2),
                                         decrease = c("False"),              # False meaning increase...
                                         year = "2020",
@@ -44,6 +51,7 @@ source("/home/emilio/canopy_height/R/WC_CHECK_FUN.R")
 
 
 for (v in 1:nrow(variables)) {
+  start_loop_time <- Sys.time()
   
   cat("======================================================================================================\n")
   cat("Starting deployment number", v, "of", nrow(variables),"\n")
@@ -93,7 +101,7 @@ for (v in 1:nrow(variables)) {
   
   WC_CHECK_FUN(wcover_tiles, wc_tile_status) # OUTPUT FILE SET TO TEST
   
-  
+
   ### Deploy the bash script
   cat("#################### Start model deployment loop",v,"####################\n")
   
@@ -102,6 +110,7 @@ for (v in 1:nrow(variables)) {
   })
   cat("deploy_example.sh finished.\n")
   
+  cat("+++++++++ Run tile deploy merge start +++++++++\n")
   withr::with_envvar(env_vars, {
     system2("./gchm/bash/run_tile_deploy_merge.sh")
   })
@@ -160,12 +169,19 @@ for (v in 1:nrow(variables)) {
   cat("Result added to list. Loop", v, "completed.\n")
   
   
+  #*** TIMING BLOCK ***
+  end_time <- Sys.time()
+  timing_results <- rbind(timing_results,
+                          data.frame(Step = paste("End of Loop ",v, "/", nrow(variables)), 
+                                     Duration = round(difftime(end_time, start_loop_time, units = "mins"), 2), stringsAsFactors = FALSE) )
+  
+  
 }
 
 
 # Combine list into a data frame
 results_df <- do.call(rbind, lapply(results_list, as.data.frame))
-save_path <- paste0(Sys.Date(),"_result_table.csv")
+save_path <- paste0("final_results/",Sys.Date(),"_result_table.csv")
 write.csv(results_df, save_path, row.names = FALSE)
 cat("Results saved as table to", save_path)
 
@@ -180,3 +196,6 @@ cat("Job finished. Time elapsed:",
               floor(secs %% 60))
     },"\n"
 )
+
+# Print timing table at the end
+print(timing_results, row.names = FALSE)
