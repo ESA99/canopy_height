@@ -8,14 +8,15 @@ library(ggplot2)
 library(dplyr)
 library(viridis)
 
-result_table <- read.csv("/home/emilio/canopy_height/final_results/2025-06-03_result_table.csv")
+original_data <- read.csv("/home/emilio/canopy_height/final_results/2025-06-03_result_table.csv")
+result_table <- original_data
 head(result_table)
 
-# Remove B01
+# Remove B01 (Inserted for original prediction)
 result_table <- result_table %>%
   filter(band != "B01")
 
-# Add 0.0 Increment Steps per tile and band
+# Add 0.0 Increment Step per tile and band combination
 result_table <- {
   missing <- dplyr::anti_join(
     dplyr::distinct(result_table, tile, band, decrease),
@@ -35,6 +36,9 @@ result_table <- {
   )
 }
 
+# Turn decrease increment negative
+result_table <- result_table %>%
+  mutate(increment = ifelse(decrease == "True", -abs(increment), abs(increment)))
 
 # Add tile_band combination name as column
 result_table <- result_table %>%
@@ -56,7 +60,8 @@ result_table <- result_table %>%
 )) +
   geom_line(linewidth = 1.1) +
   geom_point(size = 2) +
-  geom_hline(yintercept = 0, linetype = "dashed", color = "gray30") +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "grey50") +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "grey50") +
   scale_color_viridis_d(option = "cividis") +
   labs(
     title = "Average Difference by Increment",
@@ -84,32 +89,17 @@ ggsave(paste0("plots/",
        diff_plot, 
        width = 300, height = 175, units = "mm", dpi = 300, bg = "white")
 
-paste0(Sys.Date(),
-       "_",
-       length(unique(result_table$tile)),
-       "T_B",
-       paste(gsub("\\D", "", unique(result_table$band)), collapse = "+"),
-       "_lineplot.png")
+# paste0(Sys.Date(),
+#        "_",
+#        length(unique(result_table$tile)),
+#        "T_B",
+#        paste(gsub("\\D", "", unique(result_table$band)), collapse = "+"),
+#        "_lineplot.png")
 
 
-#### Same coulour band plot ####
-## Plot bands in same colour, different line styles per tile
-ggplot(result_table, aes(x = increment, y = average_difference, color = band, linetype = tile, group = interaction(tile, band))) +
-  geom_line(linewidth = 1.1) +
-  geom_point(size = 2) +
-  geom_hline(yintercept = 0, linetype = "dashed", color = "gray30") +
-  labs(
-    title = "Average Difference by Increment",
-    x = "Increment",
-    y = "Average Difference",
-    color = "Band",
-    linetype = "Tile"
-  ) +
-  theme_minimal(base_size = 14)
+#### Same colour band plot ####
 
-
-# Colour blind friendly display, bands same colour
-
+# Colour blind friendly display, bands same colour, not tile identification
 ggplot(result_table, aes(x = increment, y = average_difference, color = band, group = interaction(tile, band))) +
   geom_line(linewidth = 1.1) +
   geom_point(size = 2) +
@@ -124,6 +114,19 @@ ggplot(result_table, aes(x = increment, y = average_difference, color = band, gr
   theme_minimal(base_size = 14)
 
 
+## Plot bands in same colour, different line styles per tile
+ggplot(result_table, aes(x = increment, y = average_difference, color = band, linetype = tile, group = interaction(tile, band))) +
+  geom_line(linewidth = 1.1) +
+  geom_point(size = 2) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "gray30") +
+  labs(
+    title = "Average Difference by Increment",
+    x = "Increment",
+    y = "Average Difference",
+    color = "Band",
+    linetype = "Tile"
+  ) +
+  theme_minimal(base_size = 14)
 
 
 
@@ -146,5 +149,5 @@ p <- ggplot(result_table, aes(x = increment, y = average_difference, color = til
     axis.text = element_text(color = "black"),
     panel.grid.minor = element_blank()
   )
-
 print(p)
+

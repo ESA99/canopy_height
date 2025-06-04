@@ -58,7 +58,7 @@ for (v in 1:nrow(variables)) {
   
   cat("======================================================================================================\n")
   cat("Starting deployment number", v, "of", nrow(variables),"\n")
-  cat(variables$tile_name[v], variables$year[v], variables$increment[v], ifelse(variables$decrease[v] == "False", "Increase", "Decrease"),"\n")
+  cat(variables$tile_name[v], variables$band[v], variables$increment[v], ifelse(variables$decrease[v] == "False", "Increase", "Decrease"),"\n")
   
   ### Create Text-File for tile v
   output_file <- file.path(variables$rootDIR[v], "deploy_example", "image_paths", variables$year[v], paste0(variables$tile_name[v], ".txt"))
@@ -103,7 +103,7 @@ for (v in 1:nrow(variables)) {
   wcover_tiles <- list.files( file.path(variables$rootDIR[v], "deploy_example/ESAworldcover/2020/sentinel2_tiles/"), full.names = T )
   
   WC_CHECK_FUN(wcover_tiles, wc_tile_status) # OUTPUT FILE SET TO TEST
-  
+  cat("World cover processing completed.\n")
 
   ### Deploy the bash script
   cat("#################### Start model deployment loop",v,"####################\n")
