@@ -58,7 +58,10 @@ for (v in 1:nrow(variables)) {
   
   cat("======================================================================================================\n")
   cat("Starting deployment number", v, "of", nrow(variables),"\n")
-  cat(variables$tile_name[v], variables$band[v], variables$increment[v], ifelse(variables$decrease[v] == "False", "Increase", "Decrease"),"\n")
+  cat("Tile:",variables$tile_name[v], "\n",
+      "Band:",variables$band[v], "\n",
+      "Increment:",variables$increment[v], "\n",
+      "Decrease:", ifelse(variables$decrease[v] == "False", "Increase", "Decrease"),"\n")
   
   ### Create Text-File for tile v
   output_file <- file.path(variables$rootDIR[v], "deploy_example", "image_paths", variables$year[v], paste0(variables$tile_name[v], ".txt"))
