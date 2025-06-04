@@ -20,4 +20,9 @@ venv/
 .httr-oauth
 .quarto
 
+# Ignore the folder "old" inside plots
 plots/old/
+
+# Ignore everything in final_results but do not ignore loose files:
+final_results/*
+!final_results/*.*
