@@ -122,6 +122,10 @@ def str2none(v):
     else:
         return float(v)
 
+def str2int(v):
+    if isinstance(v, int):
+        return v
+    return int(v)
 
 def str_or_none(v):
     if v.lower() in ('none', '', 'nan', '0', '0.0'):
