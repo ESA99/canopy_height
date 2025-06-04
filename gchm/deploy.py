@@ -48,7 +48,7 @@ def setup_parser():
     parser.add_argument("--remove_image_after_pred", type=str2bool, nargs='?', const=True, default=False,
                         help="if True: deletes the image after saving the prediction.")
     parser.add_argument("--sentinel2_dir", help="directory to save sentinel2 data (temporarily)")
-    parser.add_argument("--modify_bands", nargs="+", default=[])
+    parser.add_argument("--modify_bands", type=str2int, nargs="+", default=[])
     parser.add_argument("--modify_percentage", type=float, default=None)
     parser.add_argument("--modify_decrease", type=bool, default=False)
 
@@ -223,11 +223,14 @@ if __name__ == "__main__":
     print(args.modify_bands)
     print(args.modify_percentage)
     print(args.modify_decrease)
-    modify_bands = [int(x) for x in args.modify_bands[0].split(",")]
-    input_transforms = Transformer(transforms=[
-        Normalize(mean=train_input_mean, std=train_input_std),
-        ModifyBands(bands=modify_bands, percentage=args.modify_percentage,decrease=args.modify_decrease)
-    ])
+
+    if len(args.modify_bands):
+        input_transforms = Transformer(transforms=[
+            Normalize(mean=train_input_mean, std=train_input_std),
+            ModifyBands(bands=args.modify_bands, percentage=args.modify_percentage,decrease=args.modify_decrease)
+        ])
+    else:
+        input_transforms = Normalize(mean=train_input_mean, std=train_input_std)
 
     # create dataset
     try:
