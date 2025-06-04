@@ -22,7 +22,7 @@ c(
 
 # Input of the parameters
 variables <- dandelion::create_param_df(tiles = c("T31UGT", "T32ULB","T33UUT"), 
-                                        bands = c("B03", "B08", "B04"),
+                                        bands = c("B03", "B04", "B08"),
                                         increments = c(0.05, 0.1, 0.15, 0.2),
                                         decrease = c("False", "True"),              # False meaning increase...
                                         year = "2020",
@@ -108,6 +108,7 @@ for (v in 1:nrow(variables)) {
   ### Deploy the bash script
   cat("#################### Start model deployment loop",v,"####################\n")
   
+  cat("+++++++++ deploy_example.sh start +++++++++\n")
   withr::with_envvar(env_vars, {
     system2("./gchm/bash/deploy_example.sh")
   })
