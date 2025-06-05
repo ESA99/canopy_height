@@ -138,7 +138,7 @@ for (v in 1:nrow(variables)) {
                               recursive = T, 
                               pattern = paste0(v,"_pred\\.tif$"), 
                               full.names = T),
-            to = file.path(variables$out_dir[v], variables$tile_name[v], variables$out_name[v])
+            to = file.path(variables$out_dir[v], variables$tile_name[v], paste0(variables$out_name[v], ".tif"))
   )
   
   # compare images to original

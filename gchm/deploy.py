@@ -16,7 +16,7 @@ from gchm.models.architectures import Architectures
 from gchm.utils.transforms import Normalize, NormalizeVariance, denormalize, ModifyBands, Transformer
 from gchm.datasets.dataset_sentinel2_deploy import Sentinel2Deploy
 from gchm.utils.gdal_process import save_array_as_geotif
-from gchm.utils.parser import load_args_from_json, str2bool, str_or_none
+from gchm.utils.parser import load_args_from_json, str2bool, str_or_none, str2int
 from gchm.utils.aws import download_and_zip_safe_from_aws
 
 
