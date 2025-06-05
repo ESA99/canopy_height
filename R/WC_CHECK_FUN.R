@@ -17,6 +17,8 @@ WC_CHECK_FUN <- function(wcover_tiles, wc_tile_status){ # wcover_tiles = paths o
     WC_Tile <-  wcover_tiles[
       grepl(substr(variables$tile_name[v],2,6), wcover_tiles) 
     ]
+    WC_Tile <- normalizePath(WC_Tile)
+    
     WC_Tile_raster <- rast(WC_Tile)
     original_coltab <- terra::coltab(WC_Tile_raster)
     
@@ -26,16 +28,17 @@ WC_CHECK_FUN <- function(wcover_tiles, wc_tile_status){ # wcover_tiles = paths o
     if (length(input_image) == 0) stop("No matching ZIP file found.")
     
     # Create a temporary directory for unzipping
-    tmp_dir <- tempfile(pattern = "unzipped_", tmpdir = "/home/emilio/canopy_height/temp/")
-    cat("Temp dir for unzipping and tif conversion:", tmp_dir, "\n")
+    tmp_dir <- tempfile(pattern = "unzipped_", tmpdir = "/home/emilio/canopy_height/temp")
     dir.create(tmp_dir)
+    cat("Temp_dir created for unzipping and tif conversion:", tmp_dir, "\n")
     # Unzip contents to the temp directory
     unzip(input_image[1], exdir = tmp_dir)
     cat("Reference Image unzipped.\n")
     
     # List all files recursively inside the unzipped folder
     paths <- list.files(tmp_dir, recursive = TRUE, full.names = TRUE)
-
+    
+    # Filter just for the green band of one tile
     rgb_bands <- paths[
       grepl("IMG_DATA", paths) &
         grepl("R10m", paths) &
@@ -45,20 +48,14 @@ WC_CHECK_FUN <- function(wcover_tiles, wc_tile_status){ # wcover_tiles = paths o
     cat(rgb_bands,"\n")
     
     # system("gdal_translate /home/emilio/canopy_height/temp/unzipped_8376c4f558105/S2A_MSIL2A_20200421T102021_N0500_R065_T33UUT_20230419T010724.SAFE/GRANULE/L2A_T33UUT_A025230_20200421T102321/IMG_DATA/R10m/T33UUT_20200421T102021_B03_10m.jp2 tmp.tif")
-   
     # tmp_dir <- "/home/emilio/canopy_height/temp/unzipped_8376c4f558105"
+   
+    # Convert jp2 band file to tif using gdal
     temp_tif_jp2 <- file.path(tmp_dir,"S2_temp.tif")
     system(paste("gdal_translate", rgb_bands, temp_tif_jp2))
     Input_Raster <- terra::rast(temp_tif_jp2)
     cat("Raster loaded successfully.\n")
     # terra::plot(Input_Raster)
-    
-    # 
-    # Input_Raster <- terra::rast(rgb_bands)
-    # Input_Raster <- terra::rast("/home/emilio/canopy_height/temp/unzipped_8376c4f558105/S2A_MSIL2A_20200421T102021_N0500_R065_T33UUT_20230419T010724.SAFE/GRANULE/L2A_T33UUT_A025230_20200421T102321/IMG_DATA/R10m/T33UUT_20200421T102021_B03_10m.jp2")
-    # terra::plot(Input_Raster)
-    # 
-    
     
     changed <- FALSE  # Flag to track any change
     
