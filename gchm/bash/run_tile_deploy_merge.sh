@@ -76,7 +76,7 @@ done
 #############################
 # merge per image predictions
 reduction="inv_var_mean"
-out_dir=${GCHM_DEPLOY_DIR}_merge/${year}/${tile_name}/preds_${reduction}/
+out_dir=${GCHM_DEPLOY_DIR}_merge/preds_${reduction}/
 mkdir -p ${out_dir}
 
 echo "*************************************"
