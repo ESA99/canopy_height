@@ -8,7 +8,6 @@ timing_results <- data.frame(
   stringsAsFactors = FALSE
 )
 
-# setwd("/home/emilio/canopy_height")
 c(
   "sf", "terra", "tmap", "dandelion",
   "rnaturalearth", "rnaturalearthdata",
@@ -18,7 +17,7 @@ c(
   lapply(library, character.only = TRUE)
 
 
-# Create variables df -----------------------------------------------------
+# Variable input table -----------------------------------------------------
 
 # Input of the parameters
 variables <- dandelion::create_param_df(tiles = c("T31UGT", "T32ULB","T33UUT"), 
@@ -31,7 +30,9 @@ variables <- dandelion::create_param_df(tiles = c("T31UGT", "T32ULB","T33UUT"),
 # Should the difference rasters be saved?
 DIFF_TIF <- FALSE
 
-## SETUP
+
+# General Setup -----------------------------------------------------------
+
 # create empty result list in correct length for more efficient deployment.
 results_list <- vector("list", nrow(variables)) # create empty list, convert to df later -> more efficient
 
@@ -46,7 +47,8 @@ wc_tile_status <- data.frame(
   tile_name = unique(variables$tile_name),
   edited = FALSE
 )
-source("/home/emilio/canopy_height/R/WC_CHECK_FUN.R")
+# source("/home/emilio/canopy_height/R/WC_CHECK_FUN.R")
+
 
 
 # Deployment LOOP ---------------------------------------------------------
@@ -62,7 +64,9 @@ for (v in 1:nrow(variables)) {
       "Increment:",variables$increment[v], "\n",
       "Decrease:", ifelse(variables$decrease[v] == "False", "Increase", "Decrease"),"\n")
   
-  ### Create Text-File for tile v
+
+# Text file creation ------------------------------------------------------
+
   output_file <- file.path(variables$rootDIR[v], "deploy_example", "image_paths", variables$year[v], paste0(variables$tile_name[v], ".txt"))
   img_folder <- file.path(variables$rootDIR[v], "deploy_example", "sentinel2", variables$year[v], variables$tile_name[v])
   zip_files <- list.files(path = img_folder, pattern = paste0(".*", variables$tile_name[v], ".*\\.zip$"), full.names = FALSE)
@@ -77,11 +81,12 @@ for (v in 1:nrow(variables)) {
   cat("Created zip file list as text file:", output_file, "with", length(zip_files), "entries.\n")
   
   
-  # Translate Band
+# Global Variables Setup ----------------------------------------------------
+
+  # Translate band name
   band_number <- translation_table$BandNumber[translation_table$BandName == variables$band[v]]
   
-    
-  #### Create & set global variables from df
+  # Create & set global variables from df
   env_vars <- c(
     tile_name = variables$tile_name[v],
     wcover = variables$WC_year[v],
@@ -94,20 +99,24 @@ for (v in 1:nrow(variables)) {
     GCHM_DEPLOY_DIR = file.path("./deploy_example","predictions", variables$year[v], variables$tile_name[v]), # important for out_dir
     DEPLOY_IMAGE_PATH = list.files(img_folder, full.names = T)[1], # just the first image of the tile
     
-    experiment = as.character(v)
+    experiment = as.character( as.Date(start_time) )
+    # experiment = as.character(v)
     # experiment = "experiment"
   )
-  cat("Environment variables set.\n")
+  ("Environment variables set.\n")
   
   
-  ### Check the Worldcover
+# Worldcover adjustment ---------------------------------------------------
+
   cat("Checking allignment, crs, and extent of the corresponding Worldcover tile.\n")
-  wcover_tiles <- list.files( file.path(variables$rootDIR[v], "deploy_example/ESAworldcover/2020/sentinel2_tiles/"), full.names = T )
+  wcover_tiles <- list.files( file.path(variables$rootDIR[v], "deploy_example/ESAworldcover/2020/sentinel2_tiles"), full.names = T )
   
-  WC_CHECK_FUN(wcover_tiles, wc_tile_status) # OUTPUT FILE SET TO TEST
+  dandelion::worldcover_adjust(wcover_tiles, wc_tile_status)
+  # WC_CHECK_FUN(wcover_tiles, wc_tile_status) # OUTPUT FILE SET TO TEST
   cat("World cover processing completed.\n")
 
-  ### Deploy the bash script
+# Bash Deployment ---------------------------------------------------------
+
   cat("#################### Start model deployment loop",v,"####################\n")
   
   cat("+++++++++ deploy_example.sh start +++++++++\n")
@@ -122,37 +131,63 @@ for (v in 1:nrow(variables)) {
   })
   cat("run_tile_deploy_merge.sh finished.\n")
   
+
+# File organization -------------------------------------------------------
+
   ### save image with a new name
+  cat("Copying and renaming prediction files.\n")
   # Create Result directory if necessary
-  cat("Renaming prediction files.\n")
-  if (dir.exists( file.path(variables$out_dir[v], variables$tile_name[v]) )  == TRUE) {
+  result_path <- file.path(variables$out_dir[v], variables$tile_name[v])
+  if (dir.exists( result_path )  == TRUE) {
     cat("Directory exists.\n")
   } else{
-    dir.create(file.path(variables$out_dir[v], variables$tile_name[v]), recursive = T)
+    dir.create(result_path, recursive = T)
   }
   # Copy files to Result directory and rename
-  file.copy(from = list.files(file.path(variables$rootDIR[v],"deploy_example/predictions", 
-                                        variables$year[v], 
-                                        paste0(variables$tile_name[v], "_merge")), 
-                              recursive = T, 
-                              pattern = paste0(v,"_pred\\.tif$"), 
-                              full.names = T),
-            to = file.path(variables$out_dir[v], variables$tile_name[v], paste0(variables$out_name[v], ".tif"))
-  )
+  model_prediction_tif <- list.files(file.path(variables$rootDIR[v],"deploy_example/predictions", 
+                                               variables$year[v], 
+                                               paste0(variables$tile_name[v], "_merge")), 
+                                     recursive = T, 
+                                     pattern = "_pred\\.tif$", 
+                                     full.names = T)
+  new_destination <- file.path(variables$out_dir[v], variables$tile_name[v], paste0(variables$out_name[v], ".tif"))
+  cat("File to be copyied and renamed:", model_prediction_tif,"\n")
+  cat("New destination and name:", new_destination, "\n")
+  file.copy(from = model_prediction_tif,
+            to = new_destination)
+  cat("Copying with new name successfully completed.\n")
+  # # Remove predictions and std_dev
+  # file.path(variables$rootDIR[v],"deploy_example/predictions", 
+  #           variables$year[v], 
+  #           paste0(variables$tile_name[v], "_merge")) %>% 
+  #   list.files(recursive = T, full.names = T) %>% 
+  #   file.remove()
   
+  # out_directory <- file.path(paste0(env_vars[["GCHM_DEPLOY_DIR"]], "_merge"), "preds_inv_var_mean")
+  # outputFilePath <- file.path(out_dir, paste0(env_vars[["tile_name"]], "_", env_vars[["experiment"]], "_pred.tif"))
+  
+# Difference calculation --------------------------------------------------
+
   # compare images to original
   cat("Calculaing the difference to the original prediction.\n")
   preds <- list.files(file.path(variables$out_dir[v], variables$tile_name[v]), full.names = T)
+  cat("List of files:", preds, "\n")
   
   original_pred_dir <- preds[
     grepl(variables$tile_name[v], preds) &
       grepl("original", preds)
   ]
+  cat("Original prediction file:", original_pred_dir, "\n")
+  
+  manipulated_filepath <- file.path(variables$out_dir[v], 
+                                    variables$tile_name[v], 
+                                    paste0(variables$out_name[v], ".tif"))
+  cat("Manipulated image path:",manipulated_filepath, "\n")
   
   original_pred <- rast(original_pred_dir)
-  manipulated_pred <- rast(file.path(variables$out_dir[v], variables$tile_name[v], variables$out_name[v])) # NEEDS CHECK
-  cat("Calculate difference between", variables$out_name[v], "and original prediction:", basename(original_pred_dir),".\n")
+  manipulated_pred <- rast(manipulated_filepath)
   
+  cat("Calculate difference between", variables$out_name[v], "and original prediction:", basename(original_pred_dir),".\n")
   # Calculate the difference
   difference <- manipulated_pred - original_pred     # Eventually layer has to be selected -> [[1]] or pattern _pred -> select above...
   avg_diff <- mean(values(difference), na.rm = TRUE)  
@@ -164,21 +199,28 @@ for (v in 1:nrow(variables)) {
   
   ## save difference rasters if wanted
   if (DIFF_TIF == TRUE) {
-
+    cat("Saving difference raster...")
     diff_path <- file.path(variables$out_dir[v], variables$tile_name[v], "DIFF")
     diff_file <- file.path(diff_path, paste0("DIFF_", variables$out_name[v], ".tif"))
     
     if (!dir.exists(diff_path)) {
       dir.create(diff_path, recursive = TRUE)
     }
-    
     writeRaster(difference, diff_file)
+    cat("Difference raster saved as:", diff_file,"\n")
+    
+  } else{
+    cat("Difference raster will not be saved.\n")
   }
   
-
-
-  cat("*****",variables$out_name[v], "| Average difference:", avg_diff, "| Avg absolut diff:", avg_abs_diff, "*****\n")
+  cat("*****",variables$out_name[v], 
+      "| Average difference:", avg_diff, 
+      "| Avg absolut diff:", avg_abs_diff, 
+      "| Standard deviation:", std_dev,"*****\n")
   
+
+# Save results ------------------------------------------------------------
+
     # safe result to list
   results_list[[v]] <- list(
     tile = variables$tile_name[v],
@@ -197,32 +239,41 @@ for (v in 1:nrow(variables)) {
   
   
   #*** TIMING BLOCK ***
-  end_time <- Sys.time()
+  end_loop_time <- Sys.time()
+  duration <- round(difftime(end_loop_time, start_loop_time, units = "mins"), 2)
+  cat("Loop", v, "completed. Elapsed time:", duration)
   timing_results <- rbind(timing_results,
                           data.frame(Step = paste("End of Loop ",v, "/", nrow(variables)), 
-                                     Duration = round(difftime(end_time, start_loop_time, units = "mins"), 2), stringsAsFactors = FALSE) )
-  
+                                     Duration = duration, 
+                                     stringsAsFactors = FALSE) )
   
 }
 
 
+# Export result table -----------------------------------------------------
+
 # Combine list into a data frame
+cat("Transforming result list to a data frame.\n")
 results_df <- do.call(rbind, lapply(results_list, as.data.frame))
 save_path <- paste0("final_results/",Sys.Date(),"_result_table.csv")
 write.csv(results_df, save_path, row.names = FALSE)
 cat("Results saved as table to", save_path)
 
+
 # Track and show time elapsed
 end_time <- Sys.time()
-cat("Job finished. Time elapsed:", 
+cat("******************************* Job finished. Time elapsed:", 
     {
       secs <- as.numeric(difftime(end_time, start_time, units = "secs"))
       sprintf("%02d:%02d:%02d",
               floor(secs / 3600),
               floor((secs %% 3600) / 60),
               floor(secs %% 60))
-    },"\n"
+    }," *******************************\n"
 )
+
 
 # Print timing table at the end
 print(timing_results, row.names = FALSE)
+
+
