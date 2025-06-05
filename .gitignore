@@ -16,6 +16,7 @@ venv/
 
 .Rproj.user
 .Rhistory
+.Renviron
 .Rdata
 .httr-oauth
 .quarto
