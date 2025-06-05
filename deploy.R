@@ -47,7 +47,7 @@ wc_tile_status <- data.frame(
   edited = FALSE
 )
 source("/home/emilio/canopy_height/R/WC_CHECK_FUN.R")
-
+cat("Test GitHub push\n")
 
 
 # Deployment LOOP ---------------------------------------------------------
