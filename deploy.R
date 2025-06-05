@@ -92,7 +92,7 @@ for (v in 1:nrow(variables)) {
     MODIFY_PERCENTAGE = variables$increment[v], # or rate
     MODIFY_DECREASE = variables$decrease[v],
     
-    GCHM_DEPLOY_DIR = file.path("./deploy_example","predictions", variables$year[v], variables$tile_name[v]),
+    GCHM_DEPLOY_DIR = file.path("./deploy_example","predictions", variables$year[v], variables$tile_name[v]), # important for out_dir
     DEPLOY_IMAGE_PATH = list.files(img_folder, full.names = T)[1], # just the first image of the tile
     
     experiment = as.character(v)
