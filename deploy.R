@@ -4,7 +4,7 @@ start_time <- Sys.time()
 # Create empty data frame to store timing info
 timing_results <- data.frame(
   Step = character(),
-  Duration = character(),
+  Minutes = numeric(),
   stringsAsFactors = FALSE
 )
 
@@ -240,12 +240,22 @@ for (v in 1:nrow(variables)) {
   
   #*** TIMING BLOCK ***
   end_loop_time <- Sys.time()
-  duration <- round(difftime(end_loop_time, start_loop_time, units = "mins"), 2)
-  cat("Loop", v, "completed. Elapsed time:", duration)
-  timing_results <- rbind(timing_results,
-                          data.frame(Step = paste("End of Loop ",v, "/", nrow(variables)), 
-                                     Duration = duration, 
-                                     stringsAsFactors = FALSE) )
+  duration <- difftime(end_loop_time, start_loop_time, units = "mins") %>% 
+    round(2) %>% 
+    as.numeric()
+ 
+  if (is.numeric(duration)) {
+    
+    cat("Loop", v, "completed. Elapsed time:", duration, "min.\n")
+    timing_results <- rbind(timing_results,
+                            data.frame(Step = paste0(v, "/", nrow(variables)), 
+                                       Minutes = as.numeric(duration), 
+                                       stringsAsFactors = FALSE))
+  } else {
+    warning("Duration is not numeric. Skipping timing log for this loop.")
+  }
+  
+  cat("Timing stored successfully. Loop fully completed.\n")
   
 }
 
@@ -256,6 +266,7 @@ for (v in 1:nrow(variables)) {
 cat("Transforming result list to a data frame.\n")
 results_df <- do.call(rbind, lapply(results_list, as.data.frame))
 save_path <- paste0("final_results/",Sys.Date(),"_result_table.csv")
+cat("Writing results.\n")
 write.csv(results_df, save_path, row.names = FALSE)
 cat("Results saved as table to", save_path)
 
@@ -276,4 +287,5 @@ cat("******************************* Job finished. Time elapsed:",
 # Print timing table at the end
 print(timing_results, row.names = FALSE)
 
+cat("++++++++++++++++++++++++++++ All jobs finished. Full script ran succesfully. ++++++++++++++++++++++++++++\n")
 
