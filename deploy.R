@@ -1,5 +1,6 @@
 # Document setup  ----------------------------------------------------------
 start_time <- Sys.time()
+start_date_chr <- as.character( as.Date(start_time) )
 
 # Create empty data frame to store timing info
 timing_results <- data.frame(
@@ -20,8 +21,8 @@ c(
 # Variable input table -----------------------------------------------------
 
 # Input of the parameters
-variables <- dandelion::create_param_df(tiles = c("T31UGT", "T32ULB","T33UUT"), 
-                                        bands = c("B03", "B04", "B08"),
+variables <- dandelion::create_param_df(tiles = c("T31UGT", "T32ULB","T33UUT"),
+                                        bands = c("B02", "B03", "B04", "B08"),
                                         increments = c(0.05, 0.1, 0.15, 0.2),
                                         decrease = c("False", "True"),              # False meaning increase...
                                         year = "2020",
@@ -62,7 +63,7 @@ for (v in 1:nrow(variables)) {
   cat("Tile:",variables$tile_name[v], "\n",
       "Band:",variables$band[v], "\n",
       "Increment:",variables$increment[v], "\n",
-      "Decrease:", ifelse(variables$decrease[v] == "False", "Increase", "Decrease"),"\n")
+      "Direction:", ifelse(variables$decrease[v] == "False", "Increase", "Decrease"),"\n")
   
 
 # Text file creation ------------------------------------------------------
@@ -99,7 +100,7 @@ for (v in 1:nrow(variables)) {
     GCHM_DEPLOY_DIR = file.path("./deploy_example","predictions", variables$year[v], variables$tile_name[v]), # important for out_dir
     DEPLOY_IMAGE_PATH = list.files(img_folder, full.names = T)[1], # just the first image of the tile
     
-    experiment = as.character( as.Date(start_time) )
+    experiment = start_date_chr
     # experiment = as.character(v)
     # experiment = "experiment"
   )
@@ -148,13 +149,15 @@ for (v in 1:nrow(variables)) {
                                                variables$year[v], 
                                                paste0(variables$tile_name[v], "_merge")), 
                                      recursive = T, 
-                                     pattern = "_pred\\.tif$", 
+                                     # pattern = "_pred\\.tif$", 
+                                     pattern = paste0(start_date_chr, ".*_pred\\.tif$"),
                                      full.names = T)
   new_destination <- file.path(variables$out_dir[v], variables$tile_name[v], paste0(variables$out_name[v], ".tif"))
   cat("File to be copyied and renamed:", model_prediction_tif,"\n")
   cat("New destination and name:", new_destination, "\n")
   file.copy(from = model_prediction_tif,
-            to = new_destination)
+            to = new_destination,
+            overwrite = T)
   cat("Copying with new name successfully completed.\n")
   # # Remove predictions and std_dev
   # file.path(variables$rootDIR[v],"deploy_example/predictions", 
@@ -222,7 +225,7 @@ for (v in 1:nrow(variables)) {
 # Save results ------------------------------------------------------------
 
     # safe result to list
-  results_list[[v]] <- list(
+   loop_results <- list(
     tile = variables$tile_name[v],
     band = variables$band[v],
     increment = variables$increment[v],
@@ -235,7 +238,13 @@ for (v in 1:nrow(variables)) {
     year = variables$year[v]
   )
   
+  results_list[[v]] <- loop_results
   cat("Result added to list. Loop", v, "completed.\n")
+  
+  # Backup saving
+  loop_results <- lapply(loop_results, as.data.frame)
+  write.csv(loop_results, paste0("final_results/result_tables_each_loop/LoopResults_",v,".csv"), row.names = FALSE)
+  cat("Loop results saved individually as backup at: final_results/result_tables_each_loop/LoopResults_X.csv\n")
   
   
   #*** TIMING BLOCK ***
@@ -255,6 +264,7 @@ for (v in 1:nrow(variables)) {
     warning("Duration is not numeric. Skipping timing log for this loop.")
   }
   
+  write.csv(timing_results, paste0("documentation/", start_date_chr, "_Timing.txt"))
   cat("Timing stored successfully. Loop fully completed.\n")
   
 }
@@ -262,14 +272,63 @@ for (v in 1:nrow(variables)) {
 
 # Export result table -----------------------------------------------------
 
-# Combine list into a data frame
-cat("Transforming result list to a data frame.\n")
-results_df <- do.call(rbind, lapply(results_list, as.data.frame))
-save_path <- paste0("final_results/",Sys.Date(),"_result_table.csv")
-cat("Writing results.\n")
-write.csv(results_df, save_path, row.names = FALSE)
-cat("Results saved as table to", save_path)
+# # Combine list into a data frame
+# cat("Transforming result list to a data frame.\n")
+# results_list_clean <- Filter(function(x) !is.null(x) && length(x) > 0, results_list)
+# results_df <- do.call(rbind, lapply(results_list_clean, as.data.frame))
+# save_path <- paste0("final_results/",Sys.Date(),"_result_table.csv")
+# cat("Writing results...\n")
+# write.csv(results_df, save_path, row.names = FALSE)
+# cat("Results saved as table to", save_path)
 
+# NEW EXPORT IN AS ROBUST WAY -----------------------------------------------------
+
+cat("Transforming result list to a data frame...\n")
+
+results_list_clean <- Filter(function(x) !is.null(x) && length(x) > 0, results_list)
+
+# Try combining all results into one data frame
+try_combined <- try({
+  results_df <- do.call(rbind, lapply(results_list_clean, as.data.frame))
+  combined_success <- TRUE
+}, silent = TRUE)
+
+if (inherits(try_combined, "try-error")) {
+  warning("Failed to combine results_list into a single data frame. Skipping combined export.\nSaving individual result files instead.\n")
+  combined_success <- FALSE
+  
+  # Save individual list entries as separate CSVs
+  indiv_dir <- file.path("final_results", "individual_results")
+  dir.create(indiv_dir, recursive = TRUE, showWarnings = FALSE)
+  
+  cat("Saving individual result files...\n")
+  
+  for (i in seq_along(results_list_clean)) {
+    entry <- results_list_clean[[i]]
+    entry_df <- as.data.frame(entry)
+    file_name <- paste0(sprintf("%03d", i), "_result.csv")
+    file_path <- file.path(indiv_dir, file_name)
+    
+    tryCatch({
+      write.csv(entry_df, file_path, row.names = FALSE)
+    }, error = function(e) {
+      warning(sprintf("Failed to save individual result %d: %s", i, e$message))
+    })
+  }
+  
+  cat("Individual result files saved to", indiv_dir, "\n")
+  
+} else {
+  # Combined export succeeded
+  save_path <- file.path("final_results", paste0(Sys.Date(), "_result_table.csv"))
+  dir.create(dirname(save_path), recursive = TRUE, showWarnings = FALSE)
+  cat("Writing combined results CSV...\n")
+  write.csv(results_df, save_path, row.names = FALSE)
+  cat("Combined results saved to", save_path, "\n")
+}
+
+
+# Timing ------------------------------------------------------------------
 
 # Track and show time elapsed
 end_time <- Sys.time()
@@ -288,4 +347,6 @@ cat("******************************* Job finished. Time elapsed:",
 print(timing_results, row.names = FALSE)
 
 cat("++++++++++++++++++++++++++++ All jobs finished. Full script ran succesfully. ++++++++++++++++++++++++++++\n")
+
+
 
