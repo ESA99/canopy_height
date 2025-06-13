@@ -72,8 +72,9 @@ merged <- tiles[tiles$Name %in% tile_names, ]
 
 tile_names[duplicated(tile_names)]
 
-st_write(merged, "R/data/combined_tiles.geojson")
+# st_write(merged, "R/data/combined_tiles.geojson")
 
+# tmap_mode("view")
 # tm_basemap("OpenTopoMap") +
 tm_basemap("Esri.WorldGrayCanvas") +
   tm_shape(merged[1]) +
@@ -81,6 +82,18 @@ tm_basemap("Esri.WorldGrayCanvas") +
   tm_text("Name", size = 0.8, col = "black") # lables
 
 
+
+proposed <- st_read("R/data/combined_tiles.geojson")
+# biomes <- st_read("/home/emilio/data_storage/Biomes.gpkg")
+
+tmap_mode("view")
+tm_shape(proposed) +
+  tm_borders(lwd = 4, col = "red") +          # thick red borders
+  tm_text("Name", size = 1, just = "center") + # names centered inside tiles
+  tm_layout(legend.show = FALSE) +             # no legend
+  tm_basemap("Esri.WorldImagery")
+
+# tm_basemap("OpenStreetMap")
 
 
 ### Create Overview table
@@ -129,7 +142,7 @@ result_df_sorted <- result_df %>%
 
 print(result_df_sorted)
 
-write.csv(result_df_sorted, "R/data/combined_tiles.csv", row.names = FALSE)
+# write.csv(result_df_sorted, "R/data/combined_tiles.csv", row.names = FALSE)
 
 
 
