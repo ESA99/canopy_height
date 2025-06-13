@@ -24,6 +24,10 @@ venv/
 # Ignore the folder "old" inside plots
 plots/old/
 
+final_results/individual_results/
+final_results/result_tables_each_loop/
+temp/
+
 # Ignore everything in final_results but do not ignore loose files:
 final_results/*
 !final_results/*.*
