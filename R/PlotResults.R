@@ -8,13 +8,16 @@ library(ggplot2)
 library(dplyr)
 library(viridis)
 
-original_data <- read.csv("/home/emilio/canopy_height/final_results/2025-06-03_result_table.csv")
+original_data <- read.csv("/home/emilio/canopy_height/final_results/2025-06-13_result_table.csv")
 result_table <- original_data
 head(result_table)
 
 # Remove B01 (Inserted for original prediction)
-result_table <- result_table %>%
-  filter(band != "B01")
+# result_table <- result_table %>%
+#   filter(band != "B01")
+
+band_names <- paste(gsub("\\D", "", unique(result_table$band)), collapse = "+")
+
 
 # Add 0.0 Increment Step per tile and band combination
 result_table <- {
@@ -30,15 +33,22 @@ result_table <- {
       increment = 0.0,
       average_difference = 0.0,
       avg_diff_absoluteVals = 0.0,
+      std_dev = 0.0,
+      correlation = NA,
       out_name = paste(tile, band, "0.00", ifelse(decrease, "D", "I"), sep = "_"),
       year = 2020
     )
   )
 }
 
-# Turn decrease increment negative
+# Convert increment to percent and turn decrease to negative values
 result_table <- result_table %>%
-  mutate(increment = ifelse(decrease == "True", -abs(increment), abs(increment)))
+  mutate(increment = increment * 100) %>% 
+    mutate(increment = ifelse(decrease == "True", -abs(increment), abs(increment)))
+
+# Turn decrease increment negative
+# result_table <- result_table %>%
+  # mutate(increment = ifelse(decrease == "True", -abs(increment), abs(increment)))
 
 # Add tile_band combination name as column
 result_table <- result_table %>%
@@ -47,25 +57,35 @@ result_table <- result_table %>%
 
 
 
-# Plot results ------------------------------------------------------------
+# Full overview Plot  ------------------------------------------------------------
+
+band_labels <- c("B02" = "Blue", "B03" = "Green",  "B04" = "Red",  "B08" = "NIR")
+result_table$band <- factor(result_table$band, levels = names(band_labels), labels = band_labels)
+
+custom_colors <- c( "Blue" = "dodgerblue2", "Green" = "chartreuse3", "Red" = "firebrick3",  "NIR" = "mediumpurple2")
+# custom_colors <- c( "B02" = "navy", "B03" = "green4", "B04" = "red",  "B08" = "purple")
+
 
 #### Band/Tile CB+grey plot #####
 # Group uniquely by both tile and band, colour blind and greyscale friendly
+
+
 (diff_plot <- ggplot(result_table, aes(
   x = increment,
   y = average_difference,
   color = band,
-  linetype = tile,
+  # linetype = tile,
   group = interaction(tile, band)
 )) +
   geom_line(linewidth = 1.1) +
   geom_point(size = 2) +
   geom_hline(yintercept = 0, linetype = "dashed", color = "grey50") +
   geom_vline(xintercept = 0, linetype = "dashed", color = "grey50") +
-  scale_color_viridis_d(option = "cividis") +
+  # scale_color_viridis_d(option = "cividis") +
+  scale_color_manual(values = custom_colors) + 
   labs(
-    title = "Average Difference by Increment",
-    x = "Increment",
+    title = "Average Difference by degree of manipulation",
+    x = "Manipulation [%]",
     y = "Average Difference",
     color = "Band",
     linetype = "Tile"
@@ -76,7 +96,9 @@ result_table <- result_table %>%
     legend.box = "vertical",
     axis.title = element_text(face = "bold"),
     panel.grid.minor = element_blank()
-  )
+  )+
+  # scale_x_continuous(breaks = seq(-20, 20, by = 5))
+  scale_x_continuous(breaks = sort(unique(result_table$increment)))
 )
 
 ggsave(paste0("plots/",
@@ -84,7 +106,7 @@ ggsave(paste0("plots/",
               "_",
               length(unique(result_table$tile)),
               "T_B",
-              paste(gsub("\\D", "", unique(result_table$band)), collapse = "+"),
+              band_names,
               "_lineplot.png"), 
        diff_plot, 
        width = 300, height = 175, units = "mm", dpi = 300, bg = "white")
@@ -97,6 +119,64 @@ ggsave(paste0("plots/",
 #        "_lineplot.png")
 
 
+
+
+# Std Dev Plot of one band ------------------------------------------------
+
+(diff_plot <- ggplot(
+  filter(result_table, band == "Blue"),  # select band
+  aes(
+  x = increment,
+  y = average_difference,
+  color = band,
+  # linetype = tile,
+  group = interaction(tile, band)
+)) +
+    # Add shaded SD ribbon
+    geom_ribbon(
+      aes(
+        ymin = average_difference - std_dev,
+        ymax = average_difference + std_dev,
+        fill = band
+      ),
+      alpha = 0.2,
+      color = NA
+    ) +
+  geom_line(linewidth = 1.1) +
+  geom_point(size = 2) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "grey50") +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "grey50") +
+  # scale_color_viridis_d(option = "cividis") +
+  scale_color_manual(values = custom_colors) + 
+    scale_fill_manual(values = custom_colors) +
+  labs(
+    title = "Average Difference by degree of manipulation",
+    x = "Manipulation [%]",
+    y = "Average Difference",
+    color = "Band",
+    fill = "Standard Deviation", 
+    linetype = "Tile"
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(
+    legend.position = "right",
+    legend.box = "vertical",
+    axis.title = element_text(face = "bold"),
+    panel.grid.minor = element_blank()
+  )
+)
+
+
+
+
+
+
+  
+
+
+# Colour blind options ----------------------------------------------------
+
+
 #### Same colour band plot ####
 
 # Colour blind friendly display, bands same colour, not tile identification
@@ -106,8 +186,8 @@ ggplot(result_table, aes(x = increment, y = average_difference, color = band, gr
   geom_hline(yintercept = 0, linetype = "dashed", color = "gray30") +
   scale_color_viridis_d(option = "viridis") +  # Use 'cividis' or others if preferred
   labs(
-    title = "Average Difference by Increment",
-    x = "Increment",
+    title = "Average Difference by degree of manipulation",
+    x = "Manipulation [%]",
     y = "Average Difference",
     color = "Band"
   ) +
@@ -119,15 +199,21 @@ ggplot(result_table, aes(x = increment, y = average_difference, color = band, li
   geom_line(linewidth = 1.1) +
   geom_point(size = 2) +
   geom_hline(yintercept = 0, linetype = "dashed", color = "gray30") +
+  scale_color_manual(values = custom_colors) + 
+  
   labs(
-    title = "Average Difference by Increment",
-    x = "Increment",
+    title = "Average Difference by degree of manipulation",
+    x = "Manipulation [%]",
     y = "Average Difference",
     color = "Band",
     linetype = "Tile"
   ) +
   theme_minimal(base_size = 14)
 
+
+
+
+# Standard plots ----------------------------------------------------------
 
 
 #### Generic Plot ####
@@ -137,8 +223,8 @@ p <- ggplot(result_table, aes(x = increment, y = average_difference, color = til
   geom_hline(yintercept = 0, linetype = "dashed", color = "gray30") +
   scale_y_continuous(expand = expansion(mult = c(0.05, 0.05))) +
   labs(
-    title = "Average Difference by Increment",
-    x = "Increment",
+    title = "Average Difference by degree of manipulation",
+    x = "Manipulation [%]",
     y = "Average Difference",
     color = "Tile_Band"
   ) +

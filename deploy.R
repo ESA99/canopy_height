@@ -196,7 +196,8 @@ for (v in 1:nrow(variables)) {
   avg_diff <- mean(values(difference), na.rm = TRUE)  
   avg_abs_diff <- mean(abs(values(difference)), na.rm = TRUE)
   # korrelationskoeffizient manipulated_pred, original_pred 
-  correlation <- cor(values(manipulated_pred), values(original_pred), method = "pearson")
+  correlation <- cor(values(manipulated_pred), values(original_pred), method = "pearson") |>
+    as.numeric()
   # std deviation of difference
   std_dev <- sd(na.omit(values(difference)))
   
@@ -232,7 +233,7 @@ for (v in 1:nrow(variables)) {
     decrease = variables$decrease[v],
     average_difference = avg_diff,
     avg_diff_absoluteVals = avg_abs_diff,
-    correlation = correlation,
+    correlation = correlation ,
     std_dev = std_dev,
     out_name = variables$out_name[v],
     year = variables$year[v]
@@ -264,8 +265,8 @@ for (v in 1:nrow(variables)) {
     warning("Duration is not numeric. Skipping timing log for this loop.")
   }
   
-  write.csv(timing_results, paste0("documentation/", start_date_chr, "_Timing.txt"))
-  cat("Timing stored successfully. Loop fully completed.\n")
+  write.csv(timing_results, paste0("documentation/", start_date_chr, "_Timing.csv"))
+  cat("******* Timing stored successfully. Loop fully completed. *******\n")
   
 }
 
