@@ -7,7 +7,7 @@ For a full explanation of the installation, setup and deployment see the origina
 ## Table of Contents
 1. [Results](#results)
 2. [Workflow](#workflow)
-   - [2.1 Working Time](#workingtime)
+   - [2.1 Working Time](#working-time)
    - [2.2 Tiles](#tiles)
 4. [Citation](https://github.com/ESA99/canopy_height#citation)
 
@@ -41,28 +41,28 @@ The selection process is being coordinated in consultation with the University o
 
 Corresponding Worldcover as are tiles needed!
 
-|Continent     | Latitude|Name  |Country                          | Centeroid_Elevation|Source |
-|:-------------:|:--------:|:-----:|:--------------------------------|:-------------------:|:------:|
-|Africa        |     33.8|30SUC |Morocco                          |                 894|MU     |
-|Africa        |    -13.2|34LCL |Angola                           |                1449|MU     |
-|Africa        |     -4.1|34MCA |Democratic Republic of the Congo |                 366|MS     |
-|Africa        |    -21.3|38KQB |Madagascar                       |                 775|MU     |
-|Asia          |     26.6|47RMK |Myanmar                          |                2443|MU     |
-|Asia          |     14.0|48PXA |Cambodia                         |                 109|MS     |
-|Asia          |      1.3|49NHB |Indonesia                        |                 780|MU     |
-|Asia          |     47.4|50TNT |Mongolia                         |                 687|MU     |
-|Asia          |     -5.9|54MTU |Indonesia                        |                  26|MS     |
-|Europe        |     47.4|32TMT |Switzerland                      |                 590|BOTH   |
-|Europe        |     48.2|32UQU |Germany                          |                 422|MU     |
-|Europe        |     63.5|35VML |Finland                          |                 201|MS     |
-|North America |     50.0|10UFA |Canada                           |                 751|MS     |
-|North America |     47.4|11TNN |United States of America         |                1092|MU     |
-|North America |     37.5|17SNB |United States of America         |                 682|BOTH   |
-|Oceania       |    -13.2|52LFL |Australia                        |                   8|MU     |
-|Oceania       |    -36.6|55HEV |Australia                        |                 562|MS     |
-|South America |    -16.8|19KGB |Bolivia                          |                3888|MU     |
-|South America |     -1.4|20MMD |Brazil                           |                  56|MS     |
-|South America |     -4.1|21MYR |Brazil                           |                 147|MU     |
+|Continent     | Latitude|Name  |Country                          | Biome | Centeroid_Elevation|Source | Selection |
+|:-------------:|:--------:|:-----:|:--------------------------------|:------------|:-------------------:|:------:|:----:|
+|Africa        |     33.8|30SUC |Morocco                          | x |                894|MU     | |
+|Africa        |    -13.2|34LCL |Angola                           | x |               1449|MU     | |
+|Africa        |     -4.1|34MCA |Democratic Republic of the Congo | (SubTrop.) Moist Broadleaf + Grass/Shrub|                366|MS     | |
+|Africa        |    -21.3|38KQB |Madagascar                       | x |                775|MU     | |
+|Asia          |     26.6|47RMK |Myanmar                          | x |               2443|MU     | |
+|Asia          |     14.0|48PXA |Cambodia                         | Tropical Dry Broadleaf|                109|MS     | |
+|Asia          |      1.3|49NHB |Indonesia                        | x |                780|MU     | |
+|Asia          |     47.4|50TNT |Mongolia                         | x |                687|MU     | |
+|Asia          |     -5.9|54MTU |Indonesia                        | Tropic. Noist Broadlwaf + Mangroves|                 26|MS     | |
+|Europe        |     47.4|32TMT |Switzerland                      | Temp. Broadleaf Coniferous |                590|BOTH   | X |
+|Europe        |     48.2|32UQU |Germany                          | x |                422|MU     | |
+|Europe        |     63.5|35VML |Finland                          | Boreal Forest|                201|MS     | |
+|North America |     50.0|10UFA |Canada                           | Tempered Coniferous |                751|MS     | |
+|North America |     47.4|11TNN |United States of America         | x |               1092|MU     | |
+|North America |     37.5|17SNB |United States of America         | Tempered Broadleaf |                682|BOTH   | X |
+|Oceania       |    -13.2|52LFL |Australia                        | x |                  8|MU     | |
+|Oceania       |    -36.6|55HEV |Australia                        | Temp. Broadleaf + Montane Grass/Shrub|                562|MS     | |
+|South America |    -16.8|19KGB |Bolivia                          | x |               3888|MU     | |
+|South America |     -1.4|20MMD |Brazil                           | Trop. Moist Broadleaf |                 56|MS     | |
+|South America |     -4.1|21MYR |Brazil                           | x |                147|MU     | |
 
 
 ## Citation
