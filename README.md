@@ -7,11 +7,16 @@ For a full explanation of the installation, setup and deployment see the origina
 ## Table of Contents
 1. [Results](#results)
 2. [Workflow](#workflow)
-   - [2.1 Tiles](#tiles)
-3. [Citation](https://github.com/ESA99/canopy_height#citation)
+   - [2.1 Working Time](#workingtime)
+   - [2.2 Tiles](#tiles)
+4. [Citation](https://github.com/ESA99/canopy_height#citation)
 
 ## Results
-Example plot illustrating the impact of band value modifications on prediction outcomes. The x-axis represents the relative increment applied to each spectral band (e.g., 0.05 corresponds to a 5% increase: Band × 1.05), while the y-axis shows the average change in prediction values, measured in meters. Positive values indicate an increase in the predicted variable, and negative values indicate a decrease.
+The following plot presents an initial demonstration of the approach used to assess the sensitivity of prediction outputs to spectral band manipulation. Although not based on the final dataset, it illustrates the method applied to a subset of tiles. The x-axis shows the degree of manipulation applied to each spectral band, expressed as a percentage (e.g., +10% indicates Band × 1.10). The y-axis represents the resulting average change in the predicted variable (in meters). Multiple spectral bands are visualized, color-coded according to their conventional band colors, allowing comparison across different tile locations. Colour blind friendly alternatives are available.
+![Result plot](plots/2025-06-13_3T_B02+03+04+08_lineplot.png)
+
+
+Following is the first example plot illustrating the impact of band value modifications on prediction outcomes. The x-axis represents the relative increment applied to each spectral band (e.g., 0.05 corresponds to a 5% increase: Band × 1.05), while the y-axis shows the average change in prediction values, measured in meters. Positive values indicate an increase in the predicted variable, and negative values indicate a decrease.
 
 ![Examplary result plot](plots/2025-06-03_3T_B03+08_lineplot.png)
 
@@ -23,13 +28,41 @@ At the beginning Tile-Name, Bands, Increment and direction are Set and then the 
 Fuctions from the package "dandelion" (https://github.com/ESA99/dandelion) were used and written specifically for this usecase.
 
 #### Working Time
-At the moment the deployment on the Supercomputer at ILÖK takes on average 00:10:43 per loop (Tile-Band-increment-combination).
+The following timing values correspond to the model deployment on the ILÖK-RS Supercomputer. Each loop represents a single combination of tile, band, and increment. Note that parallel processing has not yet been implemented.
+
+| Loops | Total | Average |
+|:----------:|:----------:|:----------:|
+| 27 | 04:49 | 10:43 |
+| 99 | 20:15 | 12:16 |
+
 
 ### Tiles
-How many global tiles? 30, 50, 100?
--> select randomly
+The selection process is being coordinated in consultation with the University of Munich.
 
-Corresponding Worldcover as tiles needed!
+Corresponding Worldcover as are tiles needed!
+
+|Continent     | Latitude|Name  |Country                          | Centeroid_Elevation|Source |
+|:-------------:|:--------:|:-----:|:--------------------------------|:-------------------:|:------:|
+|Africa        |     33.8|30SUC |Morocco                          |                 894|MU     |
+|Africa        |    -13.2|34LCL |Angola                           |                1449|MU     |
+|Africa        |     -4.1|34MCA |Democratic Republic of the Congo |                 366|MS     |
+|Africa        |    -21.3|38KQB |Madagascar                       |                 775|MU     |
+|Asia          |     26.6|47RMK |Myanmar                          |                2443|MU     |
+|Asia          |     14.0|48PXA |Cambodia                         |                 109|MS     |
+|Asia          |      1.3|49NHB |Indonesia                        |                 780|MU     |
+|Asia          |     47.4|50TNT |Mongolia                         |                 687|MU     |
+|Asia          |     -5.9|54MTU |Indonesia                        |                  26|MS     |
+|Europe        |     47.4|32TMT |Switzerland                      |                 590|BOTH   |
+|Europe        |     48.2|32UQU |Germany                          |                 422|MU     |
+|Europe        |     63.5|35VML |Finland                          |                 201|MS     |
+|North America |     50.0|10UFA |Canada                           |                 751|MS     |
+|North America |     47.4|11TNN |United States of America         |                1092|MU     |
+|North America |     37.5|17SNB |United States of America         |                 682|BOTH   |
+|Oceania       |    -13.2|52LFL |Australia                        |                   8|MU     |
+|Oceania       |    -36.6|55HEV |Australia                        |                 562|MS     |
+|South America |    -16.8|19KGB |Bolivia                          |                3888|MU     |
+|South America |     -1.4|20MMD |Brazil                           |                  56|MS     |
+|South America |     -4.1|21MYR |Brazil                           |                 147|MU     |
 
 
 ## Citation
