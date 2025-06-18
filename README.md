@@ -39,7 +39,7 @@ The following timing values correspond to the model deployment on the ILÖK-RS S
 ### Tiles
 The selection process is being coordinated in consultation with the University of Munich.
 
-Corresponding Worldcover as are tiles needed!
+Corresponding Worldcover as tiles are needed!
 
 |Continent     | Latitude|Name  |Country                          | Biome | Centeroid_Elevation|Source | Selection |
 |:-------------:|:--------:|:-----:|:--------------------------------|:------------|:-------------------:|:------:|:----:|
