@@ -30,7 +30,7 @@ Fuctions from the package "dandelion" (https://github.com/ESA99/dandelion) were 
 #### Working Time
 The following timing values correspond to the model deployment on the ILÖK-RS Supercomputer. Each loop represents a single combination of tile, band, and increment. Note that parallel processing has not yet been implemented.
 
-| Loops | Total | Average |
+| Loops | Total [h] | Average [min] |
 |:----------:|:----------:|:----------:|
 | 27 | 04:49 | 10:43 |
 | 99 | 20:15 | 12:16 |
@@ -51,7 +51,7 @@ Corresponding Worldcover as are tiles needed!
 |Asia          |     14.0|48PXA |Cambodia                         | Tropical Dry Broadleaf                    |                109|MS     | |
 |Asia          |      1.3|49NHB |Indonesia                        | Tropical Moist Broadleaf                  |                780|MU     | |
 |Asia          |     47.4|50TNT |Mongolia                         | Temperate Grasslands + Temperate Conifer  |                687|MU     | 50TPT |
-|Asia          |     -5.9|54MTU |Indonesia                        | Tropic. Noist Broadlwaf + Mangroves       |                 26|MS     | X |
+|Asia          |     -5.9|54MTU |Indonesia                        | Tropic. Moist Broadlwaf + Mangroves       |                 26|MS     | X |
 |Europe        |     47.4|32TMT |Switzerland                      | Temp. Broadleaf Coniferous + Broadleaf    |                590|BOTH   | X |
 |Europe        |     48.2|32UQU |Germany                          | Temperate Broadleaf + Coniferous          |                422|MU     | |
 |Europe        |     63.5|35VML |Finland                          | Boreal Forest                             |                201|MS     | X |
