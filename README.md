@@ -43,17 +43,17 @@ Corresponding Worldcover as tiles are needed!
 
 **Selection:**
 9 Tiles + eventually Munich (32UQU), Bialowieza () for comparison.
-|TILE| Continent   | LAT | Biome    | 
-|:-------:|:--------:|:-----:|:--------------------------------|
-| 34LCL | Africa   |    -13.2| Subtropical Grasslands, Savannas   |
-| 50TPT |Asia      |     47.4| Temperate Grasslands + Temperate Conifer| 
-| 54MTU |Asia      |     -5.9| Tropic. Moist Broadlwaf + Mangroves  | 
-| 32TMT |Europe    |     47.4| Temp. Broadleaf Coniferous + Broadleaf |
-| 35VML |Europe        |     63.5 | Boreal Forest   | 
-| 10UFA |North America |     50.0 | Temperate Coniferous  | 
-| 17SNB |North America |     37.5| Tempered Broadleaf   |    
-| 55HEV |Oceania       |    -36.6 | Temp. Broadleaf + Montane Grass/Shrub |  
-| 21MYR |South America |     -4.1| Trop. Moist Broadleaf  | 
+|TILE| Continent   | Country | LAT | Biome    | 
+|:-------:|:--------:|:-----:|:-----:|:--------------------------------|
+| 34LCL | Africa   | Angola |    -13.2| Subtropical Grasslands, Savannas   |
+| 50TPT |Asia      | Mongolia |    47.4| Temperate Grasslands + Temperate Conifer| 
+| 54MTU |Asia      | Indonesia |    -5.9| Tropic. Moist Broadlwaf + Mangroves  | 
+| 32TMT |Europe    | Switzerland |   47.4| Temp. Broadleaf Coniferous + Broadleaf |
+| 35VML |Europe        | Finland|    63.5 | Boreal Forest   | 
+| 10UFA |North America | Canada |   50.0 | Temperate Coniferous  | 
+| 17SNB |North America | USA |   37.5| Tempered Broadleaf   |    
+| 55HEV |Oceania       | Australia |  -36.6 | Temp. Broadleaf + Montane Grass/Shrub |  
+| 21MYR |South America | Brazil |   -4.1| Trop. Moist Broadleaf  | 
 
 **Proposal:**
 
