@@ -23,7 +23,7 @@ Following is the first example plot illustrating the impact of band value modifi
 
 ## Workflow
 The deploy.R script contains the full workflow and is deployed from bash after setting the correct conda environment and directory.
-At the beginning Tile-Name, Bands, Increment and direction are Set and then the script is deployed. The original code (deploy.py etc.) were modified to fit the script.
+At the beginning Tile-Name, Bands, Increment and direction are Set and then the script is deployed. The original code (deploy.py etc.) was modified to fit the script as well as extended by a Manipulation-function performing the band manipulation inside the deployment. The original (pretrained) models and all other codes are used unchanged. 
 
 Fuctions from the package "dandelion" (https://github.com/ESA99/dandelion) were used and written specifically for this usecase.
 
