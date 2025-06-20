@@ -43,19 +43,19 @@ Corresponding Worldcover as tiles are needed!
 **Selection:**
 3 Tiles presented in the paper + 1 Demo Tile from the Paper + 3 Tiles in Europe for management comparison + 4 tiles spread globally to ensure latitudinal variance and global coverage (+ Biome Diversity).
 
-| Continent       | Latitude | Name   | Country                   | Biome                                  | Centeroid_Elevation | Source  |
-|-----------------|:--------:|:------:|---------------------------|-----------------------------------------|:-------------------:|---------|
-| Africa          | 5.8      | 33NTG  | Cameroon                  | Tropical Moist Broadleaf                | 754                 | Paper   |
-| Asia            | 47.3     | 50TPT  | Mongolia                  | Temp. Grasslands + Temp. Conifer        | 902                 | Munich  |
-| Asia            | 2.2      | 49NHC  | Malaysia                  | Tropical Moist Broadleaf                | 401                 | PAPER   |
-| Europe          | 47.4     | 32TMT  | Switzerland               | Temp. Coniferous + Broadleaf            | 590                 | PAPER   |
-| Europe          | 48.2     | 32UQU  | Germany                   | Temp. Broadleaf + Coniferous            | 422                 | Munich  |
-| Europe          | 52.7     | 34UFD  | Poland                    | Temp. Broadleaf                         | 154                 | Munich  |
-| Europe          | 63.5     | 35VML  | Finland                   | Boreal Forest                           | 201                 | Münster |
-| North America   | 46.5     | 10TES  | United States of America  | Temp. Broadleaf Forest                  | 392                 | PAPER   |
-| North America   | 37.5     | 17SNB  | United States of America  | Temp. Broadleaf Forest                  | 682                 | BOTH    |
-| Oceania         | -36.6    | 55HEV  | Australia                 | Temp. Broadleaf + Montane Grass/Shrub   | 562                 | Münster |
-| South America   | -1.4     | 20MMD  | Brazil                    | Trop. Moist Broadleaf                   | 56                  | Münster |
+| Continent       | Latitude | Name   | Country         | Biome                                   | Centeroid_Elevation | Source  |
+|-----------------|:--------:|:------:|-----------------|-----------------------------------------|:-------------------:|---------|
+| Africa          | 5.8      | 33NTG  | Cameroon        | Tropical Moist Broadleaf                | 754                 | Paper   |
+| Asia            | 47.3     | 50TPT  | Mongolia        | Temp. Grasslands + Temp. Conifer        | 902                 | Munich  |
+| Asia            | 2.2      | 49NHC  | Malaysia        | Tropical Moist Broadleaf                | 401                 | PAPER   |
+| Europe          | 47.4     | 32TMT  | Switzerland     | Temp. Coniferous + Broadleaf            | 590                 | PAPER   |
+| Europe          | 48.2     | 32UQU  | Germany         | Temp. Broadleaf + Coniferous            | 422                 | Munich  |
+| Europe          | 52.7     | 34UFD  | Poland          | Temp. Broadleaf                         | 154                 | Munich  |
+| Europe          | 63.5     | 35VML  | Finland         | Boreal Forest                           | 201                 | Münster |
+| North America   | 46.5     | 10TES  | USA             | Temp. Broadleaf Forest                  | 392                 | PAPER   |
+| North America   | 37.5     | 17SNB  | USA             | Temp. Broadleaf Forest                  | 682                 | BOTH    |
+| Oceania         | -36.6    | 55HEV  | Australia       | Temp. Broadleaf + Montane Grass/Shrub   | 562                 | Münster |
+| South America   | -1.4     | 20MMD  | Brazil          | Trop. Moist Broadleaf                   | 56                  | Münster |
 
 
 ## Citation
