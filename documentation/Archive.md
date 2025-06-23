@@ -42,9 +42,11 @@ Archived working steps that are out of date or not needed anymore in the README.
 |South America |    -16.8|19KGB |Bolivia                          | Trop. Moist Broadleaf + Montane Grasslands|               3888|MU     | |
 |South America |     -1.4|20MMD |Brazil                           | Trop. Moist Broadleaf                     |                 56|MS     | X |
 |South America |     -4.1|21MYR |Brazil                           | Trop. Moist Broadleaf                     |                147|MU     |  |
-|North America |     |10TES |USA                           |                       |                |PAPER     | X |
+|North America |     |10TES |USA                           |  Temperate Broadleaf Forest                  |                |PAPER     | X |
 |Africa |     |33NTG |Cameroon                           | Tropical Moist Broadleaf                      |                |PAPER     | X |
 |Asia |     |49NHC |Canada                           |  Tropical Moist Broadleaf                     |                |PAPER     | X |
+
+
 
 
 ## Plots:
