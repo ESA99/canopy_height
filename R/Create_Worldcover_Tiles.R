@@ -137,6 +137,7 @@ output_dir <- "/home/emilio/canopy_height/deploy_example/ESAworldcover/2020/new/
 out_basename <- "ESA_WorldCover_10m_2020_v100_"
 
 crop_raster_with_s2(wc_raster_dir, s2_tiles_dir, output_dir, out_basename)
+dandelion::
 
 
 # wc_merged <- list.files("/home/emilio/canopy_height/deploy_example/ESAworldcover/2020/new/WC_merged_tiles", full.names = T)
