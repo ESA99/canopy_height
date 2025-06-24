@@ -21,9 +21,9 @@ c(
 # Variable input table -----------------------------------------------------
 
 # Input of the parameters
-variables <- dandelion::create_param_df(tiles = c("T31UGT", "T32ULB","T33UUT"),
+variables <- dandelion::create_param_df(tiles = c("T10TES", "T17SNB","T20MMD"),
                                         bands = c("B02", "B03", "B04", "B08"),
-                                        increments = c(0.05, 0.1, 0.15, 0.2),
+                                        increments = c(0.05, 0.1, 0.15, 0.2, 0.25),
                                         decrease = c("False", "True"),              # False meaning increase...
                                         year = "2020",
                                         base_folder = "/home/emilio/canopy_height"
