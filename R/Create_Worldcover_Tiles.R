@@ -97,7 +97,7 @@ for (i in sentinel_epsg$tile_code) {
     cat(i,"DONE\n")
     
   }
-  cat("******* All merging processes completed successfully. *******\n")
+  # cat("******* All merging processes completed successfully. *******\n")
 }
 
 
@@ -110,6 +110,9 @@ s2_tiles_dir <-   "/home/emilio/canopy_height/deploy_example/ESAworldcover/2020/
 output_dir <-     "/home/emilio/canopy_height/deploy_example/ESAworldcover/2020/new/WC_cropped_masked/"
 out_basename <- "ESA_WorldCover_10m_2020_v100_"
 
+dandelion::crop_raster_with_s2(wc_raster_dir, s2_tiles_dir, output_dir, out_basename)
+
+stop()
 # crop_raster_with_s2 <- function(raster_dir, s2_dir, out_dir, out_basename, filetype = "tif"){
   
   rasters <- list.files(raster_dir, full.names = T)
@@ -152,7 +155,6 @@ out_basename <- "ESA_WorldCover_10m_2020_v100_"
   
 }
 # crop_raster_with_s2(wc_raster_dir, s2_tiles_dir, output_dir, out_basename)
-dandelion::crop_raster_with_s2(wc_raster_dir, s2_tiles_dir, output_dir, out_basename)
   
   
   # wc_merged <- list.files("/home/emilio/canopy_height/deploy_example/ESAworldcover/2020/new/WC_merged_tiles", full.names = T)
