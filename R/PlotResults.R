@@ -8,7 +8,7 @@ library(ggplot2)
 library(dplyr)
 library(viridis)
 
-original_data <- read.csv("/home/emilio/canopy_height/final_results/2025-06-13_result_table.csv")
+original_data <- read.csv("/home/emilio/canopy_height/final_results/2025-06-25_result_table.csv")
 result_table <- original_data
 head(result_table)
 

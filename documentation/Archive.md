@@ -51,6 +51,9 @@ Archived working steps that are out of date or not needed anymore in the README.
 
 ## Plots:
 
-Following is the first example plot illustrating the impact of band value modifications on prediction outcomes. The x-axis represents the relative increment applied to each spectral band (e.g., 0.05 corresponds to a 5% increase: Band × 1.05), while the y-axis shows the average change in prediction values, measured in meters. Positive values indicate an increase in the predicted variable, and negative values indicate a decrease.
+The following plot presents an initial demonstration of the approach used to assess the sensitivity of prediction outputs to spectral band manipulation. Although not based on the final dataset, it illustrates the method applied to a subset of tiles. The x-axis shows the degree of manipulation applied to each spectral band, expressed as a percentage (e.g., +10% indicates Band × 1.10). The y-axis represents the resulting average change in the predicted variable (in meters). Multiple spectral bands are visualized, color-coded according to their conventional band colors, allowing comparison across different tile locations. Colour blind friendly alternatives are available.
+![Result plot](plots/2025-06-13_3T_B02+03+04+08_lineplot.png)
 
+
+Following is the first example plot illustrating the impact of band value modifications on prediction outcomes. The x-axis represents the relative increment applied to each spectral band (e.g., 0.05 corresponds to a 5% increase: Band × 1.05), while the y-axis shows the average change in prediction values, measured in meters. Positive values indicate an increase in the predicted variable, and negative values indicate a decrease.
 ![Examplary result plot](plots/2025-06-03_3T_B03+08_lineplot.png)
