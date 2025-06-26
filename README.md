@@ -16,7 +16,7 @@ For a full explanation of the installation, setup and deployment see the origina
 
 The following plot shows the results of the "America" Tiles (see section [Calculation Groups](#calculation-groups)), comparing the differrence to the original prediction when manipulating single bands of the input by up to 25%.
 The x-axis shows the degree of manipulation applied to each spectral band, expressed as a percentage (e.g., +10% indicates *Band × 1.10*). The y-axis represents the resulting average change in the predicted variable (in meters). Multiple spectral bands are visualized, color-coded according to their conventional band colors, allowing comparison across different tile locations. Colour blind friendly alternatives are available.
-![Result plot](2025-06-25_3T_B02+03+04+08_lineplot.png)
+![Result plot](plots/2025-06-25_3T_B02+03+04+08_lineplot.png)
 
 
 
