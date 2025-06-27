@@ -29,11 +29,13 @@ Functions from the package "dandelion" (https://github.com/ESA99/dandelion) were
 #### Working Time
 The following timing values correspond to the model deployment on the ILÖK-RS Supercomputer. Each loop represents a single combination of tile, band, and increment. Note that parallel processing has not yet been implemented.
 
-| Loops | Total [h] | Average [min] |
-|:----------:|:----------:|:----------:|
-| 27 | 04:49 | 10:43 |
-| 99 | 20:15 | 12:16 |
-| 123 | 24:11 | 11:48 |
+| Loops | Total [h] | Average [min] | Tile Group |
+|:----------:|:----------:|:----------:|:---------:|
+| 27 | 04:49 | 10:43 | |
+| 99 | 20:15 | 12:16 | |
+| 123 | 24:11 | 11:48 | Americas |
+| 164 | 00:00 | 00:00 | AfAsOz |
+| 164 | 00:00 | 00:00 | Europe |
 
 
 ### Tiles

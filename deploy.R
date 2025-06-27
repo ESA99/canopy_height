@@ -201,6 +201,14 @@ for (v in 1:nrow(variables)) {
   # std deviation of difference
   std_dev <- sd(na.omit(values(difference)))
   
+  # Calculate average percent difference
+  percent_diff <- (difference / original_pred) * 100
+  avg_percent_diff <- mean(values(percent_diff), na.rm = TRUE)
+  # + abs avg %
+  avg_abs_percent_diff <- mean(abs(values(percent_diff)), na.rm = TRUE)
+  
+  
+  
   ## save difference rasters if wanted
   if (DIFF_TIF == TRUE) {
     cat("Saving difference raster...")
@@ -232,7 +240,9 @@ for (v in 1:nrow(variables)) {
     increment = variables$increment[v],
     decrease = variables$decrease[v],
     average_difference = avg_diff,
-    avg_diff_absoluteVals = avg_abs_diff,
+    avg_differece_percent = percent_diff,
+    avg_abs_diff = avg_abs_diff,
+    avg_abs_diff_perc = avg_abs_percent_diff,
     correlation = correlation ,
     std_dev = std_dev,
     out_name = variables$out_name[v],

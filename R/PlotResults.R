@@ -70,7 +70,7 @@ custom_colors <- c( "Blue" = "dodgerblue2", "Green" = "chartreuse3", "Red" = "fi
 # Group uniquely by both tile and band, colour blind and greyscale friendly
 
 
-(diff_plot <- ggplot(result_table, aes(
+diff_plot <- ggplot(result_table, aes(
   x = increment,
   y = average_difference,
   color = band,
@@ -99,7 +99,9 @@ custom_colors <- c( "Blue" = "dodgerblue2", "Green" = "chartreuse3", "Red" = "fi
   )+
   # scale_x_continuous(breaks = seq(-20, 20, by = 5))
   scale_x_continuous(breaks = sort(unique(result_table$increment)))
-)
+
+
+diff_plot
 
 ggsave(paste0("plots/",
               Sys.Date(),
@@ -129,7 +131,7 @@ ggsave(paste0("plots/",
   x = increment,
   y = average_difference,
   color = band,
-  # linetype = tile,
+  linetype = tile,
   group = interaction(tile, band)
 )) +
     # Add shaded SD ribbon
@@ -167,7 +169,13 @@ ggsave(paste0("plots/",
 )
 
 
-
+# ggsave(paste0("plots/",
+#               Sys.Date(),
+#               "_",
+#               "NIR_SD_bytile",
+#               "_lineplot.png"), 
+#        diff_plot, 
+#        width = 300, height = 175, units = "mm", dpi = 300, bg = "white")
 
 
 
