@@ -24,10 +24,10 @@ The x-axis shows the degree of manipulation applied to each spectral band, expre
 The deploy.R script contains the full workflow and is deployed from bash after setting the correct conda environment and directory.
 At the beginning Tile-Name, Bands, Increment and direction are Set and then the script is deployed. The original code (deploy.py etc.) was modified to fit the script as well as extended by a manipulation-function performing the band manipulation inside the deployment. The original (pretrained) models and all other code are used unchanged. 
 
-Functions from the package "dandelion" (https://github.com/ESA99/dandelion) were used and written specifically for the modified deployment of this workflow.
+Functions from the package "dandelion" (https://github.com/ESA99/dandelion) were used and written specifically for the usecase of this modified deployment.
 
 #### Working Time
-The following timing values correspond to the model deployment on the ILÖK-RS Supercomputer. Each loop represents a single combination of tile, band, and increment. Note that parallel processing has not yet been implemented.
+The following timing values correspond to the model deployment on the ILÖK-RS Supercomputer. Each loop represents a single combination of tile, band, and increment.
 
 | Loops | Total [h] | Average [min] | Tile Group |
 |:----------:|:----------:|:----------:|:---------:|

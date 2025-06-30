@@ -30,6 +30,8 @@ variables <- dandelion::create_param_df(tiles = c("33NTG", "49NHC","49UCP", "55H
 )
 # Should the difference rasters be saved?
 DIFF_TIF <- FALSE
+# Should loop results be saved individually as backup?
+BACKUP_SAVING <- FALSE
 
 
 # General Setup -----------------------------------------------------------
@@ -138,7 +140,7 @@ for (v in 1:nrow(variables)) {
   ### save image with a new name
   cat("Copying and renaming prediction files.\n")
   # Create Result directory if necessary
-  result_path <- file.path(variables$out_dir[v], variables$tile_name[v])
+  result_path <- file.path(variables$out_dir[v], "preds", variables$tile_name[v])
   if (dir.exists( result_path )  == TRUE) {
     cat("Directory exists.\n")
   } else{
@@ -152,20 +154,32 @@ for (v in 1:nrow(variables)) {
                                      # pattern = "_pred\\.tif$", 
                                      pattern = paste0(start_date_chr, ".*_pred\\.tif$"),
                                      full.names = T)
-  new_destination <- file.path(variables$out_dir[v], variables$tile_name[v], paste0(variables$out_name[v], ".tif"))
+  new_destination <- file.path(result_path, paste0(variables$out_name[v], ".tif"))
   cat("File to be copyied and renamed:", model_prediction_tif,"\n")
   cat("New destination and name:", new_destination, "\n")
   file.copy(from = model_prediction_tif,
             to = new_destination,
             overwrite = T)
   cat("Copying with new name successfully completed.\n")
-  # # Remove predictions and std_dev
-  # file.path(variables$rootDIR[v],"deploy_example/predictions", 
-  #           variables$year[v], 
-  #           paste0(variables$tile_name[v], "_merge")) %>% 
-  #   list.files(recursive = T, full.names = T) %>% 
-  #   file.remove()
   
+  # Remove predictions and std_dev at old location 
+  cat("Removing pred and StDev files at the original merge location: ")
+  file.path(variables$rootDIR[v],"deploy_example/predictions",
+            variables$year[v],
+            paste0(variables$tile_name[v], "_merge")) %>%
+    list.files(recursive = T, full.names = T) %>%
+    file.remove() # delete
+  cat("\n")
+  
+  # Removing unmerged prediction files
+  cat("Removing original unmerged prediction files: ")
+  file.path(variables$rootDIR[v],"deploy_example/predictions",
+            variables$year[v],
+            variables$tile_name[v]) %>%
+    list.files(recursive = T, full.names = T) %>%
+    file.remove() # delete
+  cat("\n")
+
   # out_directory <- file.path(paste0(env_vars[["GCHM_DEPLOY_DIR"]], "_merge"), "preds_inv_var_mean")
   # outputFilePath <- file.path(out_dir, paste0(env_vars[["tile_name"]], "_", env_vars[["experiment"]], "_pred.tif"))
   
@@ -173,7 +187,7 @@ for (v in 1:nrow(variables)) {
 
   # compare images to original
   cat("Calculaing the difference to the original prediction.\n")
-  preds <- list.files(file.path(variables$out_dir[v], variables$tile_name[v]), full.names = T)
+  preds <- list.files(result_path, full.names = T)
   cat("List of files:", preds, "\n")
   
   original_pred_dir <- preds[
@@ -182,8 +196,7 @@ for (v in 1:nrow(variables)) {
   ]
   cat("Original prediction file:", original_pred_dir, "\n")
   
-  manipulated_filepath <- file.path(variables$out_dir[v], 
-                                    variables$tile_name[v], 
+  manipulated_filepath <- file.path(result_path, 
                                     paste0(variables$out_name[v], ".tif"))
   cat("Manipulated image path:",manipulated_filepath, "\n")
   
@@ -212,7 +225,7 @@ for (v in 1:nrow(variables)) {
   ## save difference rasters if wanted
   if (DIFF_TIF == TRUE) {
     cat("Saving difference raster...")
-    diff_path <- file.path(variables$out_dir[v], variables$tile_name[v], "DIFF")
+    diff_path <- file.path(result_path, "DIFF")
     diff_file <- file.path(diff_path, paste0("DIFF_", variables$out_name[v], ".tif"))
     
     if (!dir.exists(diff_path)) {
@@ -253,9 +266,13 @@ for (v in 1:nrow(variables)) {
   cat("Result added to list. Loop", v, "completed.\n")
   
   # Backup saving
-  loop_results <- lapply(loop_results, as.data.frame)
-  write.csv(loop_results, paste0("final_results/result_tables_each_loop/LoopResults_",v,".csv"), row.names = FALSE)
-  cat("Loop results saved individually as backup at: final_results/result_tables_each_loop/LoopResults_X.csv\n")
+  if (BACKUP_SAVING == TRUE) {
+    loop_results <- lapply(loop_results, as.data.frame)
+    write.csv(loop_results, paste0("final_results/result_tables_each_loop/LoopResults_",v,".csv"), row.names = FALSE)
+    cat("Loop results saved individually as backup at: final_results/result_tables_each_loop/LoopResults_X.csv\n")
+  } else{
+    cat("Individual loop results not backed up.\n")
+  }
   
   
   #*** TIMING BLOCK ***
@@ -283,6 +300,7 @@ for (v in 1:nrow(variables)) {
 
 # Export result table -----------------------------------------------------
 
+# OLD STRAIGHT EXPORT
 # # Combine list into a data frame
 # cat("Transforming result list to a data frame.\n")
 # results_list_clean <- Filter(function(x) !is.null(x) && length(x) > 0, results_list)
