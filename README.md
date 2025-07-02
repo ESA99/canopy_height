@@ -1,7 +1,3 @@
----
-title: "Deep Learning in the Woods: Can We Estimate Canopy Height from Optical Remote Sensing Data?"
----
-
 # Experimental exploration of the GCHM by [Nico Lang](https://langnico.github.io/globalcanopyheight)
 
 This repository tracks the exploration of the Model presented in [A high-resolution canopy height model of the Earth](https://arxiv.org/abs/2204.08322).
