@@ -1,0 +1,87 @@
+---
+title: "Documentation"
+author: "ESA99"
+format: html
+theme: darkly
+---
+
+```{r}
+#| echo: false
+#| message: false
+
+library(terra)
+library(sf)
+library(tmap)
+library(dandelion)
+
+```
+
+
+## TODO
+
+ - (Re-)run final predictions of all groups (including % difference now)
+ - Create different kind of plots/visuallization types for the results
+    - play around with it
+    - change axis
+    - try different colours
+ - Implementation of lat/long (evtl. as HiWi)
+ - Comparison: get exactly the original data for the input (Switzerland demo tile?)
+    - rerun the prediction and compare to original prediction
+      - How much is normal difference by CNN prediction, what is actually a difference by the prediciton or code?
+  - Texture manipulation
+      - flip, rotate
+      - smooth, contrast up/down
+
+## Status
+
+The current code is setup to calculate averages, absolute value avergaes, percentage deviations and standard deviation. But not all difference-raster values are saved for storage reasons.
+
+
+### Tiles used for deployment
+
+
+```{r}
+#| echo: false
+#| message: false
+
+selected_tiles <- st_read("/home/emilio/canopy_height/R/data/final_tile_selection.gpkg")
+
+tmap::tmap_mode("view")
+tmap::tm_shape(selected_tiles) +
+  tmap::tm_borders(col = "red", lwd = 2) +
+  tmap::tm_text("Name", size = 0.8, col = "black")+
+  tmap::tm_view(
+                basemaps = c("Esri.WorldImagery", "OpenStreetMap"),
+                set.view = c(10.0, 20.0, 2))  # longitude, latitude, zoom level
+```
+
+
+## Deployment
+
+To run the model use the following code inside the terminal. Beforehand set all the variables inside the script `deploy.R` and make sure all image folders are in the correct place and named correctly (Tile name without "T": "49UCP").
+
+``` bash
+
+conda activate gchm
+cd /home/emilio/canopy_height/
+Rscript deploy.R
+```
+
+## Lat/Long findings
+
+Location has a big impact on the prediction. - North-South gradient - Continentality - whatch out for oceans when linking the projects or calculating lat long - specific lat/long values vs. difference to original location - method "comparison" -\> which is better for analysis/presentation
+
+## Technical learnings
+
+This code sets up to treat (for example gchm) a folder as a python package after looking for setup.py
+
+``` bash
+pip install -e .
+```
+
+## Quarto
+
+```{r}
+#| echo: false
+2 * 2
+```
