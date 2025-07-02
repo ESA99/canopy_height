@@ -9,6 +9,7 @@ timing_results <- data.frame(
   stringsAsFactors = FALSE
 )
 
+# Load necessary packages
 c(
   "sf", "terra", "tmap", "dandelion",
   "rnaturalearth", "rnaturalearthdata",
@@ -20,7 +21,7 @@ c(
 
 # Variable input table -----------------------------------------------------
 
-# Input of the parameters
+# Input of the parameters as data frame with all combinations
 variables <- dandelion::create_param_df(tiles = c("33NTG", "49NHC","49UCP", "55HEV"),
                                         bands = c("B02", "B03", "B04", "B08"),
                                         increments = c(0.05, 0.1, 0.15, 0.2, 0.25),
@@ -50,15 +51,13 @@ wc_tile_status <- data.frame(
   tile_name = unique(variables$tile_name),
   edited = FALSE
 )
-# source("/home/emilio/canopy_height/R/WC_CHECK_FUN.R")
 
 
-
-# Deployment LOOP ---------------------------------------------------------
+# DEPLOYMENT LOOP ---------------------------------------------------------
 
 
 for (v in 1:nrow(variables)) {
-  start_loop_time <- Sys.time()
+  start_loop_time <- Sys.time() # Loop timing
   
   cat("======================================================================================================\n")
   cat("Starting deployment number", v, "of", nrow(variables),"\n")
@@ -69,7 +68,8 @@ for (v in 1:nrow(variables)) {
   
 
 # Text file creation ------------------------------------------------------
-
+  
+  # Creation of a text file with the names of the corresponding zip-folders
   output_file <- file.path(variables$rootDIR[v], "deploy_example", "image_paths", variables$year[v], paste0(variables$tile_name[v], ".txt"))
   img_folder <- file.path(variables$rootDIR[v], "deploy_example", "sentinel2", variables$year[v], variables$tile_name[v])
   zip_files <- list.files(path = img_folder, pattern = paste0(".*", variables$tile_name[v], ".*\\.zip$"), full.names = FALSE)
@@ -78,6 +78,7 @@ for (v in 1:nrow(variables)) {
     cat("TXT directory exists.\n")
   } else{
     dir.create( file.path(variables$rootDIR[v], "deploy_example", "image_paths", variables$year[v]), recursive = T)
+    cat("TXT file directory created.\n")
   }
   
   writeLines(zip_files, output_file)
@@ -89,7 +90,7 @@ for (v in 1:nrow(variables)) {
   # Translate band name
   band_number <- translation_table$BandNumber[translation_table$BandName == variables$band[v]]
   
-  # Create & set global variables from df
+  # Create & set GLOBAL VARIABLES from variables data frame
   env_vars <- c(
     tile_name = variables$tile_name[v],
     wcover = variables$WC_year[v],
@@ -106,7 +107,7 @@ for (v in 1:nrow(variables)) {
     # experiment = as.character(v)
     # experiment = "experiment"
   )
-  ("Environment variables set.\n")
+  ("Global environment variables set.\n")
   
   
 # Worldcover adjustment ---------------------------------------------------
@@ -114,7 +115,7 @@ for (v in 1:nrow(variables)) {
   cat("Checking allignment, crs, and extent of the corresponding Worldcover tile.\n")
   wcover_tiles <- list.files( file.path(variables$rootDIR[v], "deploy_example/ESAworldcover/2020/sentinel2_tiles"), full.names = T )
   
-  dandelion::worldcover_adjust(wcover_tiles, wc_tile_status)
+  dandelion::worldcover_adjust(wcover_tiles, wc_tile_status, df = variables, w = v, img_dir = img_folder)
   # WC_CHECK_FUN(wcover_tiles, wc_tile_status) # OUTPUT FILE SET TO TEST
   cat("World cover processing completed.\n")
 
@@ -137,8 +138,9 @@ for (v in 1:nrow(variables)) {
 
 # File organization -------------------------------------------------------
 
-  ### save image with a new name
+  ### Save image with a new name to designated folder
   cat("Copying and renaming prediction files.\n")
+  
   # Create Result directory if necessary
   result_path <- file.path(variables$out_dir[v], "preds", variables$tile_name[v])
   if (dir.exists( result_path )  == TRUE) {
@@ -242,6 +244,23 @@ for (v in 1:nrow(variables)) {
       "| Average difference:", avg_diff, 
       "| Avg absolut diff:", avg_abs_diff, 
       "| Standard deviation:", std_dev,"*****\n")
+  
+
+# File removal exept originals --------------------------------------------
+
+  originals_folder <- "/home/emilio/canopy_height/final_results/originals"
+  
+  if(variables$original[v]){
+    cat("Moving original prediction to", file.path(originals_folder, basename(new_destination)),"\n")
+    file.copy(from = new_destination,
+              to = file.path(originals_folder, basename(new_destination)),
+              overwrite = T)
+    # cat("Removing file at old location.\n")
+    # file.remove(new_destination)  # Not possible at the moment as the loop expects it to be at new_destination location
+  }  else {
+    file.remove(new_destination)
+    cat("Modified prediction file", basename(new_destination),"deleted.\n")
+  }
   
 
 # Save results ------------------------------------------------------------
