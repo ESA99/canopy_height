@@ -1,7 +1,5 @@
 ---
-editor_options: 
-  markdown: 
-    wrap: sentence
+title: "Deep Learning in the Woods: Can We Estimate Canopy Height from Optical Remote Sensing Data?"
 ---
 
 # Experimental exploration of the GCHM by [Nico Lang](https://langnico.github.io/globalcanopyheight)
