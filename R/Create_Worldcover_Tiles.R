@@ -13,7 +13,8 @@ tm_shape(selected_tiles) +
   tm_borders(lwd = 4, col = "red") +          # thick red borders
   tm_text("Name", size = 1, just = "center") + # names centered inside tiles
   tm_layout(legend.show = FALSE) +             # no legend
-  tm_basemap("Esri.WorldImagery")
+  # tm_basemap("Esri.WorldImagery")
+  tm_basemap("OpenStreetMap")
 
 
 # Setup & Inputs ----------------------------------------------------------

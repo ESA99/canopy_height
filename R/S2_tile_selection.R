@@ -1,5 +1,3 @@
-
-# View Tiles by continent -------------------------------------------------
 library(sf)
 library(dplyr)
 library(rnaturalearth)
@@ -9,6 +7,9 @@ library(leaflet)
 library(mapview)
 library(mapedit)
 library(terra)
+
+
+# View Tiles by continent -------------------------------------------------
 
 sentinel_kml <- st_read("/home/emilio/global-canopy-height-model/workbench/data/S2A_OPER_GIP_TILPAR_MPC__20151209T095117_V20150622T000000_21000101T000000_B00.kml", quiet = TRUE)
 
@@ -52,6 +53,7 @@ tiles <- st_zm(tiles, drop = TRUE, what = "ZM")
 tiles <- st_collection_extract(tiles, "POLYGON")
 tiles <- st_cast(tiles, "MULTIPOLYGON")
 
+# SELECT TILES
 selected_tiles <- selectFeatures(tiles, label = tiles$Name)
 
 
@@ -66,49 +68,15 @@ tm_shape(selected_tiles) +
 # st_write(selected_tiles, "R/data/selected_tiles.geojson")
 
 
-# Merge with Munich and final proposal ------------------------------------
-
-ms_tiles <- st_read("R/data/proposed_tiles.gpkg")
-mu_tiles <- st_read("R/data/S2_Tiles_filtered.geojson")
-
-mu_names <- mu_tiles$Name
-ms_names <- ms_tiles$Name
-tile_names <- c(mu_names, ms_names)
-merged <- tiles[tiles$Name %in% tile_names, ]
-
-tile_names[duplicated(tile_names)]
-
-# st_write(merged, "R/data/combined_tiles.geojson")
-
-# tmap_mode("view")
-# tm_basemap("OpenTopoMap") +
-tm_basemap("Esri.WorldGrayCanvas") +
-  tm_shape(merged[1]) +
-  tm_borders(col = "red", lwd = 2) +
-  tm_text("Name", size = 0.8, col = "black") # lables
-
-
-
-proposed <- st_read("R/data/combined_tiles.geojson")
-# biomes <- st_read("/home/emilio/data_storage/Biomes.gpkg")
-
-tmap_mode("view")
-tm_shape(proposed) +
-  tm_borders(lwd = 4, col = "red") +          # thick red borders
-  tm_text("Name", size = 1, just = "center") + # names centered inside tiles
-  tm_layout(legend.show = FALSE) +             # no legend
-  tm_basemap("Esri.WorldImagery")
-
-# tm_basemap("OpenStreetMap")
-
-
-
 
 # Overview Table ----------------------------------------------------------
 
 # Create Overview table
 library(elevatr)
+merged <- selected_tiles
 
+
+centroids <- st_centroid(merged$geom) # geometry column my be renamed and therefore the correct option has to be choosen
 centroids <- st_centroid(merged$geometry)
 latitudes <- st_coordinates(centroids)[, "Y"]  # Extract latitude (Y coordinate) from centroids
 
@@ -149,11 +117,49 @@ result_df <- data.frame(
 result_df_sorted <- result_df %>%
   arrange(Continent)
 
-result_df_sorted$Source <- c("Paper", "Munich", "PAPER", "PAPER", "Munich", "Munich", "Münster", "PAPER", "BOTH", "Münster", "Münster")
+result_df_sorted$Source <- c("PAPER", "PAPER", "Munich", "PAPER", "Munich", "Munich", "Münster", "PAPER", "BOTH", "Münster", "Münster")
 
 print(result_df_sorted)
 
 # write.csv(result_df_sorted, "R/data/final_tile_selection.csv", row.names = F)
+
+
+
+# Merge with Munich and final proposal ------------------------------------
+
+ms_tiles <- st_read("R/data/proposed_tiles.gpkg")
+mu_tiles <- st_read("R/data/S2_Tiles_filtered.geojson")
+
+mu_names <- mu_tiles$Name
+ms_names <- ms_tiles$Name
+tile_names <- c(mu_names, ms_names)
+merged <- tiles[tiles$Name %in% tile_names, ]
+
+tile_names[duplicated(tile_names)]
+
+# st_write(merged, "R/data/combined_tiles.geojson")
+
+# tmap_mode("view")
+# tm_basemap("OpenTopoMap") +
+tm_basemap("Esri.WorldGrayCanvas") +
+  tm_shape(merged[1]) +
+  tm_borders(col = "red", lwd = 2) +
+  tm_text("Name", size = 0.8, col = "black") # lables
+
+
+
+proposed <- st_read("R/data/combined_tiles.geojson")
+# biomes <- st_read("/home/emilio/data_storage/Biomes.gpkg")
+
+tmap_mode("view")
+tm_shape(proposed) +
+  tm_borders(lwd = 4, col = "red") +          # thick red borders
+  tm_text("Name", size = 1, just = "center") + # names centered inside tiles
+  tm_layout(legend.show = FALSE) +             # no legend
+  tm_basemap("Esri.WorldImagery")
+
+# tm_basemap("OpenStreetMap")
+
 
 
 
