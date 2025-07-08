@@ -13,7 +13,7 @@ For a full explanation of the installation, setup and deployment see the origina
     -   [2.3 Prediction comparison](#prediction-comparison)
 3.  [Citation](https://github.com/ESA99/canopy_height#citation)
 
-## Results {#results}
+## Results
 
 The following plot shows the results of the "America" Tiles (see section [Calculation Groups](#calculation-groups)), comparing the differrence to the original prediction when manipulating single bands of the input by up to 25%.
 The x-axis shows the degree of manipulation applied to each spectral band, expressed as a percentage (e.g., +10% indicates *Band × 1.10*).
@@ -22,7 +22,7 @@ Multiple spectral bands are visualized, color-coded according to their conventio
 Colour blind friendly alternatives are available.
 ![Result plot](plots/2025-06-25_3T_B02+03+04+08_lineplot.png)
 
-## Workflow {#workflow}
+## Workflow
 
 The deploy.R script contains the full workflow and is deployed from bash after setting the correct conda environment and directory.
 At the beginning Tile-Name, Bands, Increment and direction are Set and then the script is deployed.
@@ -31,7 +31,7 @@ The original (pretrained) models and all other code are used unchanged.
 
 Functions from the package "dandelion" (<https://github.com/ESA99/dandelion>) were used and written specifically for the usecase of this modified deployment.
 
-#### Working Time {#working-time}
+#### Working Time
 
 The following timing values correspond to the model deployment on the ILÖK-RS Supercomputer.
 Each loop represents a single combination of tile, band, and increment.
@@ -44,7 +44,7 @@ Each loop represents a single combination of tile, band, and increment.
 |  164  |   00:00   |     00:00     |   AfAsOz   |
 |  164  |   00:00   |     00:00     |   Europe   |
 
-### Tiles {#tiles}
+### Tiles
 
 The selection process is being coordinated in consultation with the University of Munich.
 Corresponding Worldcover as tiles are needed, and were cropped accordinlgy.
@@ -68,7 +68,7 @@ Mongolia: Old selection 50TPT, new proposal by Lukas **49UCP**.
 | Oceania | -36.6 | 55HEV | Australia | Temp. Broadleaf + Montane Grass/Shrub | 562 | Münster |
 | South America | -1.4 | 20MMD | Brazil | Trop. Moist Broadleaf | 56 | Münster |
 
-#### Calculation groups {#calculation-groups}
+#### Calculation groups
 
 Tiles will be "grouped" for the analysis in three deployment groups, to split calculation time in blocks and allow for more efficient workflow.
 1.
@@ -76,7 +76,7 @@ Americas (10TES, 17SNB, 20MMD) 2.
 Europe (32TMT, 32UQU, 34UFD, 35VML) 3.
 AfAsOz (33NTG, 49NHC, 49UCP, 55HEV)
 
-### Prediction comparison {#prediction-comparison}
+### Prediction comparison
 
 Analysis of different calculation techniques to compare if prediction results differ.
 Original-result-tile vs. Single-Tile-deployment vs. Multi-Tile-deployment (5-10).
