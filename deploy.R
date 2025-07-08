@@ -22,7 +22,7 @@ c(
 # Variable input table -----------------------------------------------------
 
 # Input of the parameters as data frame with all combinations
-variables <- dandelion::create_param_df(tiles = c("33NTG", "49NHC","49UCP", "55HEV"),
+variables <- dandelion::create_param_df(tiles = c("33NTG", "49NHC"),#,"49UCP", "55HEV"
                                         bands = c("B02", "B03", "B04", "B08"),
                                         increments = c(0.05, 0.1, 0.15, 0.2, 0.25),
                                         decrease = c("False", "True"),              # False meaning increase...
