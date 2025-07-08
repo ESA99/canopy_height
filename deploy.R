@@ -31,7 +31,7 @@ variables <- dandelion::create_param_df(tiles = c("33NTG", "49NHC","49UCP", "55H
 )
 # Should the difference rasters be saved?
 DIFF_TIF <- FALSE
-# Should loop results be saved individually as backup?
+# Should loop results be saved individually as backup (csv files)?
 BACKUP_SAVING <- FALSE
 
 
@@ -311,7 +311,7 @@ for (v in 1:nrow(variables)) {
     warning("Duration is not numeric. Skipping timing log for this loop.")
   }
   
-  write.csv(timing_results, paste0("documentation/", start_date_chr, "_Timing.csv"))
+  write.csv(timing_results, paste0("documentation/TIMING/", start_date_chr, "_Timing.csv"))
   cat("******* Timing stored successfully. Loop fully completed. *******\n")
   
 }
