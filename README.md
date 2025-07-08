@@ -24,8 +24,6 @@ Colour blind friendly alternatives are available.
 
 ## Workflow
 
-See [Documentation](documentation/Documentation.html) for overview and TODO.
-
 The deploy.R script contains the full workflow and is deployed from bash after setting the correct conda environment and directory.
 At the beginning Tile-Name, Bands, Increment and direction are Set and then the script is deployed.
 The original code (deploy.py etc.) was modified to fit the script as well as extended by a manipulation-function performing the band manipulation inside the deployment.
