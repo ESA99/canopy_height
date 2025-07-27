@@ -8,8 +8,9 @@ library(ggplot2)
 library(dplyr)
 library(viridis)
 
-original_data <- read.csv("/home/emilio/canopy_height/final_results/2025-06-25_result_table.csv")
-result_table <- original_data
+original_data <- "/home/emilio/canopy_height/results/2025-06-25_result_table.csv"
+data <- read.csv(original_data)
+result_table <- data
 head(result_table)
 
 # Remove B01 (Inserted for original prediction)
@@ -55,6 +56,12 @@ result_table <- result_table %>%
   mutate(tile_band = paste(tile, band, sep = "_"))
 
 
+# Plot saving universal ---------------------------------------------------
+
+ggsave(paste0("plots/",
+              sub("_.*", "", basename(original_data)), # date of the result data
+              "_TITLE.png"),
+       width = 300, height = 175, units = "mm", dpi = 300, bg = "white")
 
 
 # Full overview Plot  ------------------------------------------------------------
@@ -125,8 +132,10 @@ ggsave(paste0("plots/",
 
 # Std Dev Plot of one band ------------------------------------------------
 
+band_color <- "NIR"
+
 (diff_plot <- ggplot(
-  filter(result_table, band == "Blue"),  # select band
+  filter(result_table, band == band_color),  # select band
   aes(
   x = increment,
   y = average_difference,
@@ -170,16 +179,17 @@ ggsave(paste0("plots/",
 
 
 # ggsave(paste0("plots/",
-#               Sys.Date(),
+#               sub("_.*", "", basename(original_data)), # date of the result data
 #               "_",
-#               "NIR_SD_bytile",
-#               "_lineplot.png"), 
-#        diff_plot, 
+#               paste0(band_color,"_SD_bytile"),
+#               "_lineplot.png"),
+#        diff_plot,
 #        width = 300, height = 175, units = "mm", dpi = 300, bg = "white")
 
 
 
   
+
 
 
 # Colour blind options ----------------------------------------------------
@@ -188,7 +198,7 @@ ggsave(paste0("plots/",
 #### Same colour band plot ####
 
 # Colour blind friendly display, bands same colour, not tile identification
-ggplot(result_table, aes(x = increment, y = average_difference, color = band, group = interaction(tile, band))) +
+ggplot(result_table, aes(x = increment, y = average_difference, color = band,linetype = tile, group = interaction(tile, band))) +
   geom_line(linewidth = 1.1) +
   geom_point(size = 2) +
   geom_hline(yintercept = 0, linetype = "dashed", color = "gray30") +
