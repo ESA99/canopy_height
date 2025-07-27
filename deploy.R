@@ -287,7 +287,7 @@ for (v in 1:nrow(variables)) {
   # Backup saving
   if (BACKUP_SAVING == TRUE) {
     loop_results <- lapply(loop_results, as.data.frame)
-    write.csv(loop_results, paste0("results/result_tables_each_loop/LoopResults_",v,".csv"), row.names = FALSE)
+    write.csv(loop_results, paste0("results/loop_backup/LoopResults_",v,".csv"), row.names = FALSE)
     cat("Loop results saved individually as backup at: results/result_tables_each_loop/LoopResults_X.csv\n")
   } else{
     cat("Individual loop results not backed up.\n")
