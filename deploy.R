@@ -32,7 +32,7 @@ variables <- dandelion::create_param_df(tiles = c("33NTG", "49NHC"),#,"49UCP", "
 # Should the difference rasters be saved?
 DIFF_TIF <- FALSE
 # Should loop results be saved individually as backup (csv files)?
-BACKUP_SAVING <- FALSE
+BACKUP_SAVING <- TRUE
 
 
 # General Setup -----------------------------------------------------------
@@ -248,7 +248,7 @@ for (v in 1:nrow(variables)) {
 
 # File removal exept originals --------------------------------------------
 
-  originals_folder <- "/home/emilio/canopy_height/final_results/originals"
+  originals_folder <- "/home/emilio/canopy_height/results/originals"
   
   if(variables$original[v]){
     cat("Moving original prediction to", file.path(originals_folder, basename(new_destination)),"\n")
@@ -287,8 +287,8 @@ for (v in 1:nrow(variables)) {
   # Backup saving
   if (BACKUP_SAVING == TRUE) {
     loop_results <- lapply(loop_results, as.data.frame)
-    write.csv(loop_results, paste0("final_results/result_tables_each_loop/LoopResults_",v,".csv"), row.names = FALSE)
-    cat("Loop results saved individually as backup at: final_results/result_tables_each_loop/LoopResults_X.csv\n")
+    write.csv(loop_results, paste0("results/result_tables_each_loop/LoopResults_",v,".csv"), row.names = FALSE)
+    cat("Loop results saved individually as backup at: results/result_tables_each_loop/LoopResults_X.csv\n")
   } else{
     cat("Individual loop results not backed up.\n")
   }
@@ -324,7 +324,7 @@ for (v in 1:nrow(variables)) {
 # cat("Transforming result list to a data frame.\n")
 # results_list_clean <- Filter(function(x) !is.null(x) && length(x) > 0, results_list)
 # results_df <- do.call(rbind, lapply(results_list_clean, as.data.frame))
-# save_path <- paste0("final_results/",Sys.Date(),"_result_table.csv")
+# save_path <- paste0("results/",Sys.Date(),"_result_table.csv")
 # cat("Writing results...\n")
 # write.csv(results_df, save_path, row.names = FALSE)
 # cat("Results saved as table to", save_path)
@@ -346,7 +346,7 @@ if (inherits(try_combined, "try-error")) {
   combined_success <- FALSE
   
   # Save individual list entries as separate CSVs
-  indiv_dir <- file.path("final_results", "individual_results")
+  indiv_dir <- file.path("results", "individual_results")
   dir.create(indiv_dir, recursive = TRUE, showWarnings = FALSE)
   
   cat("Saving individual result files...\n")
@@ -368,7 +368,7 @@ if (inherits(try_combined, "try-error")) {
   
 } else {
   # Combined export succeeded
-  save_path <- file.path("final_results", paste0(Sys.Date(), "_result_table.csv"))
+  save_path <- file.path("results", paste0(Sys.Date(), "_result_table.csv"))
   dir.create(dirname(save_path), recursive = TRUE, showWarnings = FALSE)
   cat("Writing combined results CSV...\n")
   write.csv(results_df, save_path, row.names = FALSE)
