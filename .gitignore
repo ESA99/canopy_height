@@ -1,7 +1,9 @@
 .idea
+
 deploy_dir/
 deploy_example/
 trained_models/
+
 __pycache__
 gchm.egg-info
 wandb/
@@ -24,8 +26,12 @@ venv/
 # Ignore the folder "old" inside plots
 plots/old/
 
-final_results/individual_results/
-final_results/result_tables_each_loop/
+results/loop_backup/
+results/preds/
+results/originals/
+results/individual_results/
+
+# final_results/
 temp/
 
 # Ignore everything in final_results but do not ignore loose files:
