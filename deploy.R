@@ -247,7 +247,7 @@ for (v in 1:nrow(variables)) {
       "| Standard deviation:", std_dev,"*****\n")
   
 
-# File removal exept originals --------------------------------------------
+# File removal except originals --------------------------------------------
 
   originals_folder <- "/home/emilio/canopy_height/results/originals"
   
@@ -287,7 +287,7 @@ for (v in 1:nrow(variables)) {
   
   # Backup saving
   if (BACKUP_SAVING == TRUE) {
-    loop_results <- lapply(loop_results, as.data.frame)
+    loop_results <- as.data.frame(loop_results, stringsAsFactors = FALSE)
     write.csv(loop_results, paste0("results/loop_backup/LoopResults_",v,".csv"), row.names = FALSE)
     cat("Loop results saved individually as backup at: results/result_tables_each_loop/LoopResults_X.csv\n")
   } else{
@@ -338,7 +338,7 @@ results_list_clean <- Filter(function(x) !is.null(x) && length(x) > 0, results_l
 
 # Try combining all results into one data frame
 try_combined <- try({
-  results_df <- do.call(rbind, lapply(results_list_clean, as.data.frame))
+  results_df <- do.call(rbind, results_list_clean)
   combined_success <- TRUE
 }, silent = TRUE)
 
