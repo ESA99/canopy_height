@@ -10,8 +10,7 @@ timing_results <- data.frame(
 )
 
 # Load necessary packages
-c(
-  "sf", "terra", "tmap", "dandelion",
+c("sf", "terra", "tmap", "dandelion",
   "rnaturalearth", "rnaturalearthdata",
   "plyr", "dplyr", "leaflet",
   "viridis", "cols4all", "colorspace"
