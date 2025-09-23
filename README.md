@@ -4,6 +4,8 @@ This repository tracks the exploration of the Model presented in [A high-resolut
 **Goal** of this work is to understand how the model works and predicts, if any ecological relationships between spectral data and canopy height can be identified and how the model reacts to changes in input data.
 For a full explanation of the installation, setup and deployment see the original instructions: [Installation](https://github.com/langnico/global-canopy-height-model#installation-and-credentials).
 
+**Status: 23.09.25**
+
 ## Table of Contents
 
 1.  [Results](#results)
