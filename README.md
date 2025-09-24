@@ -28,6 +28,10 @@ Multiple spectral bands are visualized, color-coded according to their conventio
 A smoother way of displaying the results is shown below with the same types of axis.
 ![Ribbon plot](plots/2025-09-24_3T_B02+03+04+08_ribbon_smooth.png)
 
+Heatmap of the manipulated channels on the y-axis and the degree of change on the x-axis. Diverging coulour-scale shows the intensity and direction of change.
+![Ribbon plot](plots/2025-09-24_3T_B02+03+04+08_HEATMAP.png)
+
+
 ## Workflow
 
 The deploy.R script contains the full workflow and is deployed from bash after setting the correct conda environment and directory.
