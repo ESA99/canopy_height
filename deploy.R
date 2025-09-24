@@ -18,12 +18,12 @@ c("sf", "terra", "tmap", "dandelion",
   lapply(library, character.only = TRUE)
 
 
-# Variable input table -----------------------------------------------------
+# VARIABLE INPUT TABLE -----------------------------------------------------
 
 # Input of the parameters as data frame with all combinations
   # All tiles: "10TES" "17SNB" "20MMD" "32TMT" "32UQU" "33NTG" "34UFD" "35VML" "49NHC" "49UCP" "55HEV"
   # Copy according image folders to: /canopy_height/deploy_example/sentinel2/2020/
-variables <- dandelion::create_param_df(tiles = c("49UCP", "49NHC", "55HEV"),
+variables <- dandelion::create_param_df(tiles = c("49UCP", "55HEV"),
                                         bands = c("B02", "B03", "B04", "B08"),
                                         increments = c(0.05, 0.1, 0.15, 0.2, 0.25),
                                         decrease = c("False", "True"),              # False meaning increase...
@@ -40,7 +40,26 @@ BACKUP_SAVING <- TRUE
 # General Setup -----------------------------------------------------------
 
 # create empty result list in correct length for more efficient deployment.
-results_list <- vector("list", nrow(variables)) # create empty list, convert to df later -> more efficient
+# results_list <- vector("list", nrow(variables)) # create empty list, convert to df later -> more efficient   ### OLD LIST WAY -> now df
+results_df <- data.frame(
+  tile = character(nrow(variables)),
+  band = character(nrow(variables)),
+  increment = numeric(nrow(variables)),
+  decrease = logical(nrow(variables)),
+  
+  average_difference = numeric(nrow(variables)),
+  avg_abs_diff = numeric(nrow(variables)),
+  
+  avg_differece_percent = numeric(nrow(variables)),
+  avg_abs_diff_perc = numeric(nrow(variables)),
+  
+  correlation = numeric(nrow(variables)),
+  std_dev = numeric(nrow(variables)),
+  out_name = character(nrow(variables)),
+  year = character(nrow(variables)),
+  stringsAsFactors = FALSE
+)
+
 
 ## Translation table
 translation_table <- data.frame(
@@ -187,19 +206,22 @@ for (v in 1:nrow(variables)) {
   # out_directory <- file.path(paste0(env_vars[["GCHM_DEPLOY_DIR"]], "_merge"), "preds_inv_var_mean")
   # outputFilePath <- file.path(out_dir, paste0(env_vars[["tile_name"]], "_", env_vars[["experiment"]], "_pred.tif"))
   
+  
 # Difference calculation --------------------------------------------------
 
-  # compare images to original
+  # Get original prediction and manipulated prediction tif
   cat("Calculaing the difference to the original prediction.\n")
   preds <- list.files(result_path, full.names = T)
   cat("List of files:", preds, "\n")
   
+  # ORIGINAL
   original_pred_dir <- preds[
     grepl(variables$tile_name[v], preds) &
       grepl("original", preds)
   ]
   cat("Original prediction file:", original_pred_dir, "\n")
   
+  # MANIPULATED
   manipulated_filepath <- file.path(result_path, 
                                     paste0(variables$out_name[v], ".tif"))
   cat("Manipulated image path:",manipulated_filepath, "\n")
@@ -207,26 +229,38 @@ for (v in 1:nrow(variables)) {
   original_pred <- rast(original_pred_dir)
   manipulated_pred <- rast(manipulated_filepath)
   
+
+  ### Calculate the difference ###
+  
   cat("Calculate difference between", variables$out_name[v], "and original prediction:", basename(original_pred_dir),".\n")
-  # Calculate the difference
+  # stopifnot(compareGeom(original_pred, manipulated_pred)) # test if rasters are alligned
+  
+  # Difference raster in meters
   difference <- manipulated_pred - original_pred     # Eventually layer has to be selected -> [[1]] or pattern _pred -> select above...
-  avg_diff <- mean(values(difference), na.rm = TRUE)  
-  avg_abs_diff <- mean(abs(values(difference)), na.rm = TRUE)
-  # korrelationskoeffizient manipulated_pred, original_pred 
-  correlation <- cor(values(manipulated_pred), values(original_pred), method = "pearson") |>
-    as.numeric()
-  # std deviation of difference
-  std_dev <- sd(na.omit(values(difference)))
   
-  # Calculate average percent difference
-  percent_diff <- (difference / original_pred) * 100
-  avg_percent_diff <- mean(values(percent_diff), na.rm = TRUE)
-  # + abs avg %
-  avg_abs_percent_diff <- mean(abs(values(percent_diff)), na.rm = TRUE)
+  # Difference raster in percent (SMAPE formulation)
+  eps <- 1e-6
+  difference_percent <- ((manipulated_pred - original_pred) /
+                           ((abs(manipulated_pred) + abs(original_pred)) / 2 + eps)) * 100
   
+  # Summaries
+  avg_diff <- global(difference, fun = "mean", na.rm = TRUE)[[1]]
+  avg_abs_diff <- global(abs(difference), fun = "mean", na.rm = TRUE)[[1]]
+  correlation <- cor(values(manipulated_pred), values(original_pred), method = "pearson", use = "complete.obs") |> as.numeric()
+  std_dev <- global(difference, fun = "sd", na.rm = TRUE)[[1]]
   
+  avg_percent_diff <- global(difference_percent, fun = "mean", na.rm = TRUE)[[1]]
+  avg_abs_percent_diff <- global(abs(difference_percent), fun = "mean", na.rm = TRUE)[[1]]
   
-  ## save difference rasters if wanted
+  cat("Average diff [m]:", round(avg_diff, digits = 2), "\n",
+      "Avg abs diff [m]:", round(avg_abs_diff, digits = 2), "\n",
+      "Correlation     :", round(correlation, digits = 3), "\n",
+      "Std dev [m]     :", round(std_dev, digits = 2), "\n",
+      "Avg diff [%]    :", round(avg_percent_diff, digits = 1), "\n",
+      "Avg abs diff [%]:", round(avg_abs_percent_diff, digits = 1), "\n")
+    
+  
+  ## Difference raster saving IF DESIRED
   if (DIFF_TIF == TRUE) {
     cat("Saving difference raster...")
     diff_path <- file.path(result_path, "DIFF")
@@ -243,9 +277,9 @@ for (v in 1:nrow(variables)) {
   }
   
   cat("*****",variables$out_name[v], 
-      "| Average difference:", avg_diff, 
-      "| Avg absolut diff:", avg_abs_diff, 
-      "| Standard deviation:", std_dev,"*****\n")
+      "| Average difference:", round(avg_diff, digits = 2), 
+      "| Avg absolut diff:", round(avg_abs_diff, digits = 2), 
+      "| Standard deviation:", round(std_dev, digits = 2),"*****\n")
   
 
 # File removal except originals --------------------------------------------
@@ -267,32 +301,33 @@ for (v in 1:nrow(variables)) {
 
 # Save results ------------------------------------------------------------
 
-    # safe result to list
-   loop_results <- list(
+  # Save to result dataframe
+  loop_results <- list(
     tile = variables$tile_name[v],
     band = variables$band[v],
     increment = variables$increment[v],
     decrease = variables$decrease[v],
-    average_difference = avg_diff,
-    avg_differece_percent = percent_diff,
-    avg_abs_diff = avg_abs_diff,
-    avg_abs_diff_perc = avg_abs_percent_diff,
+    average_difference =    avg_diff,
+    avg_abs_diff =           avg_abs_diff,
+    avg_differece_percent = avg_percent_diff,
+    avg_abs_diff_perc =      avg_abs_percent_diff,
     correlation = correlation ,
     std_dev = std_dev,
     out_name = variables$out_name[v],
     year = variables$year[v]
   )
   
-  results_list[[v]] <- loop_results
-  cat("Result added to list. Loop", v, "completed.\n")
+  results_df[v, ] <- loop_results
+  cat("Result added to data frame. Loop", v, "completed.\n")
   
   # Backup saving
   if (BACKUP_SAVING == TRUE) {
     cat("Backup saving individual loop result.\n")
-    loop_results <- as.data.frame(loop_results, stringsAsFactors = FALSE)
+    loop_results_df <- as.data.frame(loop_results, stringsAsFactors = FALSE)
     ifelse(dir.exists("results/loop_backup/"),"Backup saving in progress..\n", dir.create("results/loop_backup/") & cat("Backup directory created.\n"))
-    write.csv(loop_results, paste0("results/loop_backup/LoopResults_",v,".csv"), row.names = FALSE)
-    cat("Loop results saved individually as backup at: results/result_tables_each_loop/LoopResults_X.csv\n")
+    backup_dir <- paste0("results/loop_backup/loopresults_",v,".csv")
+    write.csv(loop_results_df, backup_dir, row.names = FALSE)
+    cat("******* Loop results saved individually as backup at:",backup_dir,"*******\n")
   } else{
     cat("Individual loop results not backed up.\n")
   }
@@ -341,7 +376,7 @@ results_list_clean <- Filter(function(x) !is.null(x) && length(x) > 0, results_l
 
 # Try combining all results into one data frame
 try_combined <- try({
-  results_df <- do.call(rbind, results_list_clean)
+  results_df <- do.call(rbind, lapply(results_list_clean, as.data.frame))
   combined_success <- TRUE
 }, silent = TRUE)
 
