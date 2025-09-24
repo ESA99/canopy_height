@@ -56,15 +56,7 @@ result_table <- result_table %>%
   mutate(tile_band = paste(tile, band, sep = "_"))
 
 
-# Plot saving universal ---------------------------------------------------
-
-ggsave(paste0("plots/",
-              sub("_.*", "", basename(original_data)), # date of the result data
-              "_TITLE.png"),
-       width = 300, height = 175, units = "mm", dpi = 300, bg = "white")
-
-
-# Full overview Plot  ------------------------------------------------------------
+# General Settings ---------------------------------------------------
 
 band_labels <- c("B02" = "Blue", "B03" = "Green",  "B04" = "Red",  "B08" = "NIR")
 result_table$band <- factor(result_table$band, levels = names(band_labels), labels = band_labels)
@@ -72,10 +64,17 @@ result_table$band <- factor(result_table$band, levels = names(band_labels), labe
 custom_colors <- c( "Blue" = "dodgerblue2", "Green" = "chartreuse3", "Red" = "firebrick3",  "NIR" = "mediumpurple2")
 # custom_colors <- c( "B02" = "navy", "B03" = "green4", "B04" = "red",  "B08" = "purple")
 
+# UNVERSAL PLOT SAVING
+# ggsave(paste0("plots/",
+#               sub("_.*", "", basename(original_data)), # date of the result data
+#               "_TITLE.png"),
+#        width = 300, height = 175, units = "mm", dpi = 300, bg = "white")
 
-#### Band/Tile CB+grey plot #####
+
+# Full Overview Plot  ------------------------------------------------------------
+
+## Band/Tile CB+grey plot
 # Group uniquely by both tile and band, colour blind and greyscale friendly
-
 
 diff_plot <- ggplot(result_table, aes(
   x = increment,
@@ -127,6 +126,46 @@ ggsave(paste0("plots/",
 #        paste(gsub("\\D", "", unique(result_table$band)), collapse = "+"),
 #        "_lineplot.png")
 
+
+
+
+
+# Ribbon plot (with uncertainty) ------------------------------------------
+
+ggplot(result_table, aes(x = increment, y = average_difference, color = band, fill = band)) +
+  stat_summary(fun = mean, geom = "line", linewidth = 1.2) +
+  stat_summary(fun.data = mean_se, geom = "ribbon", alpha = 0.2, color = NA) +
+  scale_color_manual(values = custom_colors) +
+  scale_fill_manual(values = custom_colors) +
+  labs(x = "Manipulation [%]", y = "Average Difference") +
+  theme_minimal(base_size = 14)
+
+ggsave(paste0("plots/",Sys.Date(),"_",length(unique(result_table$tile)),"T_B",band_names,
+              "_","ribbon_smooth",".png"), 
+       width = 300, height = 175, units = "mm", dpi = 300, bg = "white")
+
+# Heatmap | Increment x Band ----------------------------------------------
+
+ggplot(result_table, aes(x = increment, y = band, fill = average_difference)) +
+  geom_tile() +
+  scale_fill_viridis(option = "cividis") +
+  labs(x = "Manipulation [%]", y = "Band", fill = "Avg. Diff.") +
+  theme_minimal(base_size = 14)
+
+ggsave(paste0("plots/",Sys.Date(),"_",length(unique(result_table$tile)),"T_B",band_names,
+              "_","HEATMAP",".png"), 
+       width = 300, height = 175, units = "mm", dpi = 300, bg = "white")
+
+# Facetted | Increment x Difference | per Band ----------------------------
+
+ggplot(result_table, aes(x = increment, y = average_difference, color = tile)) +
+  geom_line(linewidth = 1) +
+  geom_point(size = 1.5) +
+  facet_wrap(~ band, scales = "free_y") +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "grey40") +
+  scale_color_viridis_d(option = "plasma") +
+  labs(x = "Manipulation [%]", y = "Average Difference") +
+  theme_minimal(base_size = 14)
 
 
 
