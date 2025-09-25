@@ -23,7 +23,7 @@ c("sf", "terra", "tmap", "dandelion",
 # Input of the parameters as data frame with all combinations
   # All tiles: "10TES" "17SNB" "20MMD" "32TMT" "32UQU" "33NTG" "34UFD" "35VML" "49NHC" "49UCP" "55HEV"
   # Copy according image folders to: /canopy_height/deploy_example/sentinel2/2020/
-variables <- dandelion::create_param_df(tiles = c("49UCP", "55HEV"),
+variables <- dandelion::create_param_df(tiles = c("10TES", "17SNB", "20MMD"),
                                         bands = c("B02", "B03", "B04", "B08"),
                                         increments = c(0.05, 0.1, 0.15, 0.2, 0.25),
                                         decrease = c("False", "True"),              # False meaning increase...
@@ -325,7 +325,7 @@ for (v in 1:nrow(variables)) {
     cat("Backup saving individual loop result.\n")
     loop_results_df <- as.data.frame(loop_results, stringsAsFactors = FALSE)
     ifelse(dir.exists("results/loop_backup/"),"Backup saving in progress..\n", dir.create("results/loop_backup/") & cat("Backup directory created.\n"))
-    backup_dir <- paste0("results/loop_backup/loopresults_",v,".csv")
+    backup_dir <- paste0("results/loop_backup/",Sys.Date(),"_loop_",v,".csv")
     write.csv(loop_results_df, backup_dir, row.names = FALSE)
     cat("******* Loop results saved individually as backup at:",backup_dir,"*******\n")
   } else{

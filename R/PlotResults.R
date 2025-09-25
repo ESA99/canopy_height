@@ -9,47 +9,50 @@ library(dplyr)
 library(viridis)
 
 original_data <- "/home/emilio/canopy_height/results/2025-06-25_result_table.csv"
+original_data <- "/home/emilio/canopy_height/results/2025-09-25_combined_results_49UCP_55HEV.csv"
 data <- read.csv(original_data)
 result_table <- data
 head(result_table)
-
-# Remove B01 (Inserted for original prediction)
-# result_table <- result_table %>%
+# result_table <- result_table %>% # Remove B01 (Inserted for original prediction)
 #   filter(band != "B01")
 
 band_names <- paste(gsub("\\D", "", unique(result_table$band)), collapse = "+")
 
-
-# Add 0.0 Increment Step per tile and band combination
-result_table <- {
-  missing <- dplyr::anti_join(
-    dplyr::distinct(result_table, tile, band, decrease),
-    dplyr::filter(result_table, average_difference == 0.0),
-    by = c("tile", "band", "decrease")
-  )
-  dplyr::bind_rows(
-    result_table,
-    dplyr::mutate(
-      missing,
-      increment = 0.0,
-      average_difference = 0.0,
-      avg_diff_absoluteVals = 0.0,
-      std_dev = 0.0,
-      correlation = NA,
-      out_name = paste(tile, band, "0.00", ifelse(decrease, "D", "I"), sep = "_"),
+# Add zero rows
+add_zero_increment_rows <- function(result_table) {
+  
+  # Step 1: Identify which combinations are missing a zero increment row
+  missing_zero_rows <- result_table %>%
+    distinct(tile, band) %>%  # Identify all tile-band combinations
+    anti_join(
+      result_table %>% filter(increment == 0), # check which combinations are missing
+      by = c("tile", "band")
+    )
+  
+  # Step 2: Create the zero increment rows
+  zero_increment_rows <- missing_zero_rows %>%
+    mutate(
+      increment = 0,
+      decrease = "True",
+      out_name = paste(tile, band, "original", sep = "_"),
       year = 2020
     )
-  )
+  
+  # Step 3: Add missing columns
+  missing_cols <- setdiff(names(result_table), names(zero_increment_rows))
+  zero_increment_rows[missing_cols] <- 0.0  # Add all missing columns as 0.0
+  
+  # Step 4: Combine with original table
+  result_table <- bind_rows(result_table, zero_increment_rows)
+  
+  return(result_table)
 }
+result_table <- add_zero_increment_rows(result_table)
 
 # Convert increment to percent and turn decrease to negative values
 result_table <- result_table %>%
   mutate(increment = increment * 100) %>% 
     mutate(increment = ifelse(decrease == "True", -abs(increment), abs(increment)))
-
-# Turn decrease increment negative
-# result_table <- result_table %>%
-  # mutate(increment = ifelse(decrease == "True", -abs(increment), abs(increment)))
 
 # Add tile_band combination name as column
 result_table <- result_table %>%

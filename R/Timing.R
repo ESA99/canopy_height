@@ -2,12 +2,12 @@
 # Inspect Timing results ----------------------------------------------------------
 
 library(tidyverse)
-lines <- readLines("documentation/2025-06-12_Timing.txt")
-lines <- lines[-1] # Remove the header
+# lines <- readLines("documentation/2025-06-12_Timing.txt")
+# lines <- lines[-1] # Remove the header
+# 
+# df <- read.csv(textConnection(lines), header = FALSE) # read as CSV
 
-df <- read.csv(textConnection(lines), header = FALSE) # read as CSV
-
-df <- read.csv("documentation/2025-06-24_Timing.csv") # read as CSV
+df <- read.csv("documentation/TIMING/2025-09-24_Timing.csv") # read as CSV
 colnames(df) <- c("Loop", "Step", "Minutes") # assign column names
 
 mean(df$Minutes)
