@@ -356,43 +356,33 @@ for (v in 1:nrow(variables)) {
 }
 
 
-# Export result table -----------------------------------------------------
 
-# OLD STRAIGHT EXPORT
-# # Combine list into a data frame
-# cat("Transforming result list to a data frame.\n")
-# results_list_clean <- Filter(function(x) !is.null(x) && length(x) > 0, results_list)
-# results_df <- do.call(rbind, lapply(results_list_clean, as.data.frame))
-# save_path <- paste0("results/",Sys.Date(),"_result_table.csv")
-# cat("Writing results...\n")
-# write.csv(results_df, save_path, row.names = FALSE)
-# cat("Results saved as table to", save_path)
+# EXPORT RESULTS in a robust way -----------------------------------------------------
 
-# NEW EXPORT IN AS ROBUST WAY -----------------------------------------------------
+cat("Preparing to save results...\n")
 
-cat("Transforming result list to a data frame...\n")
+date_tag <- format(Sys.Date(), "%Y-%m-%d")
 
-results_list_clean <- Filter(function(x) !is.null(x) && length(x) > 0, results_list)
-
-# Try combining all results into one data frame
-try_combined <- try({
-  results_df <- do.call(rbind, lapply(results_list_clean, as.data.frame))
+try_export <- try({
+  save_path <- file.path("results", paste0(date_tag, "_result_table.csv"))
+  dir.create(dirname(save_path), recursive = TRUE, showWarnings = FALSE)
+  write.csv(results_df,, save_path, row.names = FALSE)
   combined_success <- TRUE
 }, silent = TRUE)
 
-if (inherits(try_combined, "try-error")) {
-  warning("Failed to combine results_list into a single data frame. Skipping combined export.\nSaving individual result files instead.\n")
+if (inherits(try_export, "try-error")) {
+  warning("Failed to save combined results as data frame. Skipping combined export.\nSaving individual result files instead.\n")
   combined_success <- FALSE
   
-  # Save individual list entries as separate CSVs
-  indiv_dir <- file.path("results", "individual_results")
+  # Save each row individually
+  # indiv_dir <- file.path("results", paste0("export_fallback_results_", date_tag))
+  indiv_dir <- file.path("results", "fallback", paste0("fallback_", date_tag) )
   dir.create(indiv_dir, recursive = TRUE, showWarnings = FALSE)
   
-  cat("Saving individual result files...\n")
+  cat("Saving individual result files due to fallback mechanism...\n")
   
-  for (i in seq_along(results_list_clean)) {
-    entry <- results_list_clean[[i]]
-    entry_df <- as.data.frame(entry)
+  for (i in seq_len(nrow(results_df))) {
+    entry_df <- results_df[i, , drop = FALSE]   # single-row data.frame
     file_name <- paste0(sprintf("%03d", i), "_result.csv")
     file_path <- file.path(indiv_dir, file_name)
     
@@ -400,22 +390,23 @@ if (inherits(try_combined, "try-error")) {
       write.csv(entry_df, file_path, row.names = FALSE)
     }, error = function(e) {
       warning(sprintf("Failed to save individual result %d: %s", i, e$message))
+      individual_export_success <- FALSE
     })
   }
   
-  cat("Individual result files saved to", indiv_dir, "\n")
+  if (individual_export_success) {
+    cat("All individual result files saved successfully to", indiv_dir, "\n")
+  } else {
+    warning("Some individual results failed to save — check log messages above.")
+  }
   
 } else {
-  # Combined export succeeded
-  save_path <- file.path("results", paste0(Sys.Date(), "_result_table.csv"))
-  dir.create(dirname(save_path), recursive = TRUE, showWarnings = FALSE)
-  cat("Writing combined results CSV...\n")
-  write.csv(results_df, save_path, row.names = FALSE)
-  cat("Combined results saved to", save_path, "\n")
+  cat("Full results table saved to", save_path, "\n")
 }
 
 
-# Timing ------------------------------------------------------------------
+
+# TIMING ------------------------------------------------------------------
 
 # Track and show time elapsed
 end_time <- Sys.time()
