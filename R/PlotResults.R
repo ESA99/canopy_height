@@ -5,10 +5,11 @@
 # Prepare data --------------------------------------------------------
 
 library(ggplot2)
+library(ggpubr)
 library(dplyr)
 library(viridis)
 
-original_data <- "/home/emilio/canopy_height/results/2025-06-25_result_table.csv"
+# original_data <- "/home/emilio/canopy_height/results/2025-06-25_result_table.csv"
 original_data <- "/home/emilio/canopy_height/results/2025-09-25_combined_results_49UCP_55HEV.csv"
 data <- read.csv(original_data)
 result_table <- data
@@ -66,6 +67,9 @@ result_table$band <- factor(result_table$band, levels = names(band_labels), labe
 
 custom_colors <- c( "Blue" = "dodgerblue2", "Green" = "chartreuse3", "Red" = "firebrick3",  "NIR" = "mediumpurple2")
 # custom_colors <- c( "B02" = "navy", "B03" = "green4", "B04" = "red",  "B08" = "purple")
+
+# colorblind-friendly colour scale
+cbf_colors <- c("Blue"  = "#0072B2","Green" = "#009E73", "Red"   = "#D55E00", "NIR"   = "#CC79A7" )
 
 # UNVERSAL PLOT SAVING
 # ggsave(paste0("plots/",
@@ -133,6 +137,114 @@ ggsave(paste0("plots/",
 
 
 
+# Boxplot -----------------------------------------------------------------
+
+ggplot(result_table, aes(x = factor(increment), y = average_difference, fill = band)) +
+  geom_boxplot(outlier.size = 1.5, alpha = 0.6, position = position_dodge(width = 0.8)) +
+  scale_fill_manual(values = custom_colors) +
+  labs(
+    x = "Manipulation [%]",
+    y = "Average Difference",
+    fill = "Band",
+    title = "Distribution of Average Differences per Increment and Band"
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(
+    axis.title = element_text(face = "bold"),
+    legend.position = "right",
+    panel.grid.minor = element_blank()
+  )
+
+### Increment as factor
+
+# Convert increment to factor and get numeric positions for vlines
+result_table_factor <- result_table %>%
+  mutate(increment_f = factor(increment))
+
+# Numeric positions of each increment on x-axis
+increment_positions <- seq_along(levels(result_table_factor$increment_f))
+
+ggplot(result_table_factor, aes(x = increment_f, y = average_difference, fill = band)) +
+  geom_boxplot(outlier.size = 1.5, alpha = 0.6, color = "black", position = position_dodge(width = 0.8)) +
+  # Draw vertical lines between increments
+  geom_vline(xintercept = seq(1.5, length(increment_positions)-0.5, by = 1),
+             color = "grey70", linetype = "dashed") +
+  scale_fill_manual(values = cbf_colors) +
+  labs(
+    x = "Manipulation [%]",
+    y = "Average Difference",
+    fill = "Band",
+    title = "Distribution of Average Differences per Increment and Band"
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(
+    axis.title = element_text(face = "bold"),
+    legend.position = "right",
+    panel.grid.major.x = element_blank(),  # remove default x-grid
+    panel.grid.minor = element_blank(),
+    axis.text.x = element_text(angle = 45, hjust = 1)
+  )
+
+
+### Facetted Boxplot
+ggplot(result_table, aes(x = factor(increment), y = average_difference, fill = band)) +
+  geom_boxplot(outlier.size = 1.5, alpha = 0.6) +
+  facet_wrap(~ band, scales = "fixed") +    # Alternative: scales = "free_y"
+  scale_fill_manual(values = cbf_colors) +
+  labs(x = "Manipulation [%]", y = "Average Difference",
+       title = "Average Differences per Increment and Band") +
+  theme_minimal(base_size = 14) +
+  theme(axis.title = element_text(face = "bold"), 
+        legend.position = "none",
+        axis.text.x = element_text(angle = 45, hjust = 1))
+
+### ggpubr boxplot facetted
+
+zero_pos <- which(levels(result_table_factor$increment_f) == "0")
+
+ggboxplot(
+  result_table,
+  x = "increment",
+  y = "average_difference",
+  fill = "band",
+  color = "black",
+  palette = cbf_colors,
+  facet.by = "band",
+  scales = "fixed"
+) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "grey30") +
+  geom_vline(xintercept = zero_pos, linetype = "dashed", color = "grey30") +
+  rotate_x_text(angle = 45) +
+  labs(
+    x = "Manipulation [%]",
+    y = "Average Difference",
+    title = "Distribution of Average Differences per Increment and Band"
+  ) +
+  theme_pubr(base_size = 14) +
+  theme(legend.position = "none")
+
+### ggpubr full boxplot
+
+ggboxplot(
+  result_table_factor,
+  x = "increment_f",
+  y = "average_difference",
+  fill = "band",
+  color = "black",
+  palette = cbf_colors,
+  outlier.shape = 21
+) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "grey30") +  # zero line
+  rotate_x_text(angle = 45) +
+  labs(
+    x = "Manipulation [%]",
+    y = "Average Difference",
+    title = "Distribution of Average Differences per Increment and Band",
+    fill = "Band"
+  ) +
+  theme_pubr(base_size = 14)
+
+
 # Ribbon plot (with uncertainty) ------------------------------------------
 
 ggplot(result_table, aes(x = increment, y = average_difference, color = band, fill = band)) +
@@ -143,8 +255,82 @@ ggplot(result_table, aes(x = increment, y = average_difference, color = band, fi
   labs(x = "Manipulation [%]", y = "Average Difference") +
   theme_minimal(base_size = 14)
 
+ggline(
+  result_table,
+  x = "increment",
+  y = "average_difference",
+  color = "band",
+  fill = "band",
+  add = "mean_se",          # adds mean line + SE ribbon
+  linewidth = 1.2,
+  alpha = 0.2,
+  palette = cbf_colors,
+  position = position_dodge(width = 0.3)  # <-- offset lines and ribbons
+) +
+  labs(
+    x = "Manipulation [%]",
+    y = "Average Difference",
+    color = "Band",
+    fill = "Band",
+    title = "Average Difference with SE Ribbon per Band"
+  ) +
+  theme_pubr(base_size = 14)
+
+
+## Facetted ggpubr version
+ggline(
+  result_table,
+  x = "increment",
+  y = "average_difference",
+  color = "band",
+  fill = "band",
+  add = "mean_se",
+  linewidth = 1.2,
+  alpha = 0.2,
+  palette = cbf_colors,
+  facet.by = "band",
+  scales = "fixed"
+) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "grey30") +
+  geom_vline(xintercept = zero_pos, linetype = "dashed", color = "grey30") +
+  labs(
+    x = "Manipulation [%]",
+    y = "Average Difference",
+    title = "Average Difference with SE Ribbon per Band"
+  ) +
+  theme_pubr(base_size = 14)
+
+
+## Facetted ggpubr version plus points
+ggline(
+  result_table,
+  x = "increment",
+  y = "average_difference",
+  color = "band",
+  fill = "band",
+  add = "mean_se",
+  linewidth = 1.2,
+  alpha = 0.2,
+  palette = cbf_colors,
+  facet.by = "band",
+  scales = "fixed"
+) +
+  geom_point(aes(y = average_difference, color = "black"),
+             position = position_jitterdodge(jitter.width = 0.1, dodge.width = 0.8),
+             size = 1.5, alpha = 0.8) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "grey30") +
+  geom_vline(xintercept = zero_pos, linetype = "dashed", color = "grey30") +
+  labs(
+    x = "Manipulation [%]",
+    y = "Average Difference",
+    title = "Average Difference with SE Ribbon per Band"
+  ) +
+  theme_pubr(base_size = 14)
+
+
+
 ggsave(paste0("plots/",Sys.Date(),"_",length(unique(result_table$tile)),"T_B",band_names,
-              "_","ribbon_smooth",".png"), 
+              "_","ribbon_facett_pub",".png"), 
        width = 300, height = 175, units = "mm", dpi = 300, bg = "white")
 
 # Heatmap | Increment x Band ----------------------------------------------
@@ -170,6 +356,9 @@ ggplot(result_table, aes(x = increment, y = average_difference, color = tile)) +
   labs(x = "Manipulation [%]", y = "Average Difference") +
   theme_minimal(base_size = 14)
 
+ggsave(paste0("plots/",Sys.Date(),"_",length(unique(result_table$tile)),"T_B",band_names,
+              "_","Facetted",".png"), 
+       width = 300, height = 175, units = "mm", dpi = 300, bg = "white")
 
 
 # Std Dev Plot of one band ------------------------------------------------
@@ -236,8 +425,7 @@ band_color <- "NIR"
 
 # Colour blind options ----------------------------------------------------
 
-
-#### Same colour band plot ####
+## Same colour band plot 
 
 # Colour blind friendly display, bands same colour, not tile identification
 ggplot(result_table, aes(x = increment, y = average_difference, color = band,linetype = tile, group = interaction(tile, band))) +
@@ -275,26 +463,25 @@ ggplot(result_table, aes(x = increment, y = average_difference, color = band, li
 
 # Standard plots ----------------------------------------------------------
 
-
-#### Generic Plot ####
-p <- ggplot(result_table, aes(x = increment, y = average_difference, color = tile_band)) +
-  geom_line(linewidth = 1.1) +  # Use linewidth instead of size
-  geom_point(size = 2) +
-  geom_hline(yintercept = 0, linetype = "dashed", color = "gray30") +
-  scale_y_continuous(expand = expansion(mult = c(0.05, 0.05))) +
-  labs(
-    title = "Average Difference by degree of manipulation",
-    x = "Manipulation [%]",
-    y = "Average Difference",
-    color = "Tile_Band"
-  ) +
-  theme_minimal(base_size = 14) +
-  theme(
-    legend.position = "right",
-    axis.title = element_text(face = "bold"),
-    axis.text = element_text(color = "black"),
-    panel.grid.minor = element_blank()
-  )
-print(p)
+## Generic Plot
+# p <- ggplot(result_table, aes(x = increment, y = average_difference, color = tile_band)) +
+#   geom_line(linewidth = 1.1) +  # Use linewidth instead of size
+#   geom_point(size = 2) +
+#   geom_hline(yintercept = 0, linetype = "dashed", color = "gray30") +
+#   scale_y_continuous(expand = expansion(mult = c(0.05, 0.05))) +
+#   labs(
+#     title = "Average Difference by degree of manipulation",
+#     x = "Manipulation [%]",
+#     y = "Average Difference",
+#     color = "Tile_Band"
+#   ) +
+#   theme_minimal(base_size = 14) +
+#   theme(
+#     legend.position = "right",
+#     axis.title = element_text(face = "bold"),
+#     axis.text = element_text(color = "black"),
+#     panel.grid.minor = element_blank()
+#   )
+# print(p)
 
 

@@ -34,7 +34,7 @@ variables <- dandelion::create_param_df(tiles = c("10TES", "17SNB", "20MMD"),
 # Should the difference rasters be saved?
 DIFF_TIF <- FALSE
 # Should loop results be saved individually as backup (csv files)?
-BACKUP_SAVING <- TRUE
+BACKUP_SAVING <- FALSE
 
 
 # General Setup -----------------------------------------------------------
@@ -45,7 +45,7 @@ results_df <- data.frame(
   tile = character(nrow(variables)),
   band = character(nrow(variables)),
   increment = numeric(nrow(variables)),
-  decrease = logical(nrow(variables)),
+  decrease = character(nrow(variables)),
   
   average_difference = numeric(nrow(variables)),
   avg_abs_diff = numeric(nrow(variables)),
