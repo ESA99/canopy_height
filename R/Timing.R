@@ -7,7 +7,7 @@ library(tidyverse)
 # 
 # df <- read.csv(textConnection(lines), header = FALSE) # read as CSV
 
-df <- read.csv("documentation/TIMING/2025-09-24_Timing.csv") # read as CSV
+df <- read.csv("documentation/TIMING/2025-09-25_Timing.csv") # read as CSV
 colnames(df) <- c("Loop", "Step", "Minutes") # assign column names
 
 mean(df$Minutes)
@@ -19,6 +19,20 @@ which.max(df$Minutes)
 print(df)
 
 sum(df$Minutes)/60
+
+### Time estimate for future calculations
+
+num_iterations <- 246
+# mean_time <- mean(df$Minutes)
+mean_time <- 13.38203
+
+(t <- num_iterations*mean_time/60) # hours
+(finishing_time <- Sys.time() + (t * 3600) )
+
+# Hour converter - works also for minutes and seconds
+hours <- 54.86
+minutes <- round((hours - floor(hours)) * 60)
+cat(floor(hours), "hours and", minutes, "minutes\n")
 
 
 # How to time -------------------------------------------------------------

@@ -26,10 +26,12 @@ venv/
 # Ignore the folder "old" inside plots
 plots/old/
 
+results/fallback/
 results/loop_backup/
-results/preds/
 results/originals/
+results/preds/
 results/individual_results/
+
 
 # final_results/
 temp/

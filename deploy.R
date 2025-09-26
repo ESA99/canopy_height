@@ -1,6 +1,6 @@
 # Document setup  ----------------------------------------------------------
 start_time <- Sys.time()
-start_date_chr <- as.character( as.Date(start_time) )
+start_date_chr <- format(Sys.Date(), "%Y-%m-%d")
 
 # Create empty data frame to store timing info
 timing_results <- data.frame(
@@ -23,7 +23,7 @@ c("sf", "terra", "tmap", "dandelion",
 # Input of the parameters as data frame with all combinations
   # All tiles: "10TES" "17SNB" "20MMD" "32TMT" "32UQU" "33NTG" "34UFD" "35VML" "49NHC" "49UCP" "55HEV"
   # Copy according image folders to: /canopy_height/deploy_example/sentinel2/2020/
-variables <- dandelion::create_param_df(tiles = c("10TES", "17SNB", "20MMD"),
+variables <- dandelion::create_param_df(tiles = c("32TMT", "32UQU", "33NTG", "34UFD", "35VML", "49NHC"),
                                         bands = c("B02", "B03", "B04", "B08"),
                                         increments = c(0.05, 0.1, 0.15, 0.2, 0.25),
                                         decrease = c("False", "True"),              # False meaning increase...
@@ -74,8 +74,21 @@ wc_tile_status <- data.frame(
 )
 
 
-# DEPLOYMENT LOOP ---------------------------------------------------------
+#### Check for data availability ####
+exist_flags <- file.path(file.path(variables$rootDIR[1], "deploy_example/sentinel2/2020/"), unique(variables$tile_name)) |>
+  dir.exists()
 
+if (all(exist_flags)) {
+  cat("All data folders for unique tiles exist. Starting loop deployment.\n")
+} else {
+  missing <- unique(variables$tile_name)[!exist_flags]
+  cat("=========================================    ERROR!    =========================================\n")
+  cat("========================================= DATA MISSING =========================================\n")
+  stop(paste("The following folders are missing:", paste(missing, collapse = ", ")))
+}
+
+
+# DEPLOYMENT LOOP ---------------------------------------------------------
 
 for (v in 1:nrow(variables)) {
   start_loop_time <- Sys.time() # Loop timing
@@ -350,7 +363,7 @@ for (v in 1:nrow(variables)) {
     warning("Duration is not numeric. Skipping timing log for this loop.")
   }
   
-  write.csv(timing_results, paste0("documentation/TIMING/", start_date_chr, "_Timing.csv"))
+  write.csv(timing_results, paste0("documentation/TIMING/", format(Sys.Date(), "%Y-%m-%d"), "_Timing.csv"))
   cat("******* Timing stored successfully. Loop fully completed. *******\n")
   
 }
@@ -366,7 +379,10 @@ date_tag <- format(Sys.Date(), "%Y-%m-%d")
 try_export <- try({
   save_path <- file.path("results", paste0(date_tag, "_result_table.csv"))
   dir.create(dirname(save_path), recursive = TRUE, showWarnings = FALSE)
-  write.csv(results_df,, save_path, row.names = FALSE)
+  write.csv(results_df, save_path, row.names = FALSE)
+  cat("=====================================================================================================\n")
+  cat("                            Full combined results saved successfully!\n")
+  cat("=====================================================================================================\n")
   combined_success <- TRUE
 }, silent = TRUE)
 
@@ -388,6 +404,7 @@ if (inherits(try_export, "try-error")) {
     
     tryCatch({
       write.csv(entry_df, file_path, row.names = FALSE)
+      individual_export_success <- TRUE
     }, error = function(e) {
       warning(sprintf("Failed to save individual result %d: %s", i, e$message))
       individual_export_success <- FALSE
