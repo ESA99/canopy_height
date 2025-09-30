@@ -29,6 +29,9 @@ mean_time <- 13.38203
 (t <- num_iterations*mean_time/60) # hours
 (finishing_time <- Sys.time() + (t * 3600) )
 
+# Application for deploy.R
+Sys.time() + (nrow(variables)*13.38203/60 * 3600) 
+
 # Hour converter - works also for minutes and seconds
 hours <- 54.86
 minutes <- round((hours - floor(hours)) * 60)

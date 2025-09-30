@@ -23,7 +23,7 @@ c("sf", "terra", "tmap", "dandelion",
 # Input of the parameters as data frame with all combinations
   # All tiles: "10TES" "17SNB" "20MMD" "32TMT" "32UQU" "33NTG" "34UFD" "35VML" "49NHC" "49UCP" "55HEV"
   # Copy according image folders to: /canopy_height/deploy_example/sentinel2/2020/
-variables <- dandelion::create_param_df(tiles = c("32TMT", "32UQU", "33NTG", "34UFD", "35VML", "49NHC"),
+variables <- dandelion::create_param_df(tiles = c("32TMT", "32UQU", "33NTG", "34UFD", "35VML", "49NHC"), # 
                                         bands = c("B02", "B03", "B04", "B08"),
                                         increments = c(0.05, 0.1, 0.15, 0.2, 0.25),
                                         decrease = c("False", "True"),              # False meaning increase...
@@ -34,7 +34,7 @@ variables <- dandelion::create_param_df(tiles = c("32TMT", "32UQU", "33NTG", "34
 # Should the difference rasters be saved?
 DIFF_TIF <- FALSE
 # Should loop results be saved individually as backup (csv files)?
-BACKUP_SAVING <- FALSE
+BACKUP_SAVING <- TRUE
 
 
 # General Setup -----------------------------------------------------------
@@ -50,7 +50,7 @@ results_df <- data.frame(
   average_difference = numeric(nrow(variables)),
   avg_abs_diff = numeric(nrow(variables)),
   
-  avg_differece_percent = numeric(nrow(variables)),
+  avg_difference_percent = numeric(nrow(variables)),
   avg_abs_diff_perc = numeric(nrow(variables)),
   
   correlation = numeric(nrow(variables)),
@@ -86,6 +86,11 @@ if (all(exist_flags)) {
   cat("========================================= DATA MISSING =========================================\n")
   stop(paste("The following folders are missing:", paste(missing, collapse = ", ")))
 }
+
+# Time estimate
+mean_loop_time <- 13.38203 # minutes -> derived from timing data of past loops
+finish_estimate <- Sys.time() + (nrow(variables)*mean_loop_time/60 * 3600) 
+cat("Estimated finishing time:", format(finish_estimate, "%Y-%m-%d %H:%M:%S"), "\n")
 
 
 # DEPLOYMENT LOOP ---------------------------------------------------------
@@ -363,7 +368,7 @@ for (v in 1:nrow(variables)) {
     warning("Duration is not numeric. Skipping timing log for this loop.")
   }
   
-  write.csv(timing_results, paste0("documentation/TIMING/", format(Sys.Date(), "%Y-%m-%d"), "_Timing.csv"))
+  write.csv(timing_results, paste0("documentation/TIMING/", start_date_chr, "_Timing.csv"))
   cat("******* Timing stored successfully. Loop fully completed. *******\n")
   
 }
