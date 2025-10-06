@@ -93,3 +93,33 @@ cor_by_band <- cor_by_band_tile %>%
   )
 
 print(cor_by_band)
+
+
+
+## Including P-Values:
+# Compute correlation and p-values per band & tile
+cor_by_band_tile <- result_table %>%
+  group_by(band, tile) %>%
+  summarise(
+    pearson_r  = cor(increment, average_difference, method = "pearson"),
+    pearson_p  = cor.test(increment, average_difference, method = "pearson")$p.value,
+    spearman_r = cor(increment, average_difference, method = "spearman"),
+    spearman_p = cor.test(increment, average_difference, method = "spearman")$p.value,
+    .groups = "drop"
+  )
+
+# Summarise per band (average correlation & p-values across tiles)
+cor_by_band <- cor_by_band_tile %>%
+  group_by(band) %>%
+  summarise(
+    mean_pearson   = mean(pearson_r, na.rm = TRUE),
+    sd_pearson     = sd(pearson_r, na.rm = TRUE),
+    mean_p_pearson = mean(pearson_p, na.rm = TRUE),
+    mean_spearman  = mean(spearman_r, na.rm = TRUE),
+    sd_spearman    = sd(spearman_r, na.rm = TRUE),
+    mean_p_spearman= mean(spearman_p, na.rm = TRUE),
+    n_tiles        = n(),
+    .groups = "drop"
+  )
+
+print(cor_by_band)

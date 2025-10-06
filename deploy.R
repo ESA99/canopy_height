@@ -370,6 +370,7 @@ for (v in 1:nrow(variables)) {
   
   write.csv(timing_results, paste0("documentation/TIMING/", start_date_chr, "_Timing.csv"))
   cat("******* Timing stored successfully. Loop fully completed. *******\n")
+  cat("Time:",format(Sys.time(), "%Y-%m-%d %H:%M"),"\n")
   
 }
 
