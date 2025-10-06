@@ -23,8 +23,8 @@ c("sf", "terra", "tmap", "dandelion",
 # Input of the parameters as data frame with all combinations
   # All tiles: "10TES" "17SNB" "20MMD" "32TMT" "32UQU" "33NTG" "34UFD" "35VML" "49NHC" "49UCP" "55HEV"
   # Copy according image folders to: /canopy_height/deploy_example/sentinel2/2020/
-variables <- dandelion::create_param_df(tiles = c("32TMT", "32UQU", "33NTG", "34UFD", "35VML", "49NHC"), # 
-                                        bands = c("B02", "B03", "B04", "B08"),
+variables <- dandelion::create_param_df(tiles = c("10TES", "17SNB", "20MMD", "32TMT", "32UQU", "33NTG", "34UFD", "35VML", "49NHC", "49UCP", "55HEV"), # 
+                                        bands = c("B05", "B8A", "B11", "B12"), # "B02", "B03", "B04", "B08"
                                         increments = c(0.05, 0.1, 0.15, 0.2, 0.25),
                                         decrease = c("False", "True"),              # False meaning increase...
                                         year = "2020",
@@ -446,6 +446,17 @@ cat("******************************* Job finished. Time elapsed:",
 
 # Print timing table at the end
 print(timing_results, row.names = FALSE)
+#Average time per loop
+cat("\n")
+cat("Average time per loop:",
+    {
+      avg_time <- as.numeric(difftime(end_time, start_time, units = "secs")/nrow(variables))
+      sprintf("%02d:%02d:%02d",
+          floor(avg_time / 3600),
+          floor((avg_time %% 3600) / 60),
+          floor(avg_time %% 60))
+},"\n"
+)
 
 cat("++++++++++++++++++++++++++++ All jobs finished. Full script ran succesfully. ++++++++++++++++++++++++++++\n")
 
