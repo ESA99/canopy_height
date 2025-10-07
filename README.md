@@ -4,7 +4,7 @@ This repository tracks the exploration of the Model presented in [A high-resolut
 **Goal** of this work is to understand how the model works and predicts, if any ecological relationships between spectral data and canopy height can be identified and how the model reacts to changes in input data.
 For a full explanation of the installation, setup and deployment see the original instructions: [Installation](https://github.com/langnico/global-canopy-height-model#installation-and-credentials).
 
-**Status: 23.09.25**
+**Status: 07.10.25**
 
 ## Table of Contents
 
@@ -59,7 +59,7 @@ Each loop represents a single combination of tile, band, and increment.
 The selection process is being coordinated in consultation with the University of Munich.
 Corresponding Worldcover as tiles are needed, and were cropped accordinlgy.
 
-[🌍 View the interactive map here](https://<your-username>.github.io/<your-repo>/documentation/tile_overview_map.html)
+[🌍 View the interactive map here](https://github.com/ESA99/canopy_height/blob/main/documentation/tile_overview_map.html)
 
 **Selection:** 3 Tiles presented in the paper + 1 Demo Tile from the Paper + 3 Tiles in Europe for management comparison + 4 tiles spread globally to ensure latitudinal variance and global coverage (+ Biome Diversity).
 Mongolia: Old selection 50TPT, new proposal by Lukas **49UCP**.
