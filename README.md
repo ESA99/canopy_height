@@ -51,7 +51,6 @@ Each loop represents a single combination of tile, band, and increment.
 |  27   |   04:49   |     10:43     |            |
 |  99   |   20:15   |     12:16     |            |
 |  123  |   24:11   |     11:48     |  Americas  |
-<!-- |  164  |   00:00   |     00:00     |      | -->
 |  246  |   75:45   |     18:29     | EuAfMalasia   |
 
 ### Tiles
