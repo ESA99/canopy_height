@@ -383,7 +383,7 @@ cat("Preparing to save results...\n")
 date_tag <- format(Sys.Date(), "%Y-%m-%d")
 
 try_export <- try({
-  save_path <- file.path("results", paste0(date_tag, "_result_table.csv"))
+  save_path <- file.path("results", paste0(start_date_chr, "_result_table.csv"))
   dir.create(dirname(save_path), recursive = TRUE, showWarnings = FALSE)
   write.csv(results_df, save_path, row.names = FALSE)
   cat("=====================================================================================================\n")
@@ -397,8 +397,8 @@ if (inherits(try_export, "try-error")) {
   combined_success <- FALSE
   
   # Save each row individually
-  # indiv_dir <- file.path("results", paste0("export_fallback_results_", date_tag))
-  indiv_dir <- file.path("results", "fallback", paste0("fallback_", date_tag) )
+  # indiv_dir <- file.path("results", paste0("export_fallback_results_", start_date_chr))
+  indiv_dir <- file.path("results", "fallback", paste0("fallback_", start_date_chr) )
   dir.create(indiv_dir, recursive = TRUE, showWarnings = FALSE)
   
   cat("Saving individual result files due to fallback mechanism...\n")

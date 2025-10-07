@@ -20,16 +20,16 @@ For a full explanation of the installation, setup and deployment see the origina
 The following plot shows the results of the "America" Tiles (see section [Calculation Groups](#calculation-groups)), comparing the differrence to the original prediction when manipulating single bands of the input by up to 25%.
 The x-axis shows the degree of manipulation applied to each spectral band, expressed as a percentage (e.g., +10% indicates *Band × 1.10*).
 The y-axis represents the resulting average change in the predicted variable (in meters).
-Multiple spectral bands are visualized, color-coded according to their conventional band colors, allowing comparison across different tile locations.  
-[Colour blind friendly alternatives](plots/2025-06-25_T_CB_B2348.png) are available.  
+Multiple spectral bands are visualized, color-coded similar to their conventional band colors (but in a colour blind freindly way), allowing comparison across different tile locations.  
 
-![Result plot](plots/2025-06-25_3T_B02+03+04+08_lineplot.png)
+![Result plot ribbon](plots/2025-10-06_11T_B02+08+03+04_line_perc_ribbon_se_cbf.png)
+Overview of the average relative difference by band.
 
-A smoother way of displaying the results is shown below with the same types of axis.
-![Ribbon plot](plots/2025-09-24_3T_B02+03+04+08_ribbon_smooth.png)
+![Ribbon plot](plots/2025-10-06_11T_B02+08+03+04_avg_abs_percent_location_line_facett.png)
+One sided plot, showing the average relative difference to original prediction per tile and band.
 
-Heatmap of the manipulated channels on the y-axis and the degree of change on the x-axis. Diverging coulour-scale shows the intensity and direction of change.
-![Ribbon plot](plots/2025-09-24_3T_B02+03+04+08_HEATMAP.png)
+![Ribbon plot](plots/2025-10-06_11T_B02+08+03+04_box_facet_percent_cbf.png)
+Boxplot overview of average relative difference per band by manipulation degree.
 
 
 ## Workflow
@@ -51,15 +51,15 @@ Each loop represents a single combination of tile, band, and increment.
 |  27   |   04:49   |     10:43     |            |
 |  99   |   20:15   |     12:16     |            |
 |  123  |   24:11   |     11:48     |  Americas  |
-|  164  |   00:00   |     00:00     |   AfAsOz   |
-|  164  |   00:00   |     00:00     |   Europe   |
+<!-- |  164  |   00:00   |     00:00     |      | -->
+|  246  |   75:45   |     18:29     | EuAfMalasia   |
 
 ### Tiles
 
 The selection process is being coordinated in consultation with the University of Munich.
 Corresponding Worldcover as tiles are needed, and were cropped accordinlgy.
 
-<iframe src="./documentation/tile_overview_map.html" width="100%" height="600" style="border:none;"></iframe>
+[🌍 View the interactive map here](https://<your-username>.github.io/<your-repo>/documentation/tile_overview_map.html)
 
 **Selection:** 3 Tiles presented in the paper + 1 Demo Tile from the Paper + 3 Tiles in Europe for management comparison + 4 tiles spread globally to ensure latitudinal variance and global coverage (+ Biome Diversity).
 Mongolia: Old selection 50TPT, new proposal by Lukas **49UCP**.
@@ -84,7 +84,7 @@ Tiles will be "grouped" for the analysis in three deployment groups, to split ca
 1.
 Americas (10TES, 17SNB, 20MMD) 2.
 Europe (32TMT, 32UQU, 34UFD, 35VML) 3.
-AfAsOz (33NTG, 49NHC, 49UCP, 55HEV)
+AfAsOc (33NTG, 49NHC, 49UCP, 55HEV)
 
 ### Prediction comparison
 

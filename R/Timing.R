@@ -7,7 +7,7 @@ library(tidyverse)
 # 
 # df <- read.csv(textConnection(lines), header = FALSE) # read as CSV
 
-df <- read.csv("documentation/TIMING/2025-09-25_Timing.csv") # read as CSV
+df <- read.csv("documentation/TIMING/2025-10-03_Timing.csv") # read as CSV
 colnames(df) <- c("Loop", "Step", "Minutes") # assign column names
 
 mean(df$Minutes)
@@ -24,7 +24,7 @@ sum(df$Minutes)/60
 
 num_iterations <- 246
 # mean_time <- mean(df$Minutes)
-mean_time <- 13.38203
+mean_time <- 18.476
 
 (t <- num_iterations*mean_time/60) # hours
 (finishing_time <- Sys.time() + (t * 3600) )
