@@ -59,7 +59,7 @@ Each loop represents a single combination of tile, band, and increment.
 The selection process is being coordinated in consultation with the University of Munich.
 Corresponding Worldcover as tiles are needed, and were cropped accordinlgy.
 
-![Tile Overview][documentation/Overview_Map.png]
+![Tile Overview](documentation/Overview_Map.png)
 
 **Selection:** 3 Tiles presented in the paper + 1 Demo Tile from the Paper + 3 Tiles in Europe for management comparison + 4 tiles spread globally to ensure latitudinal variance and global coverage (+ Biome Diversity).
 Mongolia: Old selection 50TPT, new proposal by Lukas **49UCP**.
