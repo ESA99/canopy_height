@@ -73,8 +73,8 @@ Mongolia: Old selection 50TPT, new proposal by Lukas **49UCP**.
 | Europe | 48.2 | 32UQU | Germany | Temp. Broadleaf + Coniferous | 422 | Munich |
 | Europe | 52.7 | 34UFD | Poland | Temp. Broadleaf | 154 | Munich |
 | Europe | 63.5 | 35VML | Finland | Boreal Forest | 201 | Münster |
-| North America | 46.5 | 10TES | USA | Temp. Broadleaf Forest | 392 | PAPER |
-| North America | 37.5 | 17SNB | USA | Temp. Broadleaf Forest | 682 | BOTH |
+| North America | 46.5 | 10TES | USA West| Temp. Broadleaf Forest | 392 | PAPER |
+| North America | 37.5 | 17SNB | USA East | Temp. Broadleaf Forest | 682 | BOTH |
 | Oceania | -36.6 | 55HEV | Australia | Temp. Broadleaf + Montane Grass/Shrub | 562 | Münster |
 | South America | -1.4 | 20MMD | Brazil | Trop. Moist Broadleaf | 56 | Münster |
 
