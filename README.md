@@ -1,4 +1,6 @@
-# Experimental exploration of the GCHM by [Nico Lang](https://langnico.github.io/globalcanopyheight)
+# Canopy height mapping from optical remote sensing data: reassessing deep learning methods
+
+## Experimental exploration of the GCHM by [Nico Lang](https://langnico.github.io/globalcanopyheight)
 
 This repository tracks the exploration of the Model presented in [A high-resolution canopy height model of the Earth](https://arxiv.org/abs/2204.08322).
 **Goal** of this work is to understand how the model works and predicts, if any ecological relationships between spectral data and canopy height can be identified and how the model reacts to changes in input data.
