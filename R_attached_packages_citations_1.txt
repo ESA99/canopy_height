@@ -1,0 +1,260 @@
+% ---- terra ----
+@Manual{,
+  title = {terra: Spatial Data Analysis},
+  author = {Robert J. Hijmans},
+  year = {2025},
+  note = {R package version 1.8-53, commit 06ee3b1f724c6b5b4252c0475a725f62e857d9cb},
+  url = {https://github.com/rspatial/terra},
+}
+
+
+% ---- mapedit ----
+@Manual{,
+  title = {mapedit: Interactive Editing of Spatial Data in R},
+  author = {Tim Appelhans and Kenton Russell and Lorenzo Busetto},
+  year = {2025},
+  note = {R package version 0.7.0},
+  url = {https://CRAN.R-project.org/package=mapedit},
+  doi = {10.32614/CRAN.package.mapedit},
+}
+
+
+% ---- mapview ----
+@Manual{,
+  title = {mapview: Interactive Viewing of Spatial Data in R},
+  author = {Tim Appelhans and Florian Detsch and Christoph Reudenbach and Stefan Woellauer},
+  year = {2023},
+  note = {R package version 2.11.2},
+  url = {https://CRAN.R-project.org/package=mapview},
+  doi = {10.32614/CRAN.package.mapview},
+}
+
+
+% ---- leaflet ----
+@Manual{,
+  title = {leaflet: Create Interactive Web Maps with the JavaScript 'Leaflet'
+Library},
+  author = {Joe Cheng and Barret Schloerke and Bhaskar Karambelkar and Yihui Xie},
+  year = {2024},
+  note = {R package version 2.2.2},
+  url = {https://CRAN.R-project.org/package=leaflet},
+  doi = {10.32614/CRAN.package.leaflet},
+}
+
+
+% ---- tmap ----
+@Article{,
+  title = {{tmap}: Thematic Maps in {R}},
+  author = {Martijn Tennekes},
+  journal = {Journal of Statistical Software},
+  year = {2018},
+  volume = {84},
+  number = {6},
+  pages = {1--39},
+  doi = {10.18637/jss.v084.i06},
+}
+
+
+% ---- rnaturalearthdata ----
+@Manual{,
+  title = {rnaturalearthdata: World Vector Map Data from Natural Earth Used in 'rnaturalearth'},
+  author = {Andy South and Schramm Michael and Philippe Massicotte},
+  year = {2024},
+  note = {R package version 1.0.0},
+  url = {https://CRAN.R-project.org/package=rnaturalearthdata},
+  doi = {10.32614/CRAN.package.rnaturalearthdata},
+}
+
+
+% ---- rnaturalearth ----
+@Manual{,
+  title = {rnaturalearth: World Map Data from Natural Earth},
+  author = {Philippe Massicotte and Andy South},
+  year = {2023},
+  note = {R package version 1.0.1},
+  url = {https://CRAN.R-project.org/package=rnaturalearth},
+  doi = {10.32614/CRAN.package.rnaturalearth},
+}
+
+
+% ---- sf ----
+@Book{,
+  author = {Edzer Pebesma and Roger Bivand},
+  title = {{Spatial Data Science: With applications in R}},
+  year = {2023},
+  publisher = {{Chapman and Hall/CRC}},
+  url = {https://r-spatial.org/book/},
+  doi = {10.1201/9780429459016},
+}
+
+@Article{,
+  author = {Edzer Pebesma},
+  title = {{Simple Features for R: Standardized Support for Spatial Vector Data}},
+  year = {2018},
+  journal = {{The R Journal}},
+  doi = {10.32614/RJ-2018-009},
+  url = {https://doi.org/10.32614/RJ-2018-009},
+  pages = {439--446},
+  volume = {10},
+  number = {1},
+}
+
+
+% ---- lubridate ----
+@Article{,
+  title = {Dates and Times Made Easy with {lubridate}},
+  author = {Garrett Grolemund and Hadley Wickham},
+  journal = {Journal of Statistical Software},
+  year = {2011},
+  volume = {40},
+  number = {3},
+  pages = {1--25},
+  url = {https://www.jstatsoft.org/v40/i03/},
+}
+
+
+% ---- forcats ----
+@Manual{,
+  title = {forcats: Tools for Working with Categorical Variables (Factors)},
+  author = {Hadley Wickham},
+  year = {2023},
+  note = {R package version 1.0.0},
+  url = {https://CRAN.R-project.org/package=forcats},
+  doi = {10.32614/CRAN.package.forcats},
+}
+
+
+% ---- stringr ----
+@Manual{,
+  title = {stringr: Simple, Consistent Wrappers for Common String Operations},
+  author = {Hadley Wickham},
+  year = {2023},
+  note = {R package version 1.5.1},
+  url = {https://CRAN.R-project.org/package=stringr},
+  doi = {10.32614/CRAN.package.stringr},
+}
+
+
+% ---- purrr ----
+@Manual{,
+  title = {purrr: Functional Programming Tools},
+  author = {Hadley Wickham and Lionel Henry},
+  year = {2025},
+  note = {R package version 1.0.4},
+  url = {https://CRAN.R-project.org/package=purrr},
+  doi = {10.32614/CRAN.package.purrr},
+}
+
+
+% ---- readr ----
+@Manual{,
+  title = {readr: Read Rectangular Text Data},
+  author = {Hadley Wickham and Jim Hester and Jennifer Bryan},
+  year = {2024},
+  note = {R package version 2.1.5},
+  url = {https://CRAN.R-project.org/package=readr},
+  doi = {10.32614/CRAN.package.readr},
+}
+
+
+% ---- tibble ----
+@Manual{,
+  title = {tibble: Simple Data Frames},
+  author = {Kirill Müller and Hadley Wickham},
+  year = {2023},
+  note = {R package version 3.2.1},
+  url = {https://CRAN.R-project.org/package=tibble},
+  doi = {10.32614/CRAN.package.tibble},
+}
+
+
+% ---- tidyverse ----
+@Article{,
+  title = {Welcome to the {tidyverse}},
+  author = {Hadley Wickham and Mara Averick and Jennifer Bryan and Winston Chang and Lucy D'Agostino McGowan and Romain François and Garrett Grolemund and Alex Hayes and Lionel Henry and Jim Hester and Max Kuhn and Thomas Lin Pedersen and Evan Miller and Stephan Milton Bache and Kirill Müller and Jeroen Ooms and David Robinson and Dana Paige Seidel and Vitalie Spinu and Kohske Takahashi and Davis Vaughan and Claus Wilke and Kara Woo and Hiroaki Yutani},
+  year = {2019},
+  journal = {Journal of Open Source Software},
+  volume = {4},
+  number = {43},
+  pages = {1686},
+  doi = {10.21105/joss.01686},
+}
+
+
+% ---- tidyr ----
+@Manual{,
+  title = {tidyr: Tidy Messy Data},
+  author = {Hadley Wickham and Davis Vaughan and Maximilian Girlich},
+  year = {2024},
+  note = {R package version 1.3.1},
+  url = {https://CRAN.R-project.org/package=tidyr},
+  doi = {10.32614/CRAN.package.tidyr},
+}
+
+
+% ---- ggrepel ----
+@Manual{,
+  title = {ggrepel: Automatically Position Non-Overlapping Text Labels with
+'ggplot2'},
+  author = {Kamil Slowikowski},
+  year = {2024},
+  note = {R package version 0.9.6},
+  url = {https://CRAN.R-project.org/package=ggrepel},
+  doi = {10.32614/CRAN.package.ggrepel},
+}
+
+
+% ---- viridis ----
+@Manual{,
+  title = {{viridis(Lite)} - Colorblind-Friendly Color Maps for R},
+  author = {{Garnier} and {Simon} and {Ross} and {Noam} and {Rudis} and {Robert} and {Camargo} and Antônio Pedro and {Sciaini} and {Marco} and {Scherer} and {Cédric}},
+  year = {2024},
+  note = {viridis package version 0.6.5},
+  url = {https://sjmgarnier.github.io/viridis/},
+  doi = {10.5281/zenodo.4679423},
+}
+
+
+% ---- viridisLite ----
+@Manual{,
+  title = {{viridis(Lite)} - Colorblind-Friendly Color Maps for R},
+  author = {{Garnier} and {Simon} and {Ross} and {Noam} and {Rudis} and {Robert} and {Camargo} and Antônio Pedro and {Sciaini} and {Marco} and {Scherer} and {Cédric}},
+  year = {2023},
+  note = {viridisLite package version 0.4.2},
+  url = {https://sjmgarnier.github.io/viridis/},
+  doi = {10.5281/zenodo.4678327},
+}
+
+
+% ---- dplyr ----
+@Manual{,
+  title = {dplyr: A Grammar of Data Manipulation},
+  author = {Hadley Wickham and Romain François and Lionel Henry and Kirill Müller and Davis Vaughan},
+  year = {2023},
+  note = {R package version 1.1.4},
+  url = {https://CRAN.R-project.org/package=dplyr},
+  doi = {10.32614/CRAN.package.dplyr},
+}
+
+
+% ---- ggpubr ----
+@Manual{,
+  title = {ggpubr: 'ggplot2' Based Publication Ready Plots},
+  author = {Alboukadel Kassambara},
+  year = {2025},
+  note = {R package version 0.6.1},
+  url = {https://CRAN.R-project.org/package=ggpubr},
+  doi = {10.32614/CRAN.package.ggpubr},
+}
+
+
+% ---- ggplot2 ----
+@Book{,
+  author = {Hadley Wickham},
+  title = {ggplot2: Elegant Graphics for Data Analysis},
+  publisher = {Springer-Verlag New York},
+  year = {2016},
+  isbn = {978-3-319-24277-4},
+  url = {https://ggplot2.tidyverse.org},
+}
+

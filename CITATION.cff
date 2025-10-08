@@ -1,0 +1,25 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: >-
+  Canopy height mapping from optical remote sensing data:
+  reassessing deep learning methods
+message: >-
+  If you use this dataset, please cite it using the metadata
+  from this file.
+type: dataset
+authors:
+  - given-names: Emilio Ramón
+    family-names: Sánchez
+    email: esanchez@uni-muenster.de
+    orcid: 'https://orcid.org/0009-0004-0348-5434'
+    affiliation: University Münster
+repository-code: 'https://github.com/ESA99/canopy_height'
+url: 'https://esa99.github.io/pages/gchm.html'
+keywords:
+  - maschine-learning
+  - remote-sensing
+  - ecology
+  - neural-networks
+license: MIT
