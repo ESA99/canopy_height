@@ -20,7 +20,7 @@ class Sentinel2Deploy(Dataset):
         border (int): Cropped patches will overlap by the amount of pixel set as border.
         from_aws (bool): Option to download the Sentinel-2 images from AWS S3.
     """
-    def __init__(self, path, input_transforms=None, input_lat_lon=False, patch_size=128, border=8, from_aws=False):
+    def __init__(self, path, input_transforms=None, input_lat_lon=False, patch_size=128, border=8, from_aws=False, new_pos=None):
 
         self.path = path
         self.from_aws = from_aws
@@ -28,6 +28,7 @@ class Sentinel2Deploy(Dataset):
         self.input_lat_lon = input_lat_lon
         self.patch_size = patch_size
         self.border = border
+        self.new_pos = new_pos
         self.patch_size_no_border = self.patch_size - 2 * self.border
         self.image, self.tile_info, self.scl, self.cloud = read_sentinel2_bands(data_path=self.path, from_aws=self.from_aws, channels_last=True)
         self.image_shape_original = self.image.shape
@@ -46,10 +47,22 @@ class Sentinel2Deploy(Dataset):
         self.lat_mask = np.pad(self.lat_mask, ((self.border, self.border), (self.border, self.border)), mode='symmetric')
         self.lon_mask = np.pad(self.lon_mask, ((self.border, self.border), (self.border, self.border)), mode='symmetric')
 
+        self._shift_lat_lon(self.new_pos)
+
         print('self.image_shape_original: ', self.image_shape_original)
         print('after padding: self.image.shape: ', self.image.shape)
         print('after padding: self.lat_mask.shape: ', self.lat_mask.shape)
         print('after padding: self.lon_mask.shape: ', self.lon_mask.shape)
+
+    def _shift_lat_lon(self, new_pos):
+        if new_pos is None:
+            return
+        else:
+            print(f"Shifting coordinates to new top-left corner at {new_pos[0]} Lat, {new_pos[1]} Lon.")
+            lat_diff = new_pos[0] - self.lat_mask[0,0] 
+            lon_diff = new_pos[1] - self.lon_mask[0,0]
+            self.lat_mask = self.lat_mask + lat_diff
+            self.lon_mask = self.lon_mask + lon_diff          
 
     def _get_patch_coords(self):
         img_rows, img_cols = self.image.shape[0:2]  # last dimension corresponds to channels
