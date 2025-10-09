@@ -1,3 +1,5 @@
+### DEPLOY LAT-LONG ###
+
 # Document setup  ----------------------------------------------------------
 start_time <- Sys.time()
 start_date_chr <- format(Sys.Date(), "%Y-%m-%d")
@@ -21,8 +23,8 @@ c("sf", "terra", "tmap", "dandelion",
 # VARIABLE INPUT TABLE -----------------------------------------------------
 
 # Input of the parameters as data frame with all combinations
-  # All tiles: "10TES" "17SNB" "20MMD" "32TMT" "32UQU" "33NTG" "34UFD" "35VML" "49NHC" "49UCP" "55HEV"
-  # Copy according image folders to: /canopy_height/deploy_example/sentinel2/2020/
+# All tiles: "10TES" "17SNB" "20MMD" "32TMT" "32UQU" "33NTG" "34UFD" "35VML" "49NHC" "49UCP" "55HEV"
+# Copy according image folders to: /canopy_height/deploy_example/sentinel2/2020/
 variables <- dandelion::create_param_df(tiles = c("10TES", "17SNB", "20MMD", "32TMT", "32UQU", "33NTG", "34UFD", "35VML", "49NHC", "49UCP", "55HEV"), # 
                                         bands = c("B05", "B8A", "B11", "B12"), # "B02", "B03", "B04", "B08"
                                         increments = c(0.05, 0.1, 0.15, 0.2, 0.25),
@@ -105,8 +107,8 @@ for (v in 1:nrow(variables)) {
       "Increment:",variables$increment[v], "\n",
       "Direction:", ifelse(variables$decrease[v] == "False", "Increase", "Decrease"),"\n")
   
-
-# Text file creation ------------------------------------------------------
+  
+  # Text file creation ------------------------------------------------------
   
   # Creation of a text file with the names of the corresponding zip-folders
   output_file <- file.path(variables$rootDIR[v], "deploy_example", "image_paths", variables$year[v], paste0(variables$tile_name[v], ".txt"))
@@ -124,8 +126,8 @@ for (v in 1:nrow(variables)) {
   cat("Created zip file list as text file:", output_file, "with", length(zip_files), "entries.\n")
   
   
-# Global Variables Setup ----------------------------------------------------
-
+  # Global Variables Setup ----------------------------------------------------
+  
   # Translate band name
   band_number <- translation_table$BandNumber[translation_table$BandName == variables$band[v]]
   
@@ -149,17 +151,17 @@ for (v in 1:nrow(variables)) {
   ("Global environment variables set.\n")
   
   
-# Worldcover adjustment ---------------------------------------------------
-
+  # Worldcover adjustment ---------------------------------------------------
+  
   cat("Checking allignment, crs, and extent of the corresponding Worldcover tile.\n")
   wcover_tiles <- list.files( file.path(variables$rootDIR[v], "deploy_example/ESAworldcover/2020/sentinel2_tiles"), full.names = T )
   
   dandelion::worldcover_adjust(wcover_tiles, wc_tile_status, df = variables, w = v, img_dir = img_folder)
   # WC_CHECK_FUN(wcover_tiles, wc_tile_status) # OUTPUT FILE SET TO TEST
   cat("World cover processing completed.\n")
-
-# Bash Deployment ---------------------------------------------------------
-
+  
+  # Bash Deployment ---------------------------------------------------------
+  
   cat("#################### Start model deployment loop",v,"####################\n")
   
   cat("+++++++++ deploy_example.sh start +++++++++\n")
@@ -174,9 +176,9 @@ for (v in 1:nrow(variables)) {
   })
   cat("run_tile_deploy_merge.sh finished.\n")
   
-
-# File organization -------------------------------------------------------
-
+  
+  # File organization -------------------------------------------------------
+  
   ### Save image with a new name to designated folder
   cat("Copying and renaming prediction files.\n")
   
@@ -220,13 +222,13 @@ for (v in 1:nrow(variables)) {
     list.files(recursive = T, full.names = T) %>%
     file.remove() # delete
   cat("\n")
-
+  
   # out_directory <- file.path(paste0(env_vars[["GCHM_DEPLOY_DIR"]], "_merge"), "preds_inv_var_mean")
   # outputFilePath <- file.path(out_dir, paste0(env_vars[["tile_name"]], "_", env_vars[["experiment"]], "_pred.tif"))
   
   
-# Difference calculation --------------------------------------------------
-
+  # Difference calculation --------------------------------------------------
+  
   # Get original prediction and manipulated prediction tif
   cat("Calculaing the difference to the original prediction.\n")
   preds <- list.files(result_path, full.names = T)
@@ -247,7 +249,7 @@ for (v in 1:nrow(variables)) {
   original_pred <- rast(original_pred_dir)
   manipulated_pred <- rast(manipulated_filepath)
   
-
+  
   ### Calculate the difference ###
   
   cat("Calculate difference between", variables$out_name[v], "and original prediction:", basename(original_pred_dir),".\n")
@@ -276,7 +278,7 @@ for (v in 1:nrow(variables)) {
       "Std dev [m]     :", round(std_dev, digits = 2), "\n",
       "Avg diff [%]    :", round(avg_percent_diff, digits = 1), "\n",
       "Avg abs diff [%]:", round(avg_abs_percent_diff, digits = 1), "\n")
-    
+  
   
   ## Difference raster saving IF DESIRED
   if (DIFF_TIF == TRUE) {
@@ -299,9 +301,9 @@ for (v in 1:nrow(variables)) {
       "| Avg absolut diff:", round(avg_abs_diff, digits = 2), 
       "| Standard deviation:", round(std_dev, digits = 2),"*****\n")
   
-
-# File removal except originals --------------------------------------------
-
+  
+  # File removal except originals --------------------------------------------
+  
   originals_folder <- "/home/emilio/canopy_height/results/originals"
   
   if(variables$original[v]){
@@ -316,9 +318,9 @@ for (v in 1:nrow(variables)) {
     cat("Modified prediction file", basename(new_destination),"deleted.\n")
   }
   
-
-# Save results ------------------------------------------------------------
-
+  
+  # Save results ------------------------------------------------------------
+  
   # Save to result dataframe
   loop_results <- list(
     tile = variables$tile_name[v],
@@ -356,7 +358,7 @@ for (v in 1:nrow(variables)) {
   duration <- difftime(end_loop_time, start_loop_time, units = "mins") %>% 
     round(2) %>% 
     as.numeric()
- 
+  
   if (is.numeric(duration)) {
     
     cat("Loop", v, "completed. Elapsed time:", duration, "min.\n")
@@ -452,10 +454,10 @@ cat("Average time per loop:",
     {
       avg_time <- as.numeric(difftime(end_time, start_time, units = "secs")/nrow(variables))
       sprintf("%02d:%02d:%02d",
-          floor(avg_time / 3600),
-          floor((avg_time %% 3600) / 60),
-          floor(avg_time %% 60))
-},"\n"
+              floor(avg_time / 3600),
+              floor((avg_time %% 3600) / 60),
+              floor(avg_time %% 60))
+    },"\n"
 )
 
 cat("++++++++++++++++++++++++++++ All jobs finished. Full script ran succesfully. ++++++++++++++++++++++++++++\n")

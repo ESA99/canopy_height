@@ -79,6 +79,13 @@ This code sets up to treat (for example gchm) a folder as a python package after
 pip install -e .
 ```
 
+Real time GPU supervision:
+``` bash
+watch -n 1 nvidia-smi
+```
+
+
+
 ## Quarto
 
 ```{r}

@@ -144,7 +144,7 @@ tile_names[duplicated(tile_names)]
 tm_basemap("Esri.WorldGrayCanvas") +
   tm_shape(merged[1]) +
   tm_borders(col = "red", lwd = 2) +
-  tm_text("Name", size = 0.8, col = "black") # lables
+  tm_labels("Name", size = 0.8, col = "black", options = opt_tm_labels(point.label.gap = 0.8)) # lables
 
 
 
