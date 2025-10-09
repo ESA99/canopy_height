@@ -16,7 +16,7 @@ from gchm.models.architectures import Architectures
 from gchm.utils.transforms import Normalize, NormalizeVariance, denormalize, ModifyBands, Transformer
 from gchm.datasets.dataset_sentinel2_deploy import Sentinel2Deploy
 from gchm.utils.gdal_process import save_array_as_geotif
-from gchm.utils.parser import load_args_from_json, str2bool, str_or_none, str2int
+from gchm.utils.parser import load_args_from_json, str2bool, str_or_none, str2int, str2float
 from gchm.utils.aws import download_and_zip_safe_from_aws
 
 
@@ -51,6 +51,7 @@ def setup_parser():
     parser.add_argument("--modify_bands", type=str2int, nargs="+", default=[])
     parser.add_argument("--modify_percentage", type=float, default=None)
     parser.add_argument("--modify_decrease", type=bool, default=False)
+    parser.add_argument("--new-pos", nargs='+', type=str2float, default=None)
 
     # fine-tune and re-weighting strategies
     parser.add_argument("--finetune_strategy", default='FT_Lm_SRCB',
@@ -223,6 +224,7 @@ if __name__ == "__main__":
     print(args.modify_bands)
     print(args.modify_percentage)
     print(args.modify_decrease)
+    print(args.new_pos)
 
     if len(args.modify_bands):
         input_transforms = Transformer(transforms=[
@@ -240,7 +242,8 @@ if __name__ == "__main__":
                                   input_lat_lon=args.input_lat_lon,
                                   patch_size=args.deploy_patch_size,
                                   border=16,
-                                  from_aws=args.from_aws)
+                                  from_aws=args.from_aws,
+                                  new_pos = args.new_pos)
         end = time.time()
         print("TIME LOADING BANDS:", time.strftime('%H:%M:%S', time.gmtime(end - start)))
     except RuntimeError:

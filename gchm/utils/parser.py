@@ -127,6 +127,11 @@ def str2int(v):
         return v
     return int(v)
 
+def str2float(v):
+    if isinstance(v, float):
+        return v
+    return float(v)
+
 def str_or_none(v):
     if v.lower() in ('none', '', 'nan', '0', '0.0'):
         return None
