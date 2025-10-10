@@ -3,6 +3,8 @@ name: gchm
 channels:
   - conda-forge
   - defaults
+  - pytorch
+  - nvidia
 
 dependencies:
   - ipython
@@ -20,3 +22,13 @@ dependencies:
   - anaconda::scikit-learn
   - anaconda::typing
   - anaconda::jupyter
+  - pytorch
+  - torchvision
+  - torchaudio
+  - cudatoolkit=11.8
+  - gdal=3.6.2
+  - pytables
+  - pip
+  - pip:
+    - -e .
+
