@@ -73,7 +73,7 @@ Location has a big impact on the prediction. - North-South gradient - Continenta
 
 ## Technical learnings
 
-This code sets up to treat (for example gchm) a folder as a python package after looking for setup.py
+This code sets up to treat a folder (for example gchm) as a python package after looking for setup.py
 
 ``` bash
 pip install -e .

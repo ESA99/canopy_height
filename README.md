@@ -14,8 +14,10 @@ For a full explanation of the installation, setup and deployment see the origina
 2.  [Workflow](#workflow)
     -   [2.1 Working Time](#working-time)
     -   [2.2 Tiles](#tiles)
-    -   [2.3 Prediction comparison](#prediction-comparison)
-3.  [Citation](https://github.com/ESA99/canopy_height#citation)
+    -   [2.3 Calculation groups](#calculation-groups)
+    -   [2.4 Prediction comparison](#prediction-comparison)
+3.  [Setup Notes](#setup-notes)
+4.  [Citation](https://github.com/ESA99/canopy_height#citation)
 
 ## Results
 
@@ -91,6 +93,26 @@ AfAsOc (33NTG, 49NHC, 49UCP, 55HEV)
 
 Analysis of different calculation techniques to compare if prediction results differ.
 Original-result-tile vs. Single-Tile-deployment vs. Multi-Tile-deployment (5-10).
+
+
+## Setup Notes
+
+The installation was performed generally following option **B** of the [Installation Instructions](https://github.com/langnico/global-canopy-height-model/blob/main/INSTALL.md).
+
+**miniforge3** replaces the outdated mambaforge. The command **conda** has to be used instead of mamba at some steps (Step 5 was a problem for example).
+There may be some dependencies not installed, check for those if an error occurs -> Ex.: libtiff 5 was required but there where four different versions, resulting in an error when deploying the demo script.
+
+### Usefull code
+
+This code sets up to treat a folder (for example gchm) as a python package after looking for setup.py
+``` bash
+pip install -e .
+```
+
+Real time GPU supervision:
+``` bash
+watch -n 1 nvidia-smi
+```
 
 ## Citation
 
