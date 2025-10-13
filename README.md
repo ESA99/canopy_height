@@ -114,6 +114,13 @@ Real time GPU supervision:
 watch -n 1 nvidia-smi
 ```
 
+If conda uses a local R -> use global r installation...
+``` bash
+alias Rscript=/usr/bin/Rscript
+```
+
+
+
 ## Citation
 
 This work is based on the paper and repository by Lang, N., Jetz, W., Schindler, K., & Wegner, J. D.
