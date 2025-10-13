@@ -40,13 +40,9 @@ point_selcetion <- function(lon_grid = 20, lat_grid = 15, lon_border = c(-180,18
   land <- ne_countries(scale = "medium", returnclass = "sf")
   land <- st_transform(land, crs = 4326)
   
-  land_proj <- st_transform(land, crs = "+proj=robin +datum=WGS84")
-  land_buffered_proj <- st_buffer(land_proj, dist = coast_buffer * 111000) # approx meters
-  land_buffered <- st_transform(land_buffered_proj, crs = 4326)
-  
-  # Shrink land slightly to avoid coastlines
-  # land_buffered <- st_buffer(land, dist = coast_buffer)
-  # land_buffered <- land_buffered[!st_is_empty(land_buffered), ]
+  # Shrink land slightly
+  land_buffered <- st_buffer(land, dist = coast_buffer)
+  land_buffered <- land_buffered[!st_is_empty(land_buffered), ]
   
   # Define grid (systematic longitudinal lines)
   n_lines <- lon_grid
