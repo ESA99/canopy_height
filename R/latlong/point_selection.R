@@ -10,7 +10,7 @@ point_selcetion <- function(lon_grid = 20, lat_grid = 15, lon_border = c(-180,18
   
   # Load land polygons
   land <- ne_countries(scale = "medium", returnclass = "sf")
-  land <- st_transform(land, crs = 4326)
+  # land <- st_transform(land, crs = 4326)
   
   land_proj <- st_transform(land, crs = "+proj=robin +datum=WGS84")
   land_buffered_proj <- st_buffer(land_proj, dist = coast_buffer * 111000) # approx meters
@@ -61,7 +61,7 @@ point_selcetion <- function(lon_grid = 20, lat_grid = 15, lon_border = c(-180,18
 new_pos_char <- point_selcetion(lon_grid = 17, lat_grid = 12, lon_border = c(-120,180), lat_border = c(-60,50), coast_buffer = -0.05)
 
 
-
+# Convert character output to sf object
 points_sf <- function(new_pos_char, crs = 4326) {
   # Convert "lon lat" character vector into sf points
   points_df <- do.call(rbind, strsplit(new_pos_char, " ")) |>
@@ -81,7 +81,7 @@ tm_basemap("Esri.WorldGrayCanvas") +
   tm_shape(points) +
   tm_borders(col = "red", lwd = 5)
 
-st_write(points, "/home/emilio/canopy_height/R/latlong/points.gpkg")
+# st_write(points, "/home/emilio/canopy_height/R/latlong/points.gpkg")
 
 tm_shape(points) +
   tm_dots(col = "black", size = 0.2) +
