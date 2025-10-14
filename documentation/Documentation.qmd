@@ -20,7 +20,7 @@ library(dandelion)
 ## TODO
 
  - (Re-)run final predictions of all groups (including % difference now)
- - Create different kind of plots/visuallization types for the results
+ - Create different kind of plots/visualization types for the results
     - play around with it
     - change axis
     - try different colours
@@ -69,7 +69,7 @@ Rscript deploy.R
 
 ## Lat/Long findings
 
-Location has a big impact on the prediction. - North-South gradient - Continentality - whatch out for oceans when linking the projects or calculating lat long - specific lat/long values vs. difference to original location - method "comparison" -\> which is better for analysis/presentation
+Location has a big impact on the prediction. - North-South gradient - Continentality - watch out for oceans when linking the projects or calculating lat long - specific lat/long values vs. difference to original location - method "comparison" -\> which is better for analysis/presentation
 
 ## Technical learnings
 
@@ -84,11 +84,3 @@ Real time GPU supervision:
 watch -n 1 nvidia-smi
 ```
 
-
-
-## Quarto
-
-```{r}
-#| echo: false
-2 * 2
-```

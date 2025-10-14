@@ -1,6 +1,37 @@
 ### DEPLOY LAT-LONG ###
 
-# Document setup  ----------------------------------------------------------
+# Packages ----------------------------------------------------------------
+
+packages <- c(
+  "sf", "terra", "tmap", "remotes",
+  "rnaturalearth", "rnaturalearthdata",
+  "plyr", "dplyr", "leaflet",
+  "viridis", "cols4all", "colorspace"
+)
+
+# Install any packages that are missing
+installed <- rownames(installed.packages())
+to_install <- setdiff(packages, installed)
+
+if (length(to_install) > 0) {
+  message("Installing missing packages: ", paste(to_install, collapse = ", "))
+  install.packages(to_install, dependencies = TRUE)
+}
+
+# Install dandelion from GitHub if missing
+if (!"dandelion" %in% installed) {
+  message("Installing package 'dandelion' from GitHub...")
+  remotes::install_github("ESA99/dandelion")
+}
+packages <- c(packages, "dandelion")
+
+# Load all packages
+invisible(lapply(packages, library, character.only = TRUE))
+
+
+
+
+# Timing setup  ----------------------------------------------------------
 start_time <- Sys.time()
 start_date_chr <- format(Sys.Date(), "%Y-%m-%d")
 
@@ -10,15 +41,6 @@ timing_results <- data.frame(
   Minutes = numeric(),
   stringsAsFactors = FALSE
 )
-
-# Load necessary packages
-c("sf", "terra", "tmap", "dandelion",
-  "rnaturalearth", "rnaturalearthdata",
-  "plyr", "dplyr", "leaflet",
-  "viridis", "cols4all", "colorspace"
-) |>
-  lapply(library, character.only = TRUE)
-
 
 # VARIABLE INPUT TABLE -----------------------------------------------------
 
@@ -35,23 +57,19 @@ c("sf", "terra", "tmap", "dandelion",
 
 
 point_selcetion <- function(lon_grid = 20, lat_grid = 15, lon_border = c(-180,180), lat_border = c(-60,60), coast_buffer = -0.05){
-  
+
   # Load land polygons
   land <- ne_countries(scale = "medium", returnclass = "sf")
-  land <- st_transform(land, crs = 4326)
-  
-  # Shrink land slightly
-  land_buffered <- st_buffer(land, dist = coast_buffer)
-  land_buffered <- land_buffered[!st_is_empty(land_buffered), ]
+  crs_land <- crs(land)
   
   # Define grid (systematic longitudinal lines)
   n_lines <- lon_grid
   n_lat_points <- lat_grid
-  # lons <- round(seq(-120, 180, length.out = n_lines), 0)
-  # lats <- round(seq(-60, 50, length.out = n_lat_points), 0)
   
   lons <- round(seq(lon_border[1], lon_border[2], length.out = n_lines), digits = 0)
   lats <- round(seq(lat_border[1], lat_border[2], length.out = n_lat_points), digits = 0)
+  cat("Generated longitude and latitude grid lines\n")
+
   
   all_points <- list()
   
@@ -59,10 +77,10 @@ point_selcetion <- function(lon_grid = 20, lat_grid = 15, lon_border = c(-180,18
   for (lon in lons) {
     line_points <- data.frame(lon = rep(lon, n_lat_points),
                               lat = lats)
-    points_sf <- st_as_sf(line_points, coords = c("lon", "lat"), crs = 4326)
+    points_sf <- st_as_sf(line_points, coords = c("lon", "lat"), crs = crs_land)
     
     # Keep only points on buffered land
-    intersections <- st_intersects(points_sf, land_buffered)
+    intersections <- st_intersects(points_sf, land)
     land_points <- points_sf[lengths(intersections) > 0, ]
     
     all_points[[as.character(lon)]] <- land_points
@@ -78,6 +96,7 @@ point_selcetion <- function(lon_grid = 20, lat_grid = 15, lon_border = c(-180,18
   new_pos_char <- apply(new_positions, 1, function(row) paste(row[1], row[2]))
   
   return(new_pos_char)
+  cat("Lat-Lon point grid on land-masses created.\n")
   
 }
 
