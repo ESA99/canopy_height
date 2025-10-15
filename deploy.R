@@ -1,4 +1,35 @@
-# Document setup  ----------------------------------------------------------
+# Packages ----------------------------------------------------------------
+options(repos = c(CRAN = "https://cloud.r-project.org"))
+
+packages <- c(
+  "sf", "terra", "tmap", "remotes",
+  "rnaturalearth", "rnaturalearthdata",
+  "plyr", "dplyr", "leaflet",
+  "viridis", "cols4all", "colorspace"
+)
+
+# Install any packages that are missing
+installed <- rownames(installed.packages())
+to_install <- setdiff(packages, installed)
+
+if (length(to_install) > 0) {
+  message("Installing missing packages: ", paste(to_install, collapse = ", "))
+  install.packages(to_install, dependencies = TRUE)
+}
+
+# Install dandelion from GitHub if missing
+if (!"dandelion" %in% installed) {
+  message("Installing package 'dandelion' from GitHub...")
+  remotes::install_github("ESA99/dandelion")
+}
+
+# Load all packages
+packages <- c(packages, "dandelion")
+invisible(lapply(packages, library, character.only = TRUE))
+
+
+
+# Timing setup  ----------------------------------------------------------
 start_time <- Sys.time()
 start_date_chr <- format(Sys.Date(), "%Y-%m-%d")
 
@@ -8,15 +39,6 @@ timing_results <- data.frame(
   Minutes = numeric(),
   stringsAsFactors = FALSE
 )
-
-# Load necessary packages
-c("sf", "terra", "tmap", "dandelion",
-  "rnaturalearth", "rnaturalearthdata",
-  "plyr", "dplyr", "leaflet",
-  "viridis", "cols4all", "colorspace"
-) |>
-  lapply(library, character.only = TRUE)
-
 
 # VARIABLE INPUT TABLE -----------------------------------------------------
 

@@ -1,5 +1,8 @@
 .idea
 
+renv/
+renv.lock
+
 deploy_dir/
 deploy_example/
 trained_models/
