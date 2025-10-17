@@ -1,6 +1,11 @@
 # Plot results by tile
 
 
+ggsave(paste0("plots/",Sys.Date(),"_",length(unique(result_table$Location)),"T_B",band_names,
+              "_","Loc_absRelDiff_absInc_line",".png"),
+       width = 300, height = 175, units = "mm", dpi = 300, bg = "white")
+
+
 # PERCENT line plots ------------------------------------------------------
 
 # Avg diff PERCENT by location
@@ -52,12 +57,53 @@ ggplot(result_table, aes(x = increment, y = avg_abs_diff_perc, color = Location)
   theme_minimal(base_size = 14)
 
 
+# Increment x Diff by Location --------------------------------------------
+
+# Absolute difference
+ggplot(result_table, aes(x = abs(increment), y = avg_abs_diff_perc, color = band, fill = band)) +
+  geom_point(alpha = 0.4) +
+  geom_smooth(method = "loess", se = TRUE, alpha = 0.2) +
+  facet_wrap(~Location) +
+  labs(title = "Effect of Increment Size on Prediction Change per Band",
+       x = "Manipultaion Degree [%]", y = "Absolute Relative Difference (%)") +
+  theme_minimal()
+
+# model <- lm(avg_abs_diff_perc ~ band * Location * abs_increment, data = result_table)
+# anova(model)
+# summary(model)
+
+# Relative differenece
+ggplot(result_table, aes(x = abs(increment), y = avg_difference_percent, color = band, fill = band)) +
+  geom_point(alpha = 0.4) +
+  geom_smooth(method = "loess", se = TRUE, alpha = 0.2) +
+  facet_wrap(~Location) +
+  labs(title = "Effect of Increment Size on Prediction Change per Band",
+       x = "Manipultaion Degree [%]", y = "Relative Difference (%)") +
+  theme_minimal()
+
+
+
+# Heatmap -----------------------------------------------------------------
+
+ggplot(result_table %>%
+         group_by(band, Location) %>%
+         summarise(M_Rel_Diff = mean(avg_abs_diff_perc, na.rm = TRUE), .groups = "drop"),
+       aes(x = Location, y = band, fill = M_Rel_Diff)) +
+  geom_tile(color = "white") +
+  scale_fill_viridis(option = "cividis") +
+  labs(title = "Band Sensitivity by Location",
+       x = "Location", y = "Band", fill = "Mean rel diff (%)") +
+  theme_minimal()
+
 
 # Single band line plots ----------------------------------------------
 
-band_color <- "NIR"
-
+library(ggplot2)
+library(dplyr)
 library(viridis)
+library(ggrepel)
+
+band_color <- "NIR"
 
 # Example color-blind–friendly palette (viridis)
 cb_palette <- viridis::viridis(length(unique(result_table$Location)), option = "C")
@@ -109,13 +155,6 @@ ggplot(
 
 
 ## Location names in Plot
-
-library(ggplot2)
-library(dplyr)
-library(viridis)
-library(ggrepel)
-
-band_color <- "NIR"
 
 # Prepare color-blind-friendly palette
 locations <- unique(result_table$Location)
@@ -179,8 +218,3 @@ ggplot(plot_data, aes(x = increment, y = mean_diff, color = Location, group = Lo
     panel.grid.minor = element_blank()
   )
 
-
-# ggsave(paste0("plots/",Sys.Date(),"_",length(unique(result_table$Location)),"T_B",band_names,
-#               "_","line_location_percent_NIR",".png"),
-#        width = 300, height = 175, units = "mm", dpi = 300, bg = "white")
-  

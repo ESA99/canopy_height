@@ -2,7 +2,7 @@
 # Force push (required to overwrite history)
 # system("git push origin main --force")
 
-# Prepare data --------------------------------------------------------
+# Data Preperation --------------------------------------------------------
 
 library(ggplot2)
 library(ggpubr)
@@ -64,7 +64,7 @@ result_table <- add_zero_increment_rows(result_table)
 # Convert increment to percent and turn decrease to negative values
 result_table <- result_table %>%
   mutate(increment = increment * 100) %>% 
-    mutate(increment = ifelse(decrease == "True", -abs(increment), abs(increment)))
+  mutate(increment = ifelse(decrease == "True", -abs(increment), abs(increment)))
 
 # Add tile_band combination name as column
 result_table <- result_table %>%
@@ -390,7 +390,7 @@ ggboxplot(
   theme(legend.position = "none")
 
 # ggsave(paste0("plots/",Sys.Date(),"_",length(unique(result_table$Location)),"T_B", band_names,
-#               "_","%%_half_abs_boxplot",".png"), 
+#               "_","box_facet_percent_cbf",".png"),
 #        width = 300, height = 175, units = "mm", dpi = 300, bg = "white")
 
 
@@ -399,8 +399,8 @@ ggboxplot(
 ggplot(result_table, aes(x = increment, y = average_difference, color = band, fill = band)) +
   stat_summary(fun = mean, geom = "line", linewidth = 1.2) +
   stat_summary(fun.data = mean_se, geom = "ribbon", alpha = 0.2, color = NA) +
-  scale_color_manual(values = custom_colors) +
-  scale_fill_manual(values = custom_colors) +
+  scale_color_manual(values = cbf_colors) +
+  scale_fill_manual(values = cbf_colors) +
   labs(x = "Manipulation [%]", y = "Average Difference") +
   theme_minimal(base_size = 14)
 
@@ -491,9 +491,9 @@ ggplot(result_table, aes(x = increment, y = band, fill = average_difference)) +
   labs(x = "Manipulation [%]", y = "Band", fill = "Avg. Diff.") +
   theme_minimal(base_size = 14)
 
-ggsave(paste0("plots/",Sys.Date(),"_",length(unique(result_table$Location)),"T_B",band_names,
-              "_","HEATMAP",".png"), 
-       width = 300, height = 175, units = "mm", dpi = 300, bg = "white")
+# ggsave(paste0("plots/",Sys.Date(),"_",length(unique(result_table$Location)),"T_B",band_names,
+#               "_","HEATMAP_inc_band_avgDiff",".png"), 
+#        width = 300, height = 175, units = "mm", dpi = 300, bg = "white")
 
 # Facetted | Increment x Difference | per Band ----------------------------
 
@@ -520,12 +520,12 @@ band_color <- "NIR"
 (diff_plot <- ggplot(
   filter(result_table, band == band_color),  # select band
   aes(
-  x = increment,
-  y = average_difference,
-  color = band,
-  linetype = Location,
-  group = interaction(Location, band)
-)) +
+    x = increment,
+    y = average_difference,
+    color = band,
+    linetype = Location,
+    group = interaction(Location, band)
+  )) +
     # Add shaded SD ribbon
     geom_ribbon(
       aes(
@@ -536,28 +536,28 @@ band_color <- "NIR"
       alpha = 0.2,
       color = NA
     ) +
-  geom_line(linewidth = 1.1) +
-  geom_point(size = 2) +
-  geom_hline(yintercept = 0, linetype = "dashed", color = "grey50") +
-  geom_vline(xintercept = 0, linetype = "dashed", color = "grey50") +
-  # scale_color_viridis_d(option = "cividis") +
-  scale_color_manual(values = custom_colors) + 
+    geom_line(linewidth = 1.1) +
+    geom_point(size = 2) +
+    geom_hline(yintercept = 0, linetype = "dashed", color = "grey50") +
+    geom_vline(xintercept = 0, linetype = "dashed", color = "grey50") +
+    # scale_color_viridis_d(option = "cividis") +
+    scale_color_manual(values = custom_colors) + 
     scale_fill_manual(values = custom_colors) +
-  labs(
-    title = "Average Difference by degree of manipulation",
-    x = "Manipulation [%]",
-    y = "Average Difference [m]",
-    color = "Band",
-    fill = "Standard Deviation", 
-    linetype = "Location"
-  ) +
-  theme_minimal(base_size = 14) +
-  theme(
-    legend.position = "right",
-    legend.box = "vertical",
-    axis.title = element_text(face = "bold"),
-    panel.grid.minor = element_blank()
-  )
+    labs(
+      title = "Average Difference by degree of manipulation",
+      x = "Manipulation [%]",
+      y = "Average Difference [m]",
+      color = "Band",
+      fill = "Standard Deviation", 
+      linetype = "Location"
+    ) +
+    theme_minimal(base_size = 14) +
+    theme(
+      legend.position = "right",
+      legend.box = "vertical",
+      axis.title = element_text(face = "bold"),
+      panel.grid.minor = element_blank()
+    )
 )
 
 
@@ -571,7 +571,7 @@ band_color <- "NIR"
 
 
 
-  
+
 
 
 
