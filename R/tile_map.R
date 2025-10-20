@@ -23,14 +23,15 @@ final_tiles <- final_tiles %>%
 
 # Maps --------------------------------------------------------------------
 
+final_tiles$Label <- paste(final_tiles$Location, final_tiles$Name, sep = " | ")
+
 # tm_basemap("OpenTopoMap") +
 # tm_basemap("Esri.WorldImagery")+
 # tm_basemap("OpenStreetMap")+
 tm_basemap("Esri.WorldGrayCanvas") +
   tm_shape(final_tiles) +
   tm_borders(col = "red", lwd = 2) +
-  tm_labels("Location", size = 0.8, col = "black", options = opt_tm_labels(point.label.gap = 0.6)) # lables
-
+  tm_labels("Label", size = 0.8, col = "black", options = opt_tm_labels(point.label.gap = 0.6)) # lables
 
 
 bbox <- st_bbox(final_tiles)
@@ -41,4 +42,4 @@ bbox_expanded <- bbox + c(-expand_factor, -expand_factor, expand_factor, expand_
 tm_basemap("Esri.WorldGrayCanvas") +
   tm_shape(final_tiles, bbox = bbox_expanded) +
   tm_borders(col = "red", lwd = 2) +
-  tm_labels("Location", size = 0.8, col = "black", options = opt_tm_labels(point.label.gap = 0.61)) # lables
+  tm_labels("Label", size = 0.8, col = "black", options = opt_tm_labels(point.label.gap = 0.4))

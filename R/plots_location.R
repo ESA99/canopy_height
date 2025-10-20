@@ -1,9 +1,12 @@
-# Plot results by tile
+library(ggplot2)
+library(dplyr)
+library(viridis)
+library(ggrepel)
 
 
-ggsave(paste0("plots/",Sys.Date(),"_",length(unique(result_table$Location)),"T_B",band_names,
-              "_","Loc_absRelDiff_absInc_line",".png"),
-       width = 300, height = 175, units = "mm", dpi = 300, bg = "white")
+# ggsave(paste0("plots/",Sys.Date(),"_",length(unique(result_table$Location)),"T_B",band_names,
+#               "_","Loc_absRelDiff_absInc_line",".png"),
+#        width = 300, height = 175, units = "mm", dpi = 300, bg = "white")
 
 
 # PERCENT line plots ------------------------------------------------------
@@ -42,7 +45,7 @@ ggplot(plot_data, aes(x = abs_increment, y = avg_abs_diff_perc, color = Location
   theme_minimal(base_size = 14)
 
 
-
+# Facett by band, Location as line
 ggplot(result_table, aes(x = increment, y = avg_abs_diff_perc, color = Location)) +
   geom_line(linewidth = 1) +
   geom_point(size = 1.5) +
@@ -57,28 +60,31 @@ ggplot(result_table, aes(x = increment, y = avg_abs_diff_perc, color = Location)
   theme_minimal(base_size = 14)
 
 
-# Increment x Diff by Location --------------------------------------------
+# Facett Location and Band ------------------------------------------
 
 # Absolute difference
-ggplot(result_table, aes(x = abs(increment), y = avg_abs_diff_perc, color = band, fill = band)) +
+ggplot(result_table, aes(x = abs(increment), y = average_difference, color = band, fill = band)) +
   geom_point(alpha = 0.4) +
   geom_smooth(method = "loess", se = TRUE, alpha = 0.2) +
   facet_wrap(~Location) +
-  labs(title = "Effect of Increment Size on Prediction Change per Band",
-       x = "Manipultaion Degree [%]", y = "Absolute Relative Difference (%)") +
+  labs(title = "Effect of Manipulation Degree on Prediction Change per Band",
+       x = "Manipultaion Degree [%]", y = "Absolute Difference [m]") +
   theme_minimal()
 
 # model <- lm(avg_abs_diff_perc ~ band * Location * abs_increment, data = result_table)
 # anova(model)
 # summary(model)
 
-# Relative differenece
-ggplot(result_table, aes(x = abs(increment), y = avg_difference_percent, color = band, fill = band)) +
+
+# Relative difference
+ggplot(result_table, aes(x = abs(increment), y = avg_abs_diff_perc, color = band, fill = band)) +
   geom_point(alpha = 0.4) +
   geom_smooth(method = "loess", se = TRUE, alpha = 0.2) +
+  # scale_color_manual(values = cbf_colors, breaks=c('Blue', 'Green', 'Red', 'RedEdge', 'NIR', 'NIR2', 'SWIR1', 'SWIR2')) +
+  # scale_fill_manual(values = cbf_colors, breaks=c('Blue', 'Green', 'Red', 'RedEdge', 'NIR', 'NIR2', 'SWIR1', 'SWIR2')) +
   facet_wrap(~Location) +
-  labs(title = "Effect of Increment Size on Prediction Change per Band",
-       x = "Manipultaion Degree [%]", y = "Relative Difference (%)") +
+  labs(title = "Effect of Manipulation Degree on Relative Prediction Change per Band",
+       x = "Manipulation Degree [%]", y = "Mean Relative Difference [%]") +
   theme_minimal()
 
 
@@ -97,11 +103,6 @@ ggplot(result_table %>%
 
 
 # Single band line plots ----------------------------------------------
-
-library(ggplot2)
-library(dplyr)
-library(viridis)
-library(ggrepel)
 
 band_color <- "NIR"
 
@@ -154,7 +155,7 @@ ggplot(
 
 
 
-## Location names in Plot
+# Location Names in Plot --------------------------------------------------
 
 # Prepare color-blind-friendly palette
 locations <- unique(result_table$Location)
