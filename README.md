@@ -26,7 +26,7 @@ The x-axis shows the degree of manipulation applied to each spectral band, expre
 The y-axis represents the resulting average change in the predicted variable (in meters).
 Multiple spectral bands are visualized, color-coded similar to their conventional band colors (but in a colour blind freindly way), allowing comparison across different tile locations.  
 
-![Result plot ribbon](plots/2025-10-06_11T_B02+08+03+04_line_perc_ribbon_se_cbf.png)
+![Result plot ribbon](plots/2025-10-20_11T_B02+08+03+04+05+8+11+12_8B_RibbonSE_relative.png)
 Overview of the average relative difference by band.
 
 ![Ribbon plot](plots/2025-10-06_11T_B02+08+03+04_avg_abs_percent_location_line_facett.png)
