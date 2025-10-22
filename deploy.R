@@ -45,19 +45,21 @@ timing_results <- data.frame(
 # Input of the parameters as data frame with all combinations
   # All tiles: "10TES" "17SNB" "20MMD" "32TMT" "32UQU" "33NTG" "34UFD" "35VML" "49NHC" "49UCP" "55HEV"
   # Copy according image folders to: /canopy_height/deploy_example/sentinel2/2020/
-variables <- dandelion::create_param_df(tiles = c("10TES", "17SNB", "20MMD", "32TMT", "32UQU", "33NTG", "34UFD", "35VML", "49NHC", "49UCP", "55HEV"), # 
-                                        bands = c("B05", "B8A", "B11", "B12"), # "B02", "B03", "B04", "B08"
+variables <- dandelion::create_param_df(tiles = c("49UCP"), # 
+                                        bands = c("B08"), # "B02", "B03", "B04", "B08", "B05", "B8A", "B11", "B12"
                                         increments = c(0.05, 0.1, 0.15, 0.2, 0.25),
                                         decrease = c("False", "True"),              # False meaning increase...
                                         year = "2020",
                                         base_folder = "/home/emilio/canopy_height"
 )
 
-# Should the difference rasters be saved?
-DIFF_TIF <- FALSE
 # Should loop results be saved individually as backup (csv files)?
 BACKUP_SAVING <- TRUE
-
+# Should the difference rasters be saved?
+DIFF_TIF <- FALSE
+# Should the prediction result tif's be saved and where?
+PRED_TIF <- TRUE
+PRED_TIF_LOCATION <- "/data/ESA99/resultmaps_bands/"
 
 # General Setup -----------------------------------------------------------
 
@@ -199,17 +201,19 @@ for (v in 1:nrow(variables)) {
 
 # File organization -------------------------------------------------------
 
-  ### Save image with a new name to designated folder
+  ### Save image with a new name to designated folder (out_dir)
   cat("Copying and renaming prediction files.\n")
   
-  # Create Result directory if necessary
+  ## Create Result directory if necessary
   result_path <- file.path(variables$out_dir[v], "preds", variables$tile_name[v])
   if (dir.exists( result_path )  == TRUE) {
-    cat("Directory exists.\n")
+    cat("Result directory exists:",result_path,"\n")
   } else{
     dir.create(result_path, recursive = T)
+    cat("Result directory created:",result_path,"\n")
   }
-  # Copy files to Result directory and rename
+  
+  ## Copy prediction files to Result directory and rename (out_name)
   model_prediction_tif <- list.files(file.path(variables$rootDIR[v],"deploy_example/predictions", 
                                                variables$year[v], 
                                                paste0(variables$tile_name[v], "_merge")), 
@@ -223,28 +227,28 @@ for (v in 1:nrow(variables)) {
   file.copy(from = model_prediction_tif,
             to = new_destination,
             overwrite = T)
-  cat("Copying with new name successfully completed.\n")
+  cat("Copying and renaming successfully completed.\n")
   
-  # Remove predictions and std_dev at old location 
-  cat("Removing pred and StDev files at the original merge location: ")
-  file.path(variables$rootDIR[v],"deploy_example/predictions",
-            variables$year[v],
-            paste0(variables$tile_name[v], "_merge")) %>%
+  ## Remove predictions and std_dev at old location 
+  old_pred_location <-   file.path(variables$rootDIR[v],"deploy_example/predictions",
+                                  variables$year[v],
+                                  paste0(variables$tile_name[v], "_merge"))
+  cat("Removing pred and StDev files at the original merge location:",old_pred_location,"\n")
+  old_pred_location %>%
     list.files(recursive = T, full.names = T) %>%
     file.remove() # delete
-  cat("\n")
+  cat("-> DONE\n")
   
-  # Removing unmerged prediction files
-  cat("Removing original unmerged prediction files: ")
-  file.path(variables$rootDIR[v],"deploy_example/predictions",
-            variables$year[v],
-            variables$tile_name[v]) %>%
+  ## Remove un-merged prediction files from Ensemble
+  individual_preds_location <- file.path(variables$rootDIR[v],"deploy_example/predictions",
+                                         variables$year[v],
+                                         variables$tile_name[v])
+  cat("Removing original unmerged prediction files:",individual_preds_location,"\n")
+  individual_preds_location %>%
     list.files(recursive = T, full.names = T) %>%
     file.remove() # delete
-  cat("\n")
+  cat("-> DONE\n")
 
-  # out_directory <- file.path(paste0(env_vars[["GCHM_DEPLOY_DIR"]], "_merge"), "preds_inv_var_mean")
-  # outputFilePath <- file.path(out_dir, paste0(env_vars[["tile_name"]], "_", env_vars[["experiment"]], "_pred.tif"))
   
   
 # Difference calculation --------------------------------------------------
@@ -299,8 +303,10 @@ for (v in 1:nrow(variables)) {
       "Avg diff [%]    :", round(avg_percent_diff, digits = 1), "\n",
       "Avg abs diff [%]:", round(avg_abs_percent_diff, digits = 1), "\n")
     
-  
-  ## Difference raster saving IF DESIRED
+
+
+# Save Difference raster IF TRUE ------------------------------------------
+
   if (DIFF_TIF == TRUE) {
     cat("Saving difference raster...")
     diff_path <- file.path(result_path, "DIFF")
@@ -316,27 +322,45 @@ for (v in 1:nrow(variables)) {
     cat("Difference raster will not be saved.\n")
   }
   
-  cat("*****",variables$out_name[v], 
-      "| Average difference:", round(avg_diff, digits = 2), 
-      "| Avg absolut diff:", round(avg_abs_diff, digits = 2), 
-      "| Standard deviation:", round(std_dev, digits = 2),"*****\n")
+  # cat("*****",variables$out_name[v], 
+  #     "| Average difference:", round(avg_diff, digits = 2), 
+  #     "| Avg absolut diff:", round(avg_abs_diff, digits = 2), 
+  #     "| Standard deviation:", round(std_dev, digits = 2),"*****\n")
   
 
 # File removal except originals --------------------------------------------
 
-  originals_folder <- "/home/emilio/canopy_height/results/originals"
-  
-  if(variables$original[v]){
-    cat("Moving original prediction to", file.path(originals_folder, basename(new_destination)),"\n")
+
+  # Export Result Rasters if desired (PRED_TIF = TRUE)
+  if (PRED_TIF) {
+    cat("### Prediction rasters will be saved at:", PRED_TIF_LOCATION,"\n")
     file.copy(from = new_destination,
-              to = file.path(originals_folder, basename(new_destination)),
+              to = file.path(PRED_TIF_LOCATION, basename(new_destination)),
               overwrite = T)
-    # cat("Removing file at old location.\n")
-    # file.remove(new_destination)  # Not possible at the moment as the loop expects it to be at new_destination location
-  }  else {
-    file.remove(new_destination)
-    cat("Modified prediction file", basename(new_destination),"deleted.\n")
+    cat("Export of result rasters successfull.\n")
+    # file.remove(new_destination)
+    # cat("File removed at previous destination:", new_destination,"\n")
+  
+  } else {
+        
+    # Move originals to designated folder and delete non-originals
+      cat("Final prediction Rasters will not be saved. Only Originals...\n")
+        originals_folder <- "/home/emilio/canopy_height/results/originals"
+        if(variables$original[v]){
+          cat("Moving original prediction to", file.path(originals_folder, basename(new_destination)),"\n")
+          file.copy(from = new_destination,
+                    to = file.path(originals_folder, basename(new_destination)),
+                    overwrite = T)
+          # cat("Removing file at old location.\n")
+          # file.remove(new_destination)  # Not possible at the moment as the loop expects it to be at new_destination location
+        }  else {
+          file.remove(new_destination)
+          cat("Modified prediction file", basename(new_destination),"deleted.\n")
+        }
+      
   }
+  
+  
   
 
 # Save results ------------------------------------------------------------
