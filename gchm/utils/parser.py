@@ -123,13 +123,15 @@ def str2none(v):
         return float(v)
 
 def str2int(v):
-    if isinstance(v, int):
-        return v
+    v = str_or_none(v)
+    if v is None:
+        return None
     return int(v)
 
 def str2float(v):
-    if isinstance(v, float):
-        return v
+    v = str_or_none(v)
+    if v is None:
+        return None
     return float(v)
 
 def str_or_none(v):

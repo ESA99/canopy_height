@@ -48,8 +48,8 @@ def setup_parser():
     parser.add_argument("--remove_image_after_pred", type=str2bool, nargs='?', const=True, default=False,
                         help="if True: deletes the image after saving the prediction.")
     parser.add_argument("--sentinel2_dir", help="directory to save sentinel2 data (temporarily)")
-    parser.add_argument("--modify_bands", type=str2int, nargs="+", default=[])
-    parser.add_argument("--modify_percentage", type=float, default=None)
+    parser.add_argument("--modify_bands", type=str2int, nargs="+", default=None)
+    parser.add_argument("--modify_percentage", type=str2float, default=None)
     parser.add_argument("--modify_decrease", type=bool, default=False)
     parser.add_argument("--new-pos", nargs='+', type=str2float, default=None)
 
@@ -221,12 +221,12 @@ if __name__ == "__main__":
     print('train_target_std', train_target_std)
 
     # setup input transforms
-    print(args.modify_bands)
-    print(args.modify_percentage)
-    print(args.modify_decrease)
-    print(args.new_pos)
+    print('modify_bands', args.modify_bands)
+    print('modify_percentage', args.modify_percentage)
+    print('modify_decrease', args.modify_decrease)
+    print('new_pos', args.new_pos)
 
-    if len(args.modify_bands):
+    if args.modify_bands is not None:
         input_transforms = Transformer(transforms=[
             Normalize(mean=train_input_mean, std=train_input_std),
             ModifyBands(bands=args.modify_bands, percentage=args.modify_percentage,decrease=args.modify_decrease)
