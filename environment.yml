@@ -30,6 +30,18 @@ dependencies:
   - conda-forge::cudatoolkit==11.8.0
   - typing
   - jupyter
+  - r-terra
+  - r-sf
+  - r-tmap
+  - r-rnaturalearth
+  - r-rnaturalearthdata
+  - r-plyr
+  - r-dplyr
+  - r-leaflet
+  - r-viridis
+  - r-cols4all
+  - r-colorspace
+  - r-codetools
   - pip
   - pip:
     - -e .
