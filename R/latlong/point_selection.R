@@ -75,6 +75,7 @@ points_sf <- function(new_pos_char, crs = 4326) {
 }
 
 points <- points_sf(new_pos_char)
+st_write(points, "/data/ESA99/lat_lon_results/points.gpkg", layer = "LatLon_points", delete_dsn = TRUE)
 
 # tm_basemap("OpenStreetMap")+
 tm_basemap("Esri.WorldGrayCanvas") +

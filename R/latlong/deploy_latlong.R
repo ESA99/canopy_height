@@ -100,7 +100,7 @@ point_selcetion <- function(lon_grid = 20, lat_grid = 15, lon_border = c(-180,18
   
 }
 
-latlong_variables <- function (tiles = c("10TES", "33NTG", "55HEV"), new_pos = NA,year = "2020",
+latlong_variables <- function (tiles = c("10TES"), new_pos = NA,year = "2020",
                                base_folder = "/home/emilio/canopy_height", worldcover = "2020",
                                result_dir = "/data/ESA99/lat_lon_results/"){
   df <- expand.grid(tile_name = tiles, 
@@ -148,7 +148,7 @@ latlong_variables <- function (tiles = c("10TES", "33NTG", "55HEV"), new_pos = N
 
 new_pos_char <- point_selcetion(lon_grid = 17, lat_grid = 12, lon_border = c(-120,180), lat_border = c(-60,50), coast_buffer = -0.05)
 
-variables <- latlong_variables(tiles = c("20MMD"), #"33NTG", "55HEV", 10TES
+variables <- latlong_variables(tiles = c("17SNB"), #"33NTG", "55HEV", "10TES"
                             new_pos = new_pos_char,
                             year = "2020",
                             base_folder = "/home/emilio/canopy_height",
@@ -211,7 +211,7 @@ if (all(exist_flags)) {
 }
 
 # Time estimate
-mean_loop_time <- 13.38203 # minutes -> derived from timing data of past loops
+mean_loop_time <- 6.5 
 finish_estimate <- Sys.time() + (nrow(variables)*mean_loop_time/60 * 3600) 
 cat("Estimated finishing time:", format(finish_estimate, "%Y-%m-%d %H:%M:%S"), "\n")
 
