@@ -586,8 +586,18 @@ cat("Average time per loop:",
               floor(avg_time %% 60))
     },"\n"
 )
+cat("**************************** Summary ****************************\n")
+cat("Tiles processed:",unique(variables$tile_name),"\n")
+cat("Number of new positions:",length(new_pos_char),"\n")
+cat("Total number of loops/predictions:",nrow(variables),"\n")
+cat("Total time elapsed:",round(as.numeric(difftime(end_time, start_time, units = "hours")), digits = 3),"hours.\n")
 
-cat("++++++++++++++++++++++++++++ All jobs finished. Full script ran succesfully. ++++++++++++++++++++++++++++\n")
+
+cat("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n")
+cat("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n")
+cat("++++++++++++++++++++++++++++++++ All jobs finished. Full script ran succesfully. ++++++++++++++++++++++++++++++++\n")
+cat("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n")
+cat("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n")
 
 
 
