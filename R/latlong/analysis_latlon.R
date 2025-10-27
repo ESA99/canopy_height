@@ -12,8 +12,9 @@ library(tmap)
 # Data --------------------------------------------------------------------
 
 d <- list.dirs("/data/ESA99/lat_lon_results/", full.names = TRUE, recursive = FALSE)
+d
 
-tif_files <- list.files(d[3], pattern = "\\.tif$", full.names = TRUE)
+tif_files <- list.files(d[11], pattern = "\\.tif$", full.names = TRUE)
 # tif_files <- files[!grepl("\\.tif\\.aux", files)] # Exclude .tif.aux.xml 
 
 # Read them all into a list of SpatRaster objects
@@ -78,17 +79,6 @@ original_point <- summary_df %>% filter(grepl("_original", layer))
 
 # Maps --------------------------------------------------------------------
 
-# Map of mean prediction height for a single tile at all 58 locations
-ggplot(summary_df, aes(x = lon_abs, y = lat_abs, color = mean_pred)) +
-  geom_point(size = 4) +
-  scale_color_viridis_c(option = "C") +
-  coord_equal() +
-  theme_minimal() +
-  labs(x = "Longitude (°)", y = "Latitude (°)",
-       color = "Mean prediction",
-       title = "Prediction sensitivity by global position")
-
-
 # World map with SD magnitude
 world <- ne_countries(scale = "medium", returnclass = "sf")
 
@@ -105,10 +95,18 @@ ggplot() +
   labs(x = "Longitude", y = "Latitude",
        color = "Mean prediction",
        size = "Std. dev.",
-       title = "Prediction sensitivity by global position | Tile: Brazil")
+       title = "Prediction sensitivity by global position | Tile: Australia")
 
 
-
+# # Map of mean prediction height for a single tile at all 58 locations
+# ggplot(summary_df, aes(x = lon_abs, y = lat_abs, color = mean_pred)) +
+#   geom_point(size = 4) +
+#   scale_color_viridis_c(option = "C") +
+#   coord_equal() +
+#   theme_minimal() +
+#   labs(x = "Longitude (°)", y = "Latitude (°)",
+#        color = "Mean prediction",
+#        title = "Prediction sensitivity by global position")
 
 
 
