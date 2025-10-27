@@ -45,8 +45,8 @@ timing_results <- data.frame(
 # Input of the parameters as data frame with all combinations
   # All tiles: "10TES" "17SNB" "20MMD" "32TMT" "32UQU" "33NTG" "34UFD" "35VML" "49NHC" "49UCP" "55HEV"
   # Copy according image folders to: /canopy_height/deploy_example/sentinel2/2020/
-variables <- dandelion::create_param_df(tiles = c("49UCP"), # 
-                                        bands = c("B08"), # "B02", "B03", "B04", "B08", "B05", "B8A", "B11", "B12"
+variables <- dandelion::create_param_df(tiles = c("49UCP", "34UFD"), # 
+                                        bands = c("B08", "B8A"), # "B02", "B03", "B04", "B08", "B05", "B8A", "B11", "B12"
                                         increments = c(0.05, 0.1, 0.15, 0.2, 0.25),
                                         decrease = c("False", "True"),              # False meaning increase...
                                         year = "2020",
@@ -501,10 +501,22 @@ cat("Average time per loop:",
           floor(avg_time / 3600),
           floor((avg_time %% 3600) / 60),
           floor(avg_time %% 60))
-},"\n"
-)
+},"\n")
 
-cat("++++++++++++++++++++++++++++ All jobs finished. Full script ran succesfully. ++++++++++++++++++++++++++++\n")
+cat("**************************** Summary ****************************\n")
+cat("Total time elapsed:",round(as.numeric(difftime(end_time, start_time, units = "hours")), digits = 3),"hours.\n")
+cat("Total number of loops/predictions:",nrow(variables),"\n")
+cat("Tiles processed:",unique(variables$tile_name),"\n")
+cat("Bands processed:",unique(variables$band),"\n")
+if (BACKUP_SAVING) { cat("Backup saved for each loop.\n") } else { cat("No Backup saved.\n") }
+if (PRED_TIF) { cat("Prediction TIFs saved to:", PRED_TIF_LOCATION, "\n")} else { cat("No prediction TIFs saved.\n") }
+if (DIFF_TIF) { cat("Difference rasters saved to ./final_results/preds/TILE/DIFF\n") } else { cat("Difference rasters not saved.\n") }
 
+
+cat("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n")
+cat("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n")
+cat("++++++++++++++++++++++++++++++++ All jobs finished. Full script ran succesfully. ++++++++++++++++++++++++++++++++\n")
+cat("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n")
+cat("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n")
 
 
