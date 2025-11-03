@@ -33,6 +33,7 @@ layer_names <- names(raster_stack)
 lat_abs <- as.numeric(str_extract(layer_names, "(?<=Lat:)[-0-9]+"))
 lon_abs <- as.numeric(str_extract(layer_names, "(?<=Lon:)[-0-9]+"))
 
+# Get coordinates of original location
 coord_extract_wgs84 <- function(raster){
   
   ext <- ext(raster_stack)
