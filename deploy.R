@@ -45,8 +45,8 @@ timing_results <- data.frame(
 # Input of the parameters as data frame with all combinations
   # All tiles: "10TES" "17SNB" "20MMD" "32TMT" "32UQU" "33NTG" "34UFD" "35VML" "49NHC" "49UCP" "55HEV"
   # Copy according image folders to: /canopy_height/deploy_example/sentinel2/2020/
-variables <- dandelion::create_param_df(tiles = c("49UCP", "34UFD"), # 
-                                        bands = c("B08", "B8A"), # "B02", "B03", "B04", "B08", "B05", "B8A", "B11", "B12"
+variables <- dandelion::create_param_df(tiles = c("34UFD"), # 
+                                        bands = c("B05"), # "B02", "B03", "B04", "B08", "B05", "B8A", "B11", "B12"
                                         increments = c(0.05, 0.1, 0.15, 0.2, 0.25),
                                         decrease = c("False", "True"),              # False meaning increase...
                                         year = "2020",
@@ -54,7 +54,7 @@ variables <- dandelion::create_param_df(tiles = c("49UCP", "34UFD"), #
 )
 
 # Should loop results be saved individually as backup (csv files)?
-BACKUP_SAVING <- TRUE
+BACKUP_SAVING <- FALSE
 # Should the difference rasters be saved?
 DIFF_TIF <- FALSE
 # Should the prediction result tif's be saved and where?
