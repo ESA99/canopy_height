@@ -1,3 +1,5 @@
+## Selection of global dispersed points on landmasses to be used as locations for the lat-lon analysis
+
 library(sf)
 library(rnaturalearth)
 library(dplyr)
@@ -58,7 +60,7 @@ point_selcetion <- function(lon_grid = 20, lat_grid = 15, lon_border = c(-180,18
 }
 
 
-new_pos_char <- point_selcetion(lon_grid = 17, lat_grid = 12, lon_border = c(-120,180), lat_border = c(-60,50), coast_buffer = -0.05)
+new_pos_char <- point_selcetion(lon_grid = 17, lat_grid = 12, lon_border = c(-120,180), lat_border = c(-60,60), coast_buffer = -0.005)
 
 
 # Convert character output to sf object
@@ -75,12 +77,20 @@ points_sf <- function(new_pos_char, crs = 4326) {
 }
 
 points <- points_sf(new_pos_char)
-st_write(points, "/data/ESA99/lat_lon_results/points.gpkg", layer = "LatLon_points", delete_dsn = TRUE)
+# st_write(points, "/data/ESA99/lat_lon_results/points.gpkg", layer = "LatLon_points", delete_dsn = TRUE)
+
+
+### Map ###
+bbox <- st_bbox(points)
+expand_factor <- 0.05 # Expand by 5% on all sides
+bbox_expanded <- bbox + c(-expand_factor, -expand_factor, expand_factor, expand_factor) * (bbox[c("xmax","ymax","xmax","ymax")] - bbox[c("xmin","ymin","xmin","ymin")])
 
 # tm_basemap("OpenStreetMap")+
 tm_basemap("Esri.WorldGrayCanvas") +
-  tm_shape(points) +
+  tm_shape(points, bbox = bbox_expanded) +
   tm_borders(col = "red", lwd = 5)
+
+
 
 # st_write(points, "/home/emilio/canopy_height/R/latlong/points.gpkg")
 
@@ -124,7 +134,7 @@ land_points <- points[lengths(intersections) > 0, ]
 
 # Sample 50 points
 set.seed(3)
-sampled_points <- land_points %>% slice_sample(n = 50)
+sampled_points <- land_points %>% slice_sample(n = 60)
 
 # Extract coordinates
 new_pos <- st_coordinates(sampled_points)
