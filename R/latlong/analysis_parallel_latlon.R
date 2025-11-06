@@ -33,7 +33,7 @@ extract_latlon <- function(names_vec, raster_stack) {
 # A) Parallel processing -----------------------------------------------------
 
 # Set up parallel plan (use all but 10 cores)
-plan(multicore, workers = parallel::detectCores() - 10) # Correct way for LINUX not multisession (windows)
+plan(multicore, workers = parallel::detectCores() - 30) # Correct way for LINUX not multisession (windows)
 
 process_single_tile <- function(tile_dir) {
   tile_name <- basename(tile_dir)
@@ -190,6 +190,87 @@ with_progress({
 })
 
 
+
+# c) pbmcapply parallel computing -----------------------------------------
+library(pbmcapply)
+# Function: Process one tile 
+process_tile <- function(tile_dir) {
+  tile_name <- basename(tile_dir)
+  message("Processing tile: ", tile_name)
+  
+  tifs <- list.files(tile_dir, pattern = "\\.tif$", full.names = TRUE)
+  if (length(tifs) == 0) return(NULL)
+  
+  # Load all rasters
+  rasters <- lapply(tifs, rast)
+  raster_stack <- rast(rasters)
+  layer_names <- basename(tools::file_path_sans_ext(tifs))
+  names(raster_stack) <- layer_names
+  
+  # Get Lat/Lon Info
+  coord_info <- extract_latlon(layer_names, raster_stack)
+  
+  # Identify original raster
+  orig_idx <- which(str_detect(layer_names, "_original"))
+  if (length(orig_idx) != 1) {
+    warning("No unique original raster found for tile: ", tile_name)
+    return(NULL)
+  }
+  original_raster <- raster_stack[[orig_idx]]
+  
+  # Iterate through all rasters in this tile
+  results <- vector("list", length(tifs))
+  
+  for (t in seq_along(tifs)) {
+    lyr_name <- layer_names[t]
+    current_raster <- raster_stack[[t]]
+    
+    # Pixel-wise difference
+    difference <- current_raster - original_raster
+    eps <- 1e-6
+    difference_percent <- ((current_raster - original_raster) /
+                             ((abs(current_raster) + abs(original_raster)) / 2 + eps)) * 100
+    
+    # Statistics
+    avg_diff <- global(difference, fun = "mean", na.rm = TRUE)[[1]]
+    avg_abs_diff <- global(abs(difference), fun = "mean", na.rm = TRUE)[[1]]
+    correlation <- cor(values(current_raster), values(original_raster), 
+                       method = "pearson", use = "complete.obs") |> as.numeric()
+    std_dev <- global(difference, fun = "sd", na.rm = TRUE)[[1]]
+    avg_percent_diff <- global(difference_percent, fun = "mean", na.rm = TRUE)[[1]]
+    avg_abs_percent_diff <- global(abs(difference_percent), fun = "mean", na.rm = TRUE)[[1]]
+    
+    results[[t]] <- tibble(
+      tile = tile_name,
+      name = lyr_name,
+      original = (t == orig_idx),
+      lat = coord_info$LAT[t],
+      lon = coord_info$LON[t],
+      orig_lat = coord_info$LAT[orig_idx],
+      orig_lon = coord_info$LON[orig_idx],
+      average_difference = avg_diff,
+      avg_abs_diff = avg_abs_diff,
+      avg_differece_percent = avg_percent_diff,
+      avg_abs_diff_perc = avg_abs_percent_diff,
+      correlation = correlation,
+      std_dev = std_dev
+    )
+  }
+  
+  bind_rows(results)
+}
+
+# Parallel deployment
+start_time <- Sys.time()
+
+# Use all available cores minus one
+num_cores <- parallel::detectCores() - 10
+summary_global_list <- pbmclapply(tile_dirs, process_tile, mc.cores = num_cores)
+summary_global <- bind_rows(summary_global_list)
+
+end_time <- Sys.time()
+cat("Total computation time: ", 
+    round(difftime(end_time, start_time, units = "mins"), 2), "minutes\n")
 
 
 
