@@ -59,7 +59,7 @@ BACKUP_SAVING <- FALSE
 DIFF_TIF <- FALSE
 # Should the prediction result tif's be saved and where?
 PRED_TIF <- TRUE
-PRED_TIF_LOCATION <- "/data/ESA99/resultmaps_bands/F"
+PRED_TIF_LOCATION <- "/data/ESA99/resultmaps_bands/H"
 
 # General Setup -----------------------------------------------------------
 

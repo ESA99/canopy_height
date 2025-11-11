@@ -6,7 +6,7 @@ library(cowplot)
 library(cols4all)
 
 
-tif_files <- list.files("/data/ESA99/resultmaps_bands/E",
+tif_files <- list.files("/data/ESA99/resultmaps_bands/F",
                         pattern = "49UCP.*\\.tif$",
                         full.names = TRUE)
 
@@ -87,7 +87,7 @@ tm_shape(stacked) +
     legend.text.size = 0.8
     # outer.margins = c(0.02, 0.02, 0.12, 0.02)
   ) +
-  tm_title("Mongolia 49UCP | NIR | E")
+  tm_title("Mongolia 49UCP | NIR | F")
 
 
 # tmap_save(
