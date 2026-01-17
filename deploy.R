@@ -73,12 +73,18 @@ create_param_interactions <- function (tiles, bands, increments, decrease, year,
 }
 
 # Input of the parameters as data frame with all combinations
-  # All tiles: "10TES" "17SNB" "20MMD" "32TMT" "32UQU" "33NTG" "34UFD" "35VML" "49NHC" "49UCP" "55HEV"
   # Copy according image folders to: /canopy_height/deploy_example/sentinel2/2020/
-variables <- create_param_interactions(tiles = c("17SNB"), # "10TES", "17SNB", "20MMD", "32TMT", "32UQU", "33NTG", "34UFD", "35VML", "49NHC", "49UCP", "55HEV"
-                                        bands = list(c("B11","B12","B8A"),c("B02","B04"),c("B03","B05"), c("B04", "B08"), c("B03","B04")), # "B02", "B03", "B04", "B08", "B05", "B8A", "B11", "B12"
-                                        increments = c(0.05, 0.1, 0.15, 0.2, 0.25), # 0.05, 0.1, 0.15, 0.2, 0.25
-                                        decrease = c("False", "True" ),  #          # False meaning increase...
+  # All tiles: "10TES", "17SNB", "20MMD", "32TMT", "32UQU", "33NTG", "34UFD", "35VML", "49NHC", "49UCP", "55HEV"
+  # All bands: "B02", "B03", "B04", "B05", "B08", "B8A", "B11", "B12"
+  # Increments: 0.05, 0.1, 0.15, 0.2, 0.25
+
+variables <- create_param_interactions(tiles = c("17SNB"), 
+                                        bands = list(c("B02", "B03", "B04", "B05", "B08", "B8A", "B11", "B12"), # All
+                                                     c("B04","B11", "B12"), # Low responder
+                                                     c("B02","B05", "B08", "B8A"), # High responder 
+                                                     c("B02", "B03", "B04")), # Visual bands
+                                        increments = c(0.05, 0.1, 0.15, 0.2, 0.25),
+                                        decrease = c("False", "True" ),   # False meaning increase...
                                         year = "2020",
                                         base_folder = "/home/emilio/canopy_height"
 )
@@ -145,8 +151,12 @@ if (all(exist_flags)) {
 }
 
 # Time estimate
-mean_loop_time <- 13.38203 # minutes -> derived from timing data of past loops
-finish_estimate <- Sys.time() + (nrow(variables)*mean_loop_time/60 * 3600) 
+mean_loop_time <- 12 # minutes -> derived from timing data of past loops
+working_time <- (nrow(variables)*mean_loop_time/60 * 3600)
+finish_estimate <- Sys.time() +  working_time
+working_hours <- working_hours <- sprintf("%02d:%02d:%02d", as.integer(working_time %/% 3600),
+  as.integer((working_time %% 3600) %/% 60),as.integer(working_time %% 60) )
+cat("Estimated working time:",working_hours,"\n")
 cat("Estimated finishing time:", format(finish_estimate, "%Y-%m-%d %H:%M:%S"), "\n")
 
 
@@ -184,7 +194,10 @@ for (v in 1:nrow(variables)) {
 # Global Variables Setup ----------------------------------------------------
 
   # Translate band name
-  band_number <- translation_table$BandNumber[translation_table$BandName == variables$band[[v]]]
+  # band_number <- translation_table$BandNumber[translation_table$BandName == variables$band[[v]]]
+  band_number <- translation_table$BandNumber[translation_table$BandName %in% variables$band[[v]]]
+  
+  modify_bands_str <- paste(band_number, collapse = " ")
   
   # Create & set GLOBAL VARIABLES from variables data frame
   env_vars <- c(
@@ -192,7 +205,7 @@ for (v in 1:nrow(variables)) {
     wcover = variables$WC_year[v],
     YEAR = variables$year[v],
     
-    MODIFY_BANDS = band_number,
+    MODIFY_BANDS = modify_bands_str,
     MODIFY_PERCENTAGE = variables$increment[v], # or rate
     MODIFY_DECREASE = variables$decrease[v],
     
@@ -219,11 +232,12 @@ for (v in 1:nrow(variables)) {
 
   cat("#################### Start model deployment loop",v,"####################\n")
   
-  cat("+++++++++ deploy_example.sh start +++++++++\n")
-  withr::with_envvar(env_vars, {
-    system2("./gchm/bash/deploy_example.sh")
-  })
-  cat("deploy_example.sh finished.\n")
+  # # Tests for one image, all variables needed are also created in config.sh so not needed!
+  # cat("+++++++++ deploy_example.sh start +++++++++\n")
+  # withr::with_envvar(env_vars, {
+  #   system2("./gchm/bash/deploy_example.sh")
+  # })
+  # cat("deploy_example.sh finished.\n")
   
   cat("+++++++++ Run tile deploy merge start +++++++++\n")
   withr::with_envvar(env_vars, {
