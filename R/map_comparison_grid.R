@@ -6,7 +6,7 @@ library(cowplot)
 library(cols4all)
 
 
-tif_files <- list.files("/data/ESA99/resultmaps_bands/F",
+tif_files <- list.files("/data/ESA99/resultmaps_bands/H",
                         pattern = "49UCP.*\\.tif$",
                         full.names = TRUE)
 
@@ -179,7 +179,7 @@ final_with_legend <- cowplot::plot_grid(
 print(final_with_legend)
 
 
-ggsave("/data/ESA99/combined_maps_2.png", final_with_legend, width = 24, height = 3.5, dpi = 300, bg = "white")
+# ggsave("/data/ESA99/combined_maps_2.png", final_with_legend, width = 24, height = 3.5, dpi = 300, bg = "white")
 
 
 

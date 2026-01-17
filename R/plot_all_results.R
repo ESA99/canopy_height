@@ -98,7 +98,7 @@ library(viridis)
 # 
 # # Numeric positions of each increment on x-axis
 # increment_positions <- seq_along(levels(result_table_factor$increment_f))
-# 
+
 
 
 result_table <- read.csv("results/2025-10-20_merged_results_8_Bands.csv")
@@ -246,8 +246,7 @@ ggboxplot(
   rotate_x_text(angle = 45) +
   labs(
     x = "Manipulation [%]",
-    y = "Average Difference [m]",
-    title = "Distribution of Average Differences per Increment and Band"
+    y = "Average Difference [m]"
   ) +
   theme_pubr(base_size = 14) +
   theme(legend.position = "none")
@@ -462,16 +461,20 @@ ggline(
   alpha = 0.2,
   palette = cbf_colors,
   facet.by = "band",
-  scales = "fixed"
+  scales = "fixed",
+  ncol = 2
 ) +
   geom_hline(yintercept = 0, linetype = "dashed", color = "grey30") +
-  geom_vline(xintercept = zero_pos, linetype = "dashed", color = "grey30") +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "grey30") +
   labs(
-    x = "Manipulation [%]",
+    x = "Manipulation Degree [%]",
     y = "Average Difference [m]",
-    title = "Average Difference with SE Ribbon per Band"
+    title = "Average Difference with SE Ribbon per Band",
+    color = "Band"
   ) +
-  theme_pubr(base_size = 14)
+  theme_pubr(base_size = 14) +
+  theme(
+    legend.position = "none"  )
 
 
 ## Facetted ggpubr version plus points
@@ -491,8 +494,8 @@ ggline(
   geom_point(aes(y = average_difference, color = "black"),
              position = position_jitterdodge(jitter.width = 0.1, dodge.width = 0.8),
              size = 0.8, alpha = 0.8) +
-  geom_hline(yintercept = 0, linetype = "dashed", color = "grey30") +
-  geom_vline(xintercept = zero_pos, linetype = "dashed", color = "grey30") +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "grey40") +
+  geom_vline(xintercept = zero_pos, linetype = "dashed", color = "grey40") +
   labs(
     x = "Manipulation [%]",
     y = "Average Difference [m]",

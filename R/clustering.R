@@ -198,7 +198,6 @@ library(viridis)
 
 # Summarize data: average over tile, band, and abs_increment per Location
 location_summary <- result_table %>%
-  mutate(abs_increment = abs(increment)) %>%            # take absolute values
   group_by(Location, abs_increment) %>%
   summarise(avg_diff_percent = mean(avg_difference_percent, na.rm = TRUE),
             .groups = "drop")
@@ -222,7 +221,7 @@ hc <- hclust(dist_matrix, method = "ward.D2")
 plot(hc, main = "Hierarchical clustering of Locations based on abs_increment")
 
 # Cut tree into k clusters
-k <- 5
+k <- 4
 location_groups <- data.frame(
   Location = rownames(feature_matrix_scaled),
   group = factor(cutree(hc, k = k))
@@ -268,6 +267,6 @@ ggplot(plot_data, aes(x = abs_increment, y = avg_diff_percent, color = group, gr
   theme(axis.title = element_text(face = "bold"))
 
 
-ggsave(paste0("plots/cluster/",Sys.Date(),"_",length(unique(result_table$Location)),"T_B",band_names,
-              "_","right_line_location_Percent_cluster5",".png"),
-       width = 300, height = 175, units = "mm", dpi = 300, bg = "white")
+# ggsave(paste0("plots/cluster/",Sys.Date(),"_",length(unique(result_table$Location)),"T_B",band_names,
+#               "_","right_line_location_Percent_cluster5",".png"),
+#        width = 300, height = 175, units = "mm", dpi = 300, bg = "white")

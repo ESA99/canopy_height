@@ -30,6 +30,7 @@ ggplot(result_table, aes(x = increment, y = avg_difference_percent, color = Loca
 plot_data <- result_table %>%
   group_by(band, Location, abs_increment) %>%
   summarise(avg_abs_diff_perc = mean(avg_abs_diff_perc, na.rm = TRUE), .groups = "drop")
+plot_data$manipulation <- plot_data$abs_increment*100
 
 ggplot(plot_data, aes(x = abs_increment, y = avg_abs_diff_perc, color = Location)) +
   geom_line(linewidth = 1) +
@@ -43,6 +44,50 @@ ggplot(plot_data, aes(x = abs_increment, y = avg_abs_diff_perc, color = Location
     title = "Average relative absolute difference to original prediction by\nmanipulation degree, location, and band."
   ) +
   theme_minimal(base_size = 14)
+
+# GGPUBR Version...
+ggline(
+  plot_data,
+  x = "manipulation",
+  y = "avg_abs_diff_perc",
+  color = "Location",
+  fill  = "Location",
+  add = "mean_se",
+  linewidth = 1.2,
+  alpha = 0.2,
+  palette = tol_muted_11,
+  facet.by = "band",
+  scales = "fixed",
+  ncol = 2
+) +
+  geom_hline(
+    yintercept = c(50, 100),
+    linetype = "dashed",
+    color = "grey85",
+    linewidth = 0.6
+  ) +
+  geom_hline(
+    yintercept = 0,
+    linetype = "dashed",
+    color = "grey30"
+  ) +
+  labs(
+    x = "Manipulation Degree [%]",
+    y = "Average Relative Difference [%]",
+    title = "Sensitivity of model predictions to manipulation degree across\n locations and bands",
+    color = "Location",
+    fill  = "Location"
+  ) +
+  theme_pubr(base_size = 14) +
+  theme(
+    legend.position = "right"
+  )
+
+# Average relative difference to original prediction by\nmanipulation degree, location, and band
+# Relative change in prediction output across manipulation degrees, locations, and bands
+# Sensitivity of model predictions to manipulation degree across locations and bands
+
+
 
 
 # Facett by band, Location as line
@@ -104,7 +149,7 @@ ggplot(result_table %>%
 
 # Single band line plots ----------------------------------------------
 
-band_color <- "NIR"
+band_color <- "NIR2"
 
 # Example color-blind–friendly palette (viridis)
 cb_palette <- viridis::viridis(length(unique(result_table$Location)), option = "C")
@@ -134,11 +179,11 @@ ggplot(
     geom_vline(xintercept = 0, linetype = "dashed", color = "grey50") +
     
     # Color-blind–friendly scales
-    scale_color_manual(values = cb_palette) +
-    scale_fill_manual(values = cb_palette) +
+    scale_color_manual(values = tol_muted_11) +
+    scale_fill_manual(values = tol_muted_11) +
     
     labs(
-      title = "Average Difference by degree of manipulation",
+      title = "Near-Infrared",
       x = "Manipulation [%]",
       y = "Average Difference [m]",
       color = "Location",

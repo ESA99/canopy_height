@@ -10,9 +10,9 @@ result_table <- read.csv("results/2025-10-20_merged_results_8_Bands.csv")
 cbf_colors <- c("Blue"  = "#0077BB","Green" = "#009988", "Red"   = "#CC3311", "NIR"   = "#EE3377",
                 "RedEdge" = "#EE7733", "NIR2" = "#33BBEE", "SWIR1" = "#BBBBBB", "SWIR2" = "#555555")
 
-ggsave(paste0("plots/",Sys.Date(),"_",length(unique(result_table$Location)),"T_B",band_names,
-              "_","8B_Facett_Location_relative",".png"),
-       width = 300, height = 175, units = "mm", dpi = 300, bg = "white")
+# ggsave(paste0("plots/",Sys.Date(),"_",length(unique(result_table$Location)),"T_B",band_names,
+#               "_","8B_Facett_Location_relative",".png"),
+#        width = 300, height = 175, units = "mm", dpi = 300, bg = "white")
 
 # Mean Line butterfly -----------------------------------------------------
 
@@ -80,7 +80,7 @@ ggline(result_table, x = "increment",  y = "avg_difference_percent",
              position = position_jitterdodge(jitter.width = 0.1, dodge.width = 0.8),
              size = 0.7, alpha = 0.8) +
   geom_hline(yintercept = 0, linetype = "dashed", color = "grey30") +
-  geom_vline(xintercept = zero_pos, linetype = "dashed", color = "grey30") +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "grey30") +
   labs(x = "Manipulation Degree [%]",y = "Average Relative Difference [%]",
     title = "Average Relative Difference with SE Ribbon per Band") +
   theme_pubr(base_size = 14)
@@ -93,7 +93,7 @@ ggboxplot(result_table, x = "increment",  y = "average_difference",
   fill = "band",  color = "black",
   palette = cbf_colors,  facet.by = "band",  scales = "fixed", alpha = 0.8) +
   geom_hline(yintercept = 0, linetype = "dashed", color = "grey30") +
-  geom_vline(xintercept = zero_pos, linetype = "dashed", color = "grey30") +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "grey30") +
   rotate_x_text(angle = 45) +
   labs(x = "Manipulation [%]", y = "Average Difference [m]",
     title = "Distribution of Average Differences per Increment and Band") +
@@ -110,8 +110,7 @@ ggplot(result_table, aes(x = abs(increment), y = avg_abs_diff_perc, color = band
   scale_color_manual(values = cbf_colors, breaks=c('Blue', 'Green', 'Red', 'RedEdge', 'NIR', 'NIR2', 'SWIR1', 'SWIR2')) +
   scale_fill_manual(values = cbf_colors, breaks=c('Blue', 'Green', 'Red', 'RedEdge', 'NIR', 'NIR2', 'SWIR1', 'SWIR2')) +
   facet_wrap(~Location) +
-  labs(title = "Effect of Manipulation Degree on Prediction Change per Band",
-       x = "Manipulation Degree [%]", y = "Mean Relative Difference [%]") +
+  labs(x = "Manipulation Degree [%]", y = "Mean Relative Difference [%]") +
   theme_minimal()
 
 model <- lm(avg_abs_diff_perc ~ band * Location * abs_increment, data = result_table)

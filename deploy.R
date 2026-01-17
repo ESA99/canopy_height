@@ -45,10 +45,10 @@ timing_results <- data.frame(
 # Input of the parameters as data frame with all combinations
   # All tiles: "10TES" "17SNB" "20MMD" "32TMT" "32UQU" "33NTG" "34UFD" "35VML" "49NHC" "49UCP" "55HEV"
   # Copy according image folders to: /canopy_height/deploy_example/sentinel2/2020/
-variables <- dandelion::create_param_df(tiles = c("49UCP"), # 
+variables <- dandelion::create_param_df(tiles = c("49UCP"), # "10TES", "17SNB", "20MMD", "32TMT", "32UQU", "33NTG", "34UFD", "35VML", "49NHC", "49UCP", "55HEV"
                                         bands = c("B08"), # "B02", "B03", "B04", "B08", "B05", "B8A", "B11", "B12"
-                                        increments = c(0.05, 0.1, 0.15, 0.2, 0.25),
-                                        decrease = c("False", "True"),              # False meaning increase...
+                                        increments = c(0.05, 0.1, 0.15, 0.2, 0.25), # 0.05, 0.1, 0.15, 0.2, 0.25
+                                        decrease = c("False", "True" ),  #          # False meaning increase...
                                         year = "2020",
                                         base_folder = "/home/emilio/canopy_height"
 )
@@ -70,6 +70,8 @@ results_df <- data.frame(
   band = character(nrow(variables)),
   increment = numeric(nrow(variables)),
   decrease = character(nrow(variables)),
+  
+  mean_height = numeric(nrow(variables)),
   
   average_difference = numeric(nrow(variables)),
   avg_abs_diff = numeric(nrow(variables)),
@@ -288,6 +290,7 @@ for (v in 1:nrow(variables)) {
                            ((abs(manipulated_pred) + abs(original_pred)) / 2 + eps)) * 100
   
   # Summaries
+  mean_CH <- global(manipulated_pred, fun = "mean", na.rm = TRUE)[[1]]
   avg_diff <- global(difference, fun = "mean", na.rm = TRUE)[[1]]
   avg_abs_diff <- global(abs(difference), fun = "mean", na.rm = TRUE)[[1]]
   correlation <- cor(values(manipulated_pred), values(original_pred), method = "pearson", use = "complete.obs") |> as.numeric()
@@ -375,6 +378,7 @@ for (v in 1:nrow(variables)) {
     band = variables$band[v],
     increment = variables$increment[v],
     decrease = variables$decrease[v],
+    mean_height = mean_CH,
     average_difference =    avg_diff,
     avg_abs_diff =           avg_abs_diff,
     avg_differece_percent = avg_percent_diff,
