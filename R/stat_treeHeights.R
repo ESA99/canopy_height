@@ -1,6 +1,11 @@
+library(terra)
+library(tidyverse)
+library(dplyr)
+library(landscapemetrics)
+library(ggplot2)
+library(viridis)
 
 f <- list.files("/home/emilio/canopy_height/results/originals/", full.names = T)
-library(landscapemetrics)
 
 for (i in 1:11) {
   r <- rast(f[i])
@@ -118,7 +123,8 @@ all_rasters_long <- all_rasters_long %>%
 ggplot(all_rasters_long, aes(x = Location, y = Percent, fill = Category)) +
   geom_bar(stat = "identity") +
   coord_flip() +  # horizontal bars
-  scale_fill_manual(values = c("Low" = "#4A7BB7", "Medium" = "#FEDA8B", "High" = "#F67E4B")) +
+  # scale_fill_manual(values = c("Low" = "#4A7BB7", "Medium" = "#FEDA8B", "High" = "#F67E4B")) +
+  scale_fill_manual(values = c("Low" = "#1B5E20", "Medium" = "#7FAE6C", "High" = "#CCDDAA")) +
   labs(
     x = "",
     y = "%",
