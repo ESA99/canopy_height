@@ -95,14 +95,14 @@ ggboxplot(result_table, x = "increment",  y = "avg_difference_percent",
 
 plot_data <- result_table %>%
   group_by(band, Location, abs_increment) %>%
-  summarise(avg_abs_diff_perc = mean(avg_abs_diff_perc, na.rm = TRUE), .groups = "drop")
+  summarise(avg_difference_percent = mean(avg_difference_percent, na.rm = TRUE), .groups = "drop")
 plot_data$manipulation <- plot_data$abs_increment#*100
 
 # Facetted by band location plot, avg relative difference
 ggline(
   plot_data,
   x = "manipulation",
-  y = "avg_abs_diff_perc",
+  y = "avg_difference_percent",
   color = "Location",
   fill  = "Location",
   add = "mean_se",
