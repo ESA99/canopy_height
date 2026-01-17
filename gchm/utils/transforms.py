@@ -25,14 +25,10 @@ class ModifyBands(object):
     def __call__(self, x):
         if self.percentage is None:
             return x
-        before = x[:, :, self.bands].copy()
         if self.decrease:
             x[:,:,self.bands] = x[:,:,self.bands] * (1-self.percentage)
         else:
             x[:,:,self.bands] = x[:,:,self.bands] * (1+self.percentage)
-        after = x[:, :, self.bands]
-        print("  before : min=", before.min(), "max=", before.max())
-        print("  after  : min=", after.min(), "max=", after.max())
         return x
 
 class Transformer(object):

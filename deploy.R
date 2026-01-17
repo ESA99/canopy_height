@@ -75,8 +75,8 @@ create_param_interactions <- function (tiles, bands, increments, decrease, year,
 # Input of the parameters as data frame with all combinations
   # All tiles: "10TES" "17SNB" "20MMD" "32TMT" "32UQU" "33NTG" "34UFD" "35VML" "49NHC" "49UCP" "55HEV"
   # Copy according image folders to: /canopy_height/deploy_example/sentinel2/2020/
-variables <- create_param_interactions(tiles = c("49UCP"), # "10TES", "17SNB", "20MMD", "32TMT", "32UQU", "33NTG", "34UFD", "35VML", "49NHC", "49UCP", "55HEV"
-                                        bands = list(c("B02","B04"),c("B03","B05"), c("B04", "B08"), c("B03","B04","B11","B12")), # "B02", "B03", "B04", "B08", "B05", "B8A", "B11", "B12"
+variables <- create_param_interactions(tiles = c("17SNB"), # "10TES", "17SNB", "20MMD", "32TMT", "32UQU", "33NTG", "34UFD", "35VML", "49NHC", "49UCP", "55HEV"
+                                        bands = list(c("B11","B12","B8A"),c("B02","B04"),c("B03","B05"), c("B04", "B08"), c("B03","B04")), # "B02", "B03", "B04", "B08", "B05", "B8A", "B11", "B12"
                                         increments = c(0.05, 0.1, 0.15, 0.2, 0.25), # 0.05, 0.1, 0.15, 0.2, 0.25
                                         decrease = c("False", "True" ),  #          # False meaning increase...
                                         year = "2020",
@@ -89,7 +89,8 @@ BACKUP_SAVING <- TRUE
 DIFF_TIF <- FALSE
 # Should the prediction result tif's be saved and where?
 PRED_TIF <- TRUE
-PRED_TIF_LOCATION <- "/data/ESA99/resultmaps_bands/I"
+# PRED_TIF_LOCATION <- "/data/ESA99/resultmaps_bands/I"
+PRED_TIF_LOCATION <- "/data/ESA99/pred_tif/260117"
 
 # General Setup -----------------------------------------------------------
 
