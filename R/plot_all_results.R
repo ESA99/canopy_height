@@ -32,9 +32,9 @@ library(viridis)
 # # create absolute increment column
 # result_table$abs_increment <- abs(result_table$increment)
 # 
-# # Add zero rows
+# Add zero rows
 # add_zero_increment_rows <- function(result_table) {
-#   
+# 
 #   # Step 1: Identify which combinations are missing a zero increment row
 #   missing_zero_rows <- result_table %>%
 #     distinct(tile, band) %>%  # Identify all tile-band combinations
@@ -42,7 +42,7 @@ library(viridis)
 #       result_table %>% filter(increment == 0), # check which combinations are missing
 #       by = c("tile", "band")
 #     )
-#   
+# 
 #   # Step 2: Create the zero increment rows
 #   zero_increment_rows <- missing_zero_rows %>%
 #     mutate(
@@ -51,14 +51,14 @@ library(viridis)
 #       out_name = paste(tile, band, "original", sep = "_"),
 #       year = 2020
 #     )
-#   
+# 
 #   # Step 3: Add missing columns
 #   missing_cols <- setdiff(names(result_table), names(zero_increment_rows))
 #   zero_increment_rows[missing_cols] <- 0.0  # Add all missing columns as 0.0
-#   
+# 
 #   # Step 4: Combine with original table
 #   result_table <- bind_rows(result_table, zero_increment_rows)
-#   
+# 
 #   return(result_table)
 # }
 # result_table <- add_zero_increment_rows(result_table)
@@ -82,8 +82,8 @@ library(viridis)
 # result_table$band <- factor(result_table$band, levels = names(band_labels), labels = band_labels)
 # 
 # # Add location information as factor
-# tile_label <- c("55HEV" = "Australia", "20MMD" = "Brazil", "33NTG" = "Cameroon", "32UQU" = "Germany", 
-#                 "35VML" = "Finland", "49NHC" = "Malaysia", "49UCP" = "Mongolia", 
+# tile_label <- c("55HEV" = "Australia", "20MMD" = "Brazil", "33NTG" = "Cameroon", "32UQU" = "Germany",
+#                 "35VML" = "Finland", "49NHC" = "Malaysia", "49UCP" = "Mongolia",
 #                 "34UFD" = "Poland", "32TMT" = "Switzerland", "10TES" = "USA East", "17SNB" = "USA West")
 # result_table$Location <- factor(result_table$tile, levels = names(tile_label), labels = tile_label)
 # 

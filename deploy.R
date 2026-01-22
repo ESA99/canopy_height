@@ -78,25 +78,37 @@ create_param_interactions <- function (tiles, bands, increments, decrease, year,
   # All bands: "B02", "B03", "B04", "B05", "B08", "B8A", "B11", "B12"
   # Increments: 0.05, 0.1, 0.15, 0.2, 0.25
 
-variables <- create_param_interactions(tiles = c("17SNB"), 
-                                        bands = list(c("B02", "B03", "B04", "B05", "B08", "B8A", "B11", "B12"), # All
-                                                     c("B04","B11", "B12"), # Low responder
-                                                     c("B02","B05", "B08", "B8A"), # High responder 
-                                                     c("B02", "B03", "B04")), # Visual bands
+variables <- create_param_interactions(tiles = c("32TMT", "55HEV"), 
+                                         bands = #list(c("B02", "B03", "B04", "B05", "B08", "B8A", "B11", "B12"), # All
+                                        #              c("B04","B11", "B12"), # Low responder
+                                        #              c("B02","B05", "B08", "B8A"), # High responder
+                                        #              c("B02"),
+                                        #              c("B02", "B03", "B04") # Visual bands
+                                                     # ),
+                                                  c("B02", "B03", "B04", "B05", "B08", "B8A", "B11", "B12"),
                                         increments = c(0.05, 0.1, 0.15, 0.2, 0.25),
                                         decrease = c("False", "True" ),   # False meaning increase...
                                         year = "2020",
                                         base_folder = "/home/emilio/canopy_height"
 )
 
+# Export location of tifs and backup
+EXPORT_TIF_LOC <- file.path("/data/ESA99/export",start_date_chr)
+dir.create(EXPORT_TIF_LOC)
+
+PRED_TIF_LOCATION <- file.path(EXPORT_TIF_LOC, "predictions")
+dir.create(PRED_TIF_LOCATION)
+
+
+
 # Should loop results be saved individually as backup (csv files)?
 BACKUP_SAVING <- TRUE
 # Should the difference rasters be saved?
-DIFF_TIF <- FALSE
+DIFF_TIF <- TRUE
 # Should the prediction result tif's be saved and where?
 PRED_TIF <- TRUE
 # PRED_TIF_LOCATION <- "/data/ESA99/resultmaps_bands/I"
-PRED_TIF_LOCATION <- "/data/ESA99/pred_tif/260117"
+# PRED_TIF_LOCATION <- file.path("/data/ESA99/pred_tif", start_date_chr)
 
 # General Setup -----------------------------------------------------------
 
@@ -151,13 +163,16 @@ if (all(exist_flags)) {
 }
 
 # Time estimate
-mean_loop_time <- 12 # minutes -> derived from timing data of past loops
+mean_loop_time <- 5.5 # minutes -> derived from timing data of past loops
 working_time <- (nrow(variables)*mean_loop_time/60 * 3600)
 finish_estimate <- Sys.time() +  working_time
 working_hours <- working_hours <- sprintf("%02d:%02d:%02d", as.integer(working_time %/% 3600),
   as.integer((working_time %% 3600) %/% 60),as.integer(working_time %% 60) )
 cat("Estimated working time:",working_hours,"\n")
 cat("Estimated finishing time:", format(finish_estimate, "%Y-%m-%d %H:%M:%S"), "\n")
+cat("Number of bands in process:",length(unique(variables$band)), "\n")
+cat("Tiles in process:", as.character(unique(variables$tile_name)), "\n")
+cat("Bands in process:", as.character(unique(variables$band)), "\n")
 
 
 # DEPLOYMENT LOOP ---------------------------------------------------------
@@ -357,7 +372,7 @@ for (v in 1:nrow(variables)) {
 
   if (DIFF_TIF == TRUE) {
     cat("Saving difference raster...")
-    diff_path <- file.path(result_path, "DIFF")
+    diff_path <- file.path(EXPORT_TIF_LOC,"difference_rasters")
     diff_file <- file.path(diff_path, paste0("DIFF_", variables$out_name[v], ".tif"))
     
     if (!dir.exists(diff_path)) {
@@ -420,7 +435,7 @@ for (v in 1:nrow(variables)) {
   # Save to result dataframe
   loop_results <- list(
     tile = variables$tile_name[v],
-    band = variables$band[[v]],
+    band = paste(variables$band[[v]], collapse = "-"),
     increment = variables$increment[v],
     decrease = variables$decrease[v],
     mean_height = mean_CH,
@@ -557,13 +572,14 @@ cat("Average time per loop:",
 },"\n")
 
 cat("**************************** Summary ****************************\n")
+cat("Process finished at:", format(Sys.time(), "%Y-%m-%d %H:%M"),"\n")
 cat("Total time elapsed:",round(as.numeric(difftime(end_time, start_time, units = "hours")), digits = 3),"hours.\n")
 cat("Total number of loops/predictions:",nrow(variables),"\n")
 cat("Tiles processed:",unique(variables$tile_name),"\n")
-cat("Bands processed:",unique(variables$band),"\n")
-if (BACKUP_SAVING) { cat("Backup saved for each loop.\n") } else { cat("No Backup saved.\n") }
+cat("Bands processed:",unique(unlist(variables$band)),"\n")
+if (BACKUP_SAVING) { cat("Backup saved for each loop to: ",backup_dir,"\n") } else { cat("No Backup saved.\n") }
 if (PRED_TIF) { cat("Prediction TIFs saved to:", PRED_TIF_LOCATION, "\n")} else { cat("No prediction TIFs saved.\n") }
-if (DIFF_TIF) { cat("Difference rasters saved to ./final_results/preds/TILE/DIFF\n") } else { cat("Difference rasters not saved.\n") }
+if (DIFF_TIF) { cat("Difference rasters saved to ",diff_file,"\n") } else { cat("Difference rasters not saved.\n") }
 
 
 cat("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n")
