@@ -6,8 +6,9 @@ library(viridis)
 
 # Setup -------------------------------------------------------------------
 
-result_table <- read.csv("results/2025-10-20_merged_results_8_Bands.csv")
-result_table$abs_increment <- result_table$abs_increment*100
+# result_table <- read.csv("results/2025-10-20_merged_results_8_Bands.csv")
+# result_table$abs_increment <- result_table$abs_increment*100
+result_table <- read.csv("results/2026-01-19_result-table_interactions.csv")
 
 band_map <- c( Blue = "02",  Green  = "03",  Red = "04",  RedEdge= "05",  
                NIR = "08", NIR2 = "8A",  SWIR1  = "11",  SWIR2  = "12")
@@ -20,6 +21,7 @@ cbf_colors <- c(  Blue     = "#0072B2", Green    = "#009E73", Red      = "#D55E0
 tol_muted_11 <- c("#332288",  "#6699CC",  "#88CCEE",  "#44AA99",  "#117733",  "#999933",  
                   "#DDCC77",  "#661100",  "#CC6677",  "#882255",  "#AA4499")
 
+int_colors <- c(ALL = "#009E73", Blue = "#88CCEE", High = "#DDCC77", Low = "#CC79A7", RGB = "#882255" )
 
 
 # Spectral Line -----------------------------------------------------------
@@ -29,8 +31,8 @@ tol_muted_11 <- c("#332288",  "#6699CC",  "#88CCEE",  "#44AA99",  "#117733",  "#
 ggplot(result_table, aes(x = abs_increment, y = avg_difference_percent, color = band, fill = band)) +
   stat_summary(fun = mean, geom = "line", linewidth = 1.2) +
   stat_summary(fun.data = mean_se, geom = "ribbon", alpha = 0.2, color = NA) +
-  scale_color_manual(values = cbf_colors, breaks=c("Blue", "NIR2", "NIR", "Green", "SWIR2", "Red", "SWIR1", "RedEdge")) +
-  scale_fill_manual(values = cbf_colors, breaks=c("Blue", "NIR2", "NIR", "Green", "SWIR2", "Red", "SWIR1", "RedEdge")) +
+  # scale_color_manual(values = cbf_colors, breaks=c("Blue", "NIR2", "NIR", "Green", "SWIR2", "Red", "SWIR1", "RedEdge")) +
+  # scale_fill_manual(values = cbf_colors, breaks=c("Blue", "NIR2", "NIR", "Green", "SWIR2", "Red", "SWIR1", "RedEdge")) +
   labs(x = "Manipulation Degree [%]", y = "Average Relative Difference [%]",
        color = "Band", fill = "Band") +
   theme_minimal(base_size = 14)
@@ -95,14 +97,14 @@ ggboxplot(result_table, x = "increment",  y = "avg_difference_percent",
 
 plot_data <- result_table %>%
   group_by(band, Location, abs_increment) %>%
-  summarise(avg_abs_diff_perc = mean(avg_abs_diff_perc, na.rm = TRUE), .groups = "drop")
+  summarise(avg_difference_percent = mean(avg_difference_percent, na.rm = TRUE), .groups = "drop")
 plot_data$manipulation <- plot_data$abs_increment#*100
 
 # Facetted by band location plot, avg relative difference
 ggline(
   plot_data,
   x = "manipulation",
-  y = "avg_abs_diff_perc",
+  y = "avg_difference_percent",
   color = "Location",
   fill  = "Location",
   add = "mean_se",
@@ -238,6 +240,11 @@ ggplot(plot_data, aes(x = abs_increment, y = avg_diff_percent, color = group, gr
 # ggsave(paste0("plots/cluster/",Sys.Date(),"_",length(unique(result_table$Location)),"T_B",band_names,
 #               "_","right_line_location_Percent_cluster5",".png"),
 #        width = 300, height = 175, units = "mm", dpi = 300, bg = "white")
+
+
+
+# Interactions ------------------------------------------------------------
+
 
 
 

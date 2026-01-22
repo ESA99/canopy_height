@@ -42,24 +42,73 @@ timing_results <- data.frame(
 
 # VARIABLE INPUT TABLE -----------------------------------------------------
 
+create_param_interactions <- function (tiles, bands, increments, decrease, year, base_folder, worldcover = "2020") {
+  
+  if (!is.list(bands)) { bands <- as.list(bands)  } # Ensure bands is always a list of vectors
+  
+  df <- expand.grid(tile_name = tiles, band = bands, decrease = decrease, 
+                    increment = increments, year = year, rootDIR = base_folder, 
+                    WC_year = worldcover, original = FALSE, stringsAsFactors = FALSE)
+  base_folder <- normalizePath(base_folder)
+  df$tile_name <- trimws(df$tile_name)
+  tile_folder <- file.path(base_folder, "deploy_example", 
+                           "sentinel2", year)
+  df$tile_folder <- file.path(tile_folder, df$tile_name)
+  df$out_name <- paste0( df$tile_name, "_",
+                         vapply(df$band, function(b) paste(b, collapse = "-"), character(1)), "_",
+                         sub("0\\.", "", formatC(df$increment, format = "f", digits = 2)), "_",
+                         ifelse(df$decrease == "False", "I", "D")
+  )
+  for (t in unique(tiles)) {
+    extra_row <- data.frame(tile_name = t, band = I(list(df$band[[1]])), 
+                            decrease = "True", increment = 0, year = year[1], 
+                            rootDIR = base_folder, WC_year = worldcover, original = TRUE, 
+                            stringsAsFactors = FALSE)
+    extra_row$tile_folder <- file.path(tile_folder, t)
+    extra_row$out_name <- paste0(t, "_original")
+    df <- rbind(extra_row, df)
+  }
+  df$out_dir <- file.path(base_folder, "final_results")
+  return(df)
+}
+
 # Input of the parameters as data frame with all combinations
-  # All tiles: "10TES" "17SNB" "20MMD" "32TMT" "32UQU" "33NTG" "34UFD" "35VML" "49NHC" "49UCP" "55HEV"
   # Copy according image folders to: /canopy_height/deploy_example/sentinel2/2020/
-variables <- dandelion::create_param_df(tiles = c("49UCP"), # "10TES", "17SNB", "20MMD", "32TMT", "32UQU", "33NTG", "34UFD", "35VML", "49NHC", "49UCP", "55HEV"
-                                        bands = c("B08"), # "B02", "B03", "B04", "B08", "B05", "B8A", "B11", "B12"
-                                        increments = c(0.05, 0.1, 0.15, 0.2, 0.25), # 0.05, 0.1, 0.15, 0.2, 0.25
-                                        decrease = c("False", "True" ),  #          # False meaning increase...
+  # All tiles: "10TES", "17SNB", "20MMD", "32TMT", "32UQU", "33NTG", "34UFD", "35VML", "49NHC", "49UCP", "55HEV"
+  # All bands: "B02", "B03", "B04", "B05", "B08", "B8A", "B11", "B12"
+  # Increments: 0.05, 0.1, 0.15, 0.2, 0.25
+
+variables <- create_param_interactions(tiles = c("32TMT", "55HEV"), 
+                                         bands = #list(c("B02", "B03", "B04", "B05", "B08", "B8A", "B11", "B12"), # All
+                                        #              c("B04","B11", "B12"), # Low responder
+                                        #              c("B02","B05", "B08", "B8A"), # High responder
+                                        #              c("B02"),
+                                        #              c("B02", "B03", "B04") # Visual bands
+                                                     # ),
+                                                  c("B02", "B03", "B04", "B05", "B08", "B8A", "B11", "B12"),
+                                        increments = c(0.05, 0.1, 0.15, 0.2, 0.25),
+                                        decrease = c("False", "True" ),   # False meaning increase...
                                         year = "2020",
                                         base_folder = "/home/emilio/canopy_height"
 )
 
+# Export location of tifs and backup
+EXPORT_TIF_LOC <- file.path("/data/ESA99/export",start_date_chr)
+dir.create(EXPORT_TIF_LOC)
+
+PRED_TIF_LOCATION <- file.path(EXPORT_TIF_LOC, "predictions")
+dir.create(PRED_TIF_LOCATION)
+
+
+
 # Should loop results be saved individually as backup (csv files)?
-BACKUP_SAVING <- FALSE
+BACKUP_SAVING <- TRUE
 # Should the difference rasters be saved?
-DIFF_TIF <- FALSE
+DIFF_TIF <- TRUE
 # Should the prediction result tif's be saved and where?
 PRED_TIF <- TRUE
-PRED_TIF_LOCATION <- "/data/ESA99/resultmaps_bands/H"
+# PRED_TIF_LOCATION <- "/data/ESA99/resultmaps_bands/I"
+# PRED_TIF_LOCATION <- file.path("/data/ESA99/pred_tif", start_date_chr)
 
 # General Setup -----------------------------------------------------------
 
@@ -114,9 +163,16 @@ if (all(exist_flags)) {
 }
 
 # Time estimate
-mean_loop_time <- 13.38203 # minutes -> derived from timing data of past loops
-finish_estimate <- Sys.time() + (nrow(variables)*mean_loop_time/60 * 3600) 
+mean_loop_time <- 5.5 # minutes -> derived from timing data of past loops
+working_time <- (nrow(variables)*mean_loop_time/60 * 3600)
+finish_estimate <- Sys.time() +  working_time
+working_hours <- working_hours <- sprintf("%02d:%02d:%02d", as.integer(working_time %/% 3600),
+  as.integer((working_time %% 3600) %/% 60),as.integer(working_time %% 60) )
+cat("Estimated working time:",working_hours,"\n")
 cat("Estimated finishing time:", format(finish_estimate, "%Y-%m-%d %H:%M:%S"), "\n")
+cat("Number of bands in process:",length(unique(variables$band)), "\n")
+cat("Tiles in process:", as.character(unique(variables$tile_name)), "\n")
+cat("Bands in process:", as.character(unique(variables$band)), "\n")
 
 
 # DEPLOYMENT LOOP ---------------------------------------------------------
@@ -127,7 +183,7 @@ for (v in 1:nrow(variables)) {
   cat("======================================================================================================\n")
   cat("Starting deployment number", v, "of", nrow(variables),"\n")
   cat("Tile:",variables$tile_name[v], "\n",
-      "Band:",variables$band[v], "\n",
+      "Band:",variables$band[[v]], "\n",
       "Increment:",variables$increment[v], "\n",
       "Direction:", ifelse(variables$decrease[v] == "False", "Increase", "Decrease"),"\n")
   
@@ -153,7 +209,10 @@ for (v in 1:nrow(variables)) {
 # Global Variables Setup ----------------------------------------------------
 
   # Translate band name
-  band_number <- translation_table$BandNumber[translation_table$BandName == variables$band[v]]
+  # band_number <- translation_table$BandNumber[translation_table$BandName == variables$band[[v]]]
+  band_number <- translation_table$BandNumber[translation_table$BandName %in% variables$band[[v]]]
+  
+  modify_bands_str <- paste(band_number, collapse = " ")
   
   # Create & set GLOBAL VARIABLES from variables data frame
   env_vars <- c(
@@ -161,7 +220,7 @@ for (v in 1:nrow(variables)) {
     wcover = variables$WC_year[v],
     YEAR = variables$year[v],
     
-    MODIFY_BANDS = band_number,
+    MODIFY_BANDS = modify_bands_str,
     MODIFY_PERCENTAGE = variables$increment[v], # or rate
     MODIFY_DECREASE = variables$decrease[v],
     
@@ -188,11 +247,12 @@ for (v in 1:nrow(variables)) {
 
   cat("#################### Start model deployment loop",v,"####################\n")
   
-  cat("+++++++++ deploy_example.sh start +++++++++\n")
-  withr::with_envvar(env_vars, {
-    system2("./gchm/bash/deploy_example.sh")
-  })
-  cat("deploy_example.sh finished.\n")
+  # # Tests for one image, all variables needed are also created in config.sh so not needed!
+  # cat("+++++++++ deploy_example.sh start +++++++++\n")
+  # withr::with_envvar(env_vars, {
+  #   system2("./gchm/bash/deploy_example.sh")
+  # })
+  # cat("deploy_example.sh finished.\n")
   
   cat("+++++++++ Run tile deploy merge start +++++++++\n")
   withr::with_envvar(env_vars, {
@@ -312,7 +372,7 @@ for (v in 1:nrow(variables)) {
 
   if (DIFF_TIF == TRUE) {
     cat("Saving difference raster...")
-    diff_path <- file.path(result_path, "DIFF")
+    diff_path <- file.path(EXPORT_TIF_LOC,"difference_rasters")
     diff_file <- file.path(diff_path, paste0("DIFF_", variables$out_name[v], ".tif"))
     
     if (!dir.exists(diff_path)) {
@@ -375,7 +435,7 @@ for (v in 1:nrow(variables)) {
   # Save to result dataframe
   loop_results <- list(
     tile = variables$tile_name[v],
-    band = variables$band[v],
+    band = paste(variables$band[[v]], collapse = "-"),
     increment = variables$increment[v],
     decrease = variables$decrease[v],
     mean_height = mean_CH,
@@ -512,13 +572,14 @@ cat("Average time per loop:",
 },"\n")
 
 cat("**************************** Summary ****************************\n")
+cat("Process finished at:", format(Sys.time(), "%Y-%m-%d %H:%M"),"\n")
 cat("Total time elapsed:",round(as.numeric(difftime(end_time, start_time, units = "hours")), digits = 3),"hours.\n")
 cat("Total number of loops/predictions:",nrow(variables),"\n")
 cat("Tiles processed:",unique(variables$tile_name),"\n")
-cat("Bands processed:",unique(variables$band),"\n")
-if (BACKUP_SAVING) { cat("Backup saved for each loop.\n") } else { cat("No Backup saved.\n") }
+cat("Bands processed:",unique(unlist(variables$band)),"\n")
+if (BACKUP_SAVING) { cat("Backup saved for each loop to: ",backup_dir,"\n") } else { cat("No Backup saved.\n") }
 if (PRED_TIF) { cat("Prediction TIFs saved to:", PRED_TIF_LOCATION, "\n")} else { cat("No prediction TIFs saved.\n") }
-if (DIFF_TIF) { cat("Difference rasters saved to ./final_results/preds/TILE/DIFF\n") } else { cat("Difference rasters not saved.\n") }
+if (DIFF_TIF) { cat("Difference rasters saved to ",diff_file,"\n") } else { cat("Difference rasters not saved.\n") }
 
 
 cat("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n")
