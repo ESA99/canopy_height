@@ -7,6 +7,140 @@ library(viridis)
 
 f <- list.files("/home/emilio/canopy_height/results/originals/", full.names = T)
 
+# Categories
+orig <- list.files("/home/emilio/canopy_height/results/originals/", full.names = T)
+path_to_files <- "/data/ESA99/export/2026-01-19/difference_rasters/"
+categories <- c(15,30)
+TILENAME <- "35VML"
+# All tiles: "10TES", "17SNB", "20MMD", "32TMT", "32UQU", "33NTG", "34UFD", "35VML", "49NHC", "49UCP", "55HEV"
+
+orig_ras <- rast(str_subset(orig, TILENAME))
+plot(orig_ras)
+
+cat_ras <- classify(orig_ras, rbind(c(-Inf, categories[1], 1), c(categories[1], categories[2], 2), c(categories[2], Inf, 3)))
+plot(cat_ras)
+
+diff <- list.files(path_to_files, pattern = TILENAME, full.names = T)
+diff <- str_subset(diff, "original", negate = T)
+
+diff_ras <- rast(diff[1])
+plot(diff_ras)
+
+# Calculate mean per category
+mean_per_category <- zonal(diff_ras, cat_ras, fun = "mean", na.rm = TRUE)
+
+# Calculate counts per category
+cat_counts <- freq(cat_ras)
+total_cells <- sum(cat_counts$count)
+mean_per_category$proportion <- round(cat_counts$count / total_cells *100, 1)
+
+mean_per_category$category <- c("Low", "Medium", "High")
+mean_per_category
+
+
+# Zone Stats --------------------------------------------------------------
+
+# Initialize list to store results
+results_list <- list()
+
+for (zone_val in 1:3) {
+  
+  # Mask raster to current category
+  zone_mask <- mask(diff_ras, cat_ras == zone_val, maskvalues = FALSE)
+  
+  # Values in this zone
+  vals <- values(zone_mask, na.rm = TRUE)
+  
+  # Skip empty zones
+  if(length(vals) == 0) next
+  
+  results_list[[zone_val]] <- data.frame(
+    zone = zone_val,
+    category = c("Low", "Medium", "High")[zone_val],
+    mean = mean(vals),
+    mean_positive = ifelse(any(vals > 0), mean(vals[vals > 0]), NA),
+    mean_negative = ifelse(any(vals < 0), mean(vals[vals < 0]), NA),
+    mean_abs = mean(abs(vals)),
+    prop_positive = sum(vals > 0)/length(vals) * 100,
+    prop_negative = sum(vals < 0)/length(vals) * 100,
+    prop_zero = sum(vals == 0)/length(vals) * 100
+  )
+}
+
+zone_stats <- bind_rows(results_list)
+zone_stats
+
+
+
+# Diff by category --------------------------------------------------------
+
+# Define categories
+categories <- c(15, 30)
+category_labels <- c("Low", "Medium", "High")
+
+# # Create categorical raster once
+# cat_ras <- classify(orig_ras, 
+#                     rbind(c(-Inf, categories[1], 1), 
+#                           c(categories[1], categories[2], 2), 
+#                           c(categories[2], Inf, 3)))
+
+# Initialize list to store results
+all_results <- list()
+
+# Loop over all difference rasters
+for (diff_file in diff) {
+  
+  # Read difference raster
+  diff_ras <- rast(diff_file)
+  
+  # Calculate mean per category
+  mean_per_category <- zonal(diff_ras, cat_ras, fun = "mean", na.rm = TRUE)
+  
+  # Calculate proportion of each category
+  cat_counts <- freq(cat_ras)
+  total_cells <- sum(cat_counts$count)
+  mean_per_category$proportion <- round(cat_counts$count / total_cells * 100, 1)
+  
+  # Add category labels
+  mean_per_category$category <- category_labels
+  
+  # Add raster name
+  mean_per_category$raster_file <- basename(diff_file)
+  
+  # Append to list
+  all_results[[diff_file]] <- mean_per_category
+}
+
+# Combine all results into one data frame
+results_df <- bind_rows(all_results)
+
+# Pivot all raster columns into a long format
+results_long <- results_df %>%
+  pivot_longer(
+    cols = starts_with(TILENAME),  # all raster mean columns
+    names_to = "raster_name",
+    values_to = "mean"
+  ) %>%
+  drop_na(mean)  # remove rows where the mean is NA
+
+# Optional: keep category, proportion, and raster_file columns
+results_long <- results_long %>%
+  select(raster_file, raster_name, category, mean, proportion)
+
+results_long
+
+
+ggplot(results_long, aes(x = category, y = mean)) +
+     geom_boxplot(aes(fill = category)) +
+     theme_minimal() +
+     labs(title = "Distribution of mean values per category across all rasters") +
+     scale_fill_viridis_d()
+
+
+
+# UNCATEGORIZED: ----------------------------------------------------------
+
+
 for (i in 1:11) {
   r <- rast(f[i])
    
@@ -19,7 +153,6 @@ for (i in 1:11) {
   cat(basename(f[i]), "mean height ", m, "SD ",sd,"max ", max,"Shannon ",shannon_val,"\n")
     
 }
-
 
 
 files <- f

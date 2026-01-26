@@ -41,51 +41,20 @@ timing_results <- data.frame(
 )
 
 # VARIABLE INPUT TABLE -----------------------------------------------------
-
-create_param_interactions <- function (tiles, bands, increments, decrease, year, base_folder, worldcover = "2020") {
-  
-  if (!is.list(bands)) { bands <- as.list(bands)  } # Ensure bands is always a list of vectors
-  
-  df <- expand.grid(tile_name = tiles, band = bands, decrease = decrease, 
-                    increment = increments, year = year, rootDIR = base_folder, 
-                    WC_year = worldcover, original = FALSE, stringsAsFactors = FALSE)
-  base_folder <- normalizePath(base_folder)
-  df$tile_name <- trimws(df$tile_name)
-  tile_folder <- file.path(base_folder, "deploy_example", 
-                           "sentinel2", year)
-  df$tile_folder <- file.path(tile_folder, df$tile_name)
-  df$out_name <- paste0( df$tile_name, "_",
-                         vapply(df$band, function(b) paste(b, collapse = "-"), character(1)), "_",
-                         sub("0\\.", "", formatC(df$increment, format = "f", digits = 2)), "_",
-                         ifelse(df$decrease == "False", "I", "D")
-  )
-  for (t in unique(tiles)) {
-    extra_row <- data.frame(tile_name = t, band = I(list(df$band[[1]])), 
-                            decrease = "True", increment = 0, year = year[1], 
-                            rootDIR = base_folder, WC_year = worldcover, original = TRUE, 
-                            stringsAsFactors = FALSE)
-    extra_row$tile_folder <- file.path(tile_folder, t)
-    extra_row$out_name <- paste0(t, "_original")
-    df <- rbind(extra_row, df)
-  }
-  df$out_dir <- file.path(base_folder, "final_results")
-  return(df)
-}
-
 # Input of the parameters as data frame with all combinations
   # Copy according image folders to: /canopy_height/deploy_example/sentinel2/2020/
   # All tiles: "10TES", "17SNB", "20MMD", "32TMT", "32UQU", "33NTG", "34UFD", "35VML", "49NHC", "49UCP", "55HEV"
   # All bands: "B02", "B03", "B04", "B05", "B08", "B8A", "B11", "B12"
   # Increments: 0.05, 0.1, 0.15, 0.2, 0.25
 
-variables <- create_param_interactions(tiles = c("32TMT", "55HEV"), 
-                                         bands = #list(c("B02", "B03", "B04", "B05", "B08", "B8A", "B11", "B12"), # All
-                                        #              c("B04","B11", "B12"), # Low responder
-                                        #              c("B02","B05", "B08", "B8A"), # High responder
-                                        #              c("B02"),
-                                        #              c("B02", "B03", "B04") # Visual bands
-                                                     # ),
-                                                  c("B02", "B03", "B04", "B05", "B08", "B8A", "B11", "B12"),
+variables <- dandelion::create_param_df(tiles = c("10TES", "17SNB", "32UQU", "33NTG", "34UFD", "49NHC", "49UCP"), 
+                                         bands = list(c("B02", "B03", "B04", "B05", "B08", "B8A", "B11", "B12"), # All
+                                                     c("B04","B11", "B12"), # Low responder
+                                                     c("B02","B05", "B08", "B8A"), # High responder
+                                                     c("B02"),
+                                                     c("B02", "B03", "B04") # Visual bands
+                                                     ),
+                                                  # c("B02", "B03", "B04", "B05", "B08", "B8A", "B11", "B12"),
                                         increments = c(0.05, 0.1, 0.15, 0.2, 0.25),
                                         decrease = c("False", "True" ),   # False meaning increase...
                                         year = "2020",
