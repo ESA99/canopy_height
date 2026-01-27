@@ -1,13 +1,10 @@
 # Detect similar behaiviour -> clstering
-
-
-# Hierarchial clustering --------------------------------------------------
-
-
 library(dplyr)
 library(tidyr)
 library(ggplot2)
 library(viridis)
+
+# Hierarchial clustering --------------------------------------------------
 
 # Summarize data: average over tile and band per Location × increment
 location_summary <- result_table %>%

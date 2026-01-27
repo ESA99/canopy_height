@@ -1,15 +1,17 @@
 # ==========================
-# Comparison Grids per tile + band incl export
+# Comparison Strips per tile + band incl export
 # ==========================
+# Works for non-interaction results, with prediction tifs exported -> base_dir
 
 library(terra)
 library(tmap)
 library(dplyr)
 library(stringr)
 library(viridis)
+library(purrr)
 
-base_dir <- "/data/ESA99/export/2026-01-20/predictions/"
-out_dir  <- "/data/ESA99/export/2026-01-20/comparison_grids_by_band/"
+base_dir <- "/data/ESA99/export/2026-01-24/predictions/"
+out_dir  <- "/data/ESA99/export/2026-01-24/comparison_grids_by_band/"
 dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
 
 agg_fact <- 4
@@ -177,3 +179,34 @@ for (tile in tiles) {
     gc()
   }
 }
+
+
+
+
+
+###########################################################################
+# Big comparison Grid of all bands ----------------------------------------
+
+
+base_dir <- "/data/ESA99/export/2026-01-19/predictions/"
+files <- list.files(base_dir, pattern = "\\.tif$", full.names = TRUE)
+
+meta <- tibble(
+  file = files,
+  name = basename(files)
+) %>%
+  mutate(
+    tile = str_extract(name, "^[^_]+"),
+    band = str_extract(name, "B[0-9A]+"),
+    pct  = str_extract(name, "(?<=_)\\d{2}(?=_)"),
+    dir  = str_extract(name, "(?<=_)[:alpha:]+(?=\\.tif)")
+  ) %>%
+  mutate(
+    pct = as.integer(pct),
+    change = case_when(
+      name == paste0(tile, "_original.tif") ~ "Original",
+      dir == "D" ~ paste0("-", pct, "%"),
+      dir == "I" ~ paste0("+", pct, "%")
+    )
+  )
+

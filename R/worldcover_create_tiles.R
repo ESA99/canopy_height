@@ -1,3 +1,5 @@
+# Preperation of worldcover tiles for the deployment
+# Merged, cropped and projected to sentinel tiles selected for analysis
 
 library(terra)
 library(sf)
@@ -154,7 +156,7 @@ stop()
   
   cat("\n ******* All rasters processed successfully. *******\n")
   
-}
+
 # crop_raster_with_s2(wc_raster_dir, s2_tiles_dir, output_dir, out_basename)
   
   

@@ -48,26 +48,18 @@ timing_results <- data.frame(
   # Increments: 0.05, 0.1, 0.15, 0.2, 0.25
 
 variables <- dandelion::create_param_df(tiles = c("10TES", "17SNB", "32UQU", "33NTG", "34UFD", "49NHC", "49UCP"), 
-                                         bands = list(c("B02", "B03", "B04", "B05", "B08", "B8A", "B11", "B12"), # All
-                                                     c("B04","B11", "B12"), # Low responder
-                                                     c("B02","B05", "B08", "B8A"), # High responder
-                                                     c("B02"),
-                                                     c("B02", "B03", "B04") # Visual bands
-                                                     ),
-                                                  # c("B02", "B03", "B04", "B05", "B08", "B8A", "B11", "B12"),
+                                         bands = #list(c("B02", "B03", "B04", "B05", "B08", "B8A", "B11", "B12"), # All
+                                                     # c("B04","B11", "B12"), # Low responder
+                                                     # c("B02","B05", "B08", "B8A"), # High responder
+                                                     # c("B02"),
+                                                     # c("B02", "B03", "B04") # Visual bands
+                                                     # ),
+                                                  c("B02", "B03", "B04", "B05", "B08", "B8A", "B11", "B12"),
                                         increments = c(0.05, 0.1, 0.15, 0.2, 0.25),
                                         decrease = c("False", "True" ),   # False meaning increase...
                                         year = "2020",
                                         base_folder = "/home/emilio/canopy_height"
 )
-
-# Export location of tifs and backup
-EXPORT_TIF_LOC <- file.path("/data/ESA99/export",start_date_chr)
-dir.create(EXPORT_TIF_LOC)
-
-PRED_TIF_LOCATION <- file.path(EXPORT_TIF_LOC, "predictions")
-dir.create(PRED_TIF_LOCATION)
-
 
 
 # Should loop results be saved individually as backup (csv files)?
@@ -78,6 +70,15 @@ DIFF_TIF <- TRUE
 PRED_TIF <- TRUE
 # PRED_TIF_LOCATION <- "/data/ESA99/resultmaps_bands/I"
 # PRED_TIF_LOCATION <- file.path("/data/ESA99/pred_tif", start_date_chr)
+
+
+# Export location of tifs and backup
+EXPORT_TIF_LOC <- file.path("/data/ESA99/export",start_date_chr)
+dir.create(EXPORT_TIF_LOC)
+
+PRED_TIF_LOCATION <- file.path(EXPORT_TIF_LOC, "predictions")
+dir.create(PRED_TIF_LOCATION)
+
 
 # General Setup -----------------------------------------------------------
 
@@ -132,7 +133,7 @@ if (all(exist_flags)) {
 }
 
 # Time estimate
-mean_loop_time <- 5.5 # minutes -> derived from timing data of past loops
+mean_loop_time <- 9 # minutes -> derived from timing data of past loops
 working_time <- (nrow(variables)*mean_loop_time/60 * 3600)
 finish_estimate <- Sys.time() +  working_time
 working_hours <- working_hours <- sprintf("%02d:%02d:%02d", as.integer(working_time %/% 3600),

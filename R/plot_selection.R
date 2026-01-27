@@ -9,6 +9,7 @@ library(viridis)
 result_table <- read.csv("results/2025-10-20_merged_results_8_Bands.csv")
 result_table$abs_increment <- result_table$abs_increment*100
 # result_table <- read.csv("results/2026-01-19_result-table_interactions.csv")
+result_table <- read.csv("results/2026-01-27_merged_Interactions.csv")
 
 band_map <- c( Blue = "02",  Green  = "03",  Red = "04",  RedEdge= "05",  
                NIR = "08", NIR2 = "8A",  SWIR1  = "11",  SWIR2  = "12")
