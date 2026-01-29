@@ -10,14 +10,23 @@ For a full explanation of the installation, setup and deployment see the origina
 
 ## Table of Contents
 
-1.  [Results](#results)
-2.  [Workflow](#workflow)
+1.  [Info](#info-about-this-repository)
+2.  [Results](#results)
+3.  [Workflow](#workflow)
     -   [2.1 Working Time](#working-time)
     -   [2.2 Tiles](#tiles)
     -   [2.3 Calculation groups](#calculation-groups)
     -   [2.4 Prediction comparison](#prediction-comparison)
-3.  [Setup Notes](#setup-notes)
-4.  [Citation](https://github.com/ESA99/canopy_height#citation)
+4.  [Setup Notes](#setup-notes)
+5.  [Citation](https://github.com/ESA99/canopy_height#citation)
+
+## Info about this repository
+**`deploy.R`** is the main script containing the full workflow. All variables are set here before deployment. It should be deployed inside a virtual environment.
+**`environment.yml`** This file contains all requirements for the virtual environment and is used for its setup. I used miniforge3 and conda.
+**/results** Here are the result tables exportet by `deploy.R`. The final ones are labled "main", older and other ones are moved to /results/archive
+**/R** Containes all scripts for the analysis of the result tables. Creation of plots, maps and tools for data preperation and handeling of backup files. /R/data inherits the plot locations.
+**/gchm** Here are all scripts by Lang et al. including the models and their deployment. The band manipulation function was included here by adding it to: `/gchm/utils/transforms.py`
+**/documentation** Short documentation of the process and maps of the tiles.
 
 ## Results
 
