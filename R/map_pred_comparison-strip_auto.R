@@ -10,8 +10,8 @@ library(stringr)
 library(viridis)
 library(purrr)
 
-base_dir <- "/data/ESA99/export/2026-01-24/predictions/"
-out_dir  <- "/data/ESA99/export/2026-01-24/comparison_grids_by_band/"
+base_dir <- "/data/ESA99/export/2026-01-29/predictions/"
+out_dir  <- "/data/ESA99/export/2026-01-29/comparison_grids_by_band/"
 dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
 
 agg_fact <- 4
@@ -55,8 +55,6 @@ get_tile_zlim <- function(tile) {
   c(min(mins, na.rm = TRUE),
     max(maxs, na.rm = TRUE))
 }
-
-
 
 get_tile_band_stack <- function(tile, band) {
   
@@ -119,7 +117,6 @@ get_tile_band_stack <- function(tile, band) {
   return(stack)
 }
 
-
 plot_tile_band <- function(tile, band, zlim) {
   
   r <- get_tile_band_stack(tile, band)
@@ -161,7 +158,6 @@ plot_tile_band <- function(tile, band, zlim) {
     units = "in"
   )
 }
-
 
 
 tiles <- unique(str_extract(list.files(base_dir), "^[^_]+"))

@@ -1,6 +1,6 @@
 ---
 title: "Documentation"
-author: "ESA99"
+author: "Emilio Sánchez"
 format: html
 theme: darkly
 ---
@@ -13,61 +13,74 @@ library(terra)
 library(sf)
 library(tmap)
 library(dandelion)
+library(leaflet)
+library(knitr)
 
 ```
 
+# Introduction
 
-## TODO
+# Research question
 
- - (Re-)run final predictions of all groups (including % difference now)
- - Create different kind of plots/visuallization types for the results
-    - play around with it
-    - change axis
-    - try different colours
- - Implementation of lat/long (evtl. as HiWi)
- - Comparison: get exactly the original data for the input (Switzerland demo tile?)
-    - rerun the prediction and compare to original prediction
-      - How much is normal difference by CNN prediction, what is actually a difference by the prediciton or code?
-  - Texture manipulation
-      - flip, rotate
-      - smooth, contrast up/down
+**Can canopy height be derived from spectral data?**
 
-## Status
+The main objective of this research is to uncover the prediction mechanisms of the CNN. Central question of the work is: what can be learned about canopy height from optical remote sensing.
 
-The current code is setup to calculate averages, absolute value avergaes, percentage deviations and standard deviation. But not all difference-raster values are saved for storage reasons.
+# Sample Locations
 
-
-### Tiles used for deployment
-
+In total eleven tiles were used for the analysis of the model. They were selected to be distributed globally, cover multiple different biomes and based on the presented tiles by the original paper.
 
 ```{r}
-#| echo: false
 #| message: false
+#| echo: false
 
-selected_tiles <- st_read("/home/emilio/canopy_height/R/data/final_tile_selection.gpkg")
+library(tmap)
+library(sf)
+library(dplyr)
+
+tiles <- st_read("/home/emilio/canopy_height/R/data/final_tile_selection.gpkg", quiet = TRUE)
+
+tile_label <- c("55HEV" = "Australia", "20MMD" = "Brazil", "33NTG" = "Cameroon", "32UQU" = "Germany", 
+                "35VML" = "Finland", "49NHC" = "Malaysia", "49UCP" = "Mongolia", 
+                "34UFD" = "Poland", "32TMT" = "Switzerland", "10TES" = "USA East", "17SNB" = "USA West")
+
+
+tiles <- tiles %>%
+  mutate(Location = tile_label[Name])
 
 tmap::tmap_mode("view")
-tmap::tm_shape(selected_tiles) +
+tmap::tm_shape(tiles) +
   tmap::tm_borders(col = "red", lwd = 2) +
-  tmap::tm_text("Name", size = 0.8, col = "black")+
+  tmap::tm_text("Location", size = 0.8, col = "grey95")+
   tmap::tm_view(
-                basemaps = c("Esri.WorldImagery", "OpenStreetMap"),
+                basemaps = c("Esri.WorldImagery", "CartoDB.DarkMatterNoLabels"),
                 set.view = c(10.0, 20.0, 2))  # longitude, latitude, zoom level
-```
 
+```
 
 ## Deployment
 
-To run the model use the following code inside the terminal. Beforehand set all the variables inside the script `deploy.R` and make sure all image folders are in the correct place and named correctly (Tile name without "T": "49UCP").
+To run the analysis a virtual environment has to be set up and activated, using `environment.yml`. Then the the script `deploy.R` can be deployed, after setting the desired variable at the top of the script. Note: Make sure all image folders exist at the correct locations and named correctly (here: Tile name without "T" -\> Ex.: "49UCP").
 
 ``` bash
-
 conda activate gchm
 cd /home/emilio/canopy_height/
 Rscript deploy.R
 ```
 
-## Lat/Long findings
+# Results
+
+![Average relative difference (%) by absolute manipulation degree for each manipulated band.](images/NEW_Line_right_relative_8.png){fig-alt="Line diagram of band reaction after manipulation" fig-align="center"}
+
+## Interactions between bands
+Four groups of bands plus Blue for reference were manipulated simultaneously to check for behaiviuour of the model. The groups were based on the response of the individual manipulation reactions of the bands.
+
+![Average relative difference (%) by absolute manipulation degree for each manipulated group of bands. High include Green, Red-Edge, NIR and NIR2. Low include Red, SWIR and SWIR2. RGB include Red, Green and Blue. All include all eight bands.](images/0129_Line_Rel_Inter_11T.png){fig-alt="Line diagram of band reaction after manipulation" fig-align="center"}
+
+
+# Analysis of Location
+
+The influence of latitude and longitude on the final prediction was analysed similarly, by only sytematically changing the coordinates before prediciton.
 
 Location has a big impact on the prediction. - North-South gradient - Continentality - whatch out for oceans when linking the projects or calculating lat long - specific lat/long values vs. difference to original location - method "comparison" -\> which is better for analysis/presentation
 
@@ -80,15 +93,7 @@ pip install -e .
 ```
 
 Real time GPU supervision:
+
 ``` bash
 watch -n 1 nvidia-smi
-```
-
-
-
-## Quarto
-
-```{r}
-#| echo: false
-2 * 2
 ```

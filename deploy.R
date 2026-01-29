@@ -47,14 +47,15 @@ timing_results <- data.frame(
   # All bands: "B02", "B03", "B04", "B05", "B08", "B8A", "B11", "B12"
   # Increments: 0.05, 0.1, 0.15, 0.2, 0.25
 
-variables <- dandelion::create_param_df(tiles = c("10TES", "17SNB", "32UQU", "33NTG", "34UFD", "49NHC", "49UCP"), 
-                                         bands = #list(c("B02", "B03", "B04", "B05", "B08", "B8A", "B11", "B12"), # All
+variables <- dandelion::create_param_df(tiles = c( "33NTG"), 
+                                         bands = 
+                                                # list(c("B02", "B03", "B04", "B05", "B08", "B8A", "B11", "B12"), # All
                                                      # c("B04","B11", "B12"), # Low responder
                                                      # c("B02","B05", "B08", "B8A"), # High responder
                                                      # c("B02"),
                                                      # c("B02", "B03", "B04") # Visual bands
                                                      # ),
-                                                  c("B02", "B03", "B04", "B05", "B08", "B8A", "B11", "B12"),
+                                                c("B02", "B03", "B04", "B05", "B08", "B8A", "B11", "B12"),
                                         increments = c(0.05, 0.1, 0.15, 0.2, 0.25),
                                         decrease = c("False", "True" ),   # False meaning increase...
                                         year = "2020",

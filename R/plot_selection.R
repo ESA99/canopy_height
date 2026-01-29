@@ -6,10 +6,11 @@ library(viridis)
 
 # Setup -------------------------------------------------------------------
 
-result_table <- read.csv("results/2025-10-20_merged_results_8_Bands.csv")
-result_table$abs_increment <- result_table$abs_increment*100
-# result_table <- read.csv("results/2026-01-19_result-table_interactions.csv")
-result_table <- read.csv("results/2026-01-27_merged_Interactions.csv")
+# Full results of all Tiles X all Bands
+result_table <- read.csv("results/2025-10-20_main.csv")
+# Complete Interaction results of all Tiles - 4 Interaction groups (High, Low, RGB, All (+ Blue)) # + mean height column
+result_table <- read.csv("results/2026-01-29_main_interactions.csv")
+
 
 band_map <- c( Blue = "02",  Green  = "03",  Red = "04",  RedEdge= "05",  
                NIR = "08", NIR2 = "8A",  SWIR1  = "11",  SWIR2  = "12")
@@ -23,7 +24,8 @@ tol_muted_11 <- c("#332288",  "#6699CC",  "#88CCEE",  "#44AA99",  "#117733",  "#
                   "#DDCC77",  "#661100",  "#CC6677",  "#882255",  "#AA4499")
 
 int_colors <- c(ALL = "#009E73", Blue = "#88CCEE", High = "#DDCC77", Low = "#CC79A7", RGB = "#882255" )
-
+# For interactions:
+# cbf_colors <- int_colors
 
 # Spectral Line -----------------------------------------------------------
 

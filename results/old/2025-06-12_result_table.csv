@@ -1,4 +1,0 @@
-"tile","band","increment","decrease","average_difference","avg_diff_absoluteVals","T31UGT_original","std_dev","out_name","year"
-"T31UGT","B03",0,"True",0,0,NA,0,"T31UGT_original","2020"
-"T31UGT","B03",0.05,"False",0.595950840781862,0.784548372321531,NA,1.10089923633271,"T31UGT_B03_05_I","2020"
-"T31UGT","B03",0.1,"False",0.754555722268087,1.04764756722686,NA,1.33003902728709,"T31UGT_B03_10_I","2020"

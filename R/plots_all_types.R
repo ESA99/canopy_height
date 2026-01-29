@@ -101,9 +101,7 @@ library(viridis)
 
 
 
-result_table <- read.csv("results/2025-10-20_merged_results_8_Bands.csv")
-
-
+result_table <- read.csv("results/2025-10-20_main.csv")
 
 
 

@@ -5,7 +5,7 @@ library(ggpubr)
 library(dplyr)
 library(viridis)
 
-result_table <- read.csv("results/2025-10-20_merged_results_8_Bands.csv")
+result_table <- read.csv("results/2025-10-20_main.csv")
 
 cbf_colors <- c("Blue"  = "#0077BB","Green" = "#009988", "Red"   = "#CC3311", "NIR"   = "#EE3377",
                 "RedEdge" = "#EE7733", "NIR2" = "#33BBEE", "SWIR1" = "#BBBBBB", "SWIR2" = "#555555")
