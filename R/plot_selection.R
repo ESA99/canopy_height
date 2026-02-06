@@ -34,8 +34,8 @@ int_colors <- c(ALL = "#009E73", Blue = "#88CCEE", High = "#DDCC77", Low = "#CC7
 ggplot(result_table, aes(x = abs_increment, y = avg_difference_percent, color = band, fill = band)) +
   stat_summary(fun = mean, geom = "line", linewidth = 1.2) +
   stat_summary(fun.data = mean_se, geom = "ribbon", alpha = 0.2, color = NA) +
-  # scale_color_manual(values = cbf_colors, breaks=c("Blue", "NIR2", "NIR", "Green", "SWIR2", "Red", "SWIR1", "RedEdge")) +
-  # scale_fill_manual(values = cbf_colors, breaks=c("Blue", "NIR2", "NIR", "Green", "SWIR2", "Red", "SWIR1", "RedEdge")) +
+  scale_color_manual(values = cbf_colors, breaks=c("Blue", "NIR2", "NIR", "Green", "SWIR2", "Red", "SWIR1", "RedEdge")) +
+  scale_fill_manual(values = cbf_colors, breaks=c("Blue", "NIR2", "NIR", "Green", "SWIR2", "Red", "SWIR1", "RedEdge")) +
   labs(x = "Manipulation Degree [%]", y = "Average Relative Difference [%]",
        color = "Band", fill = "Band") +
   theme_minimal(base_size = 14)
@@ -96,7 +96,68 @@ ggboxplot(result_table, x = "increment",  y = "avg_difference_percent",
   theme_pubr(base_size = 14) +
   theme(legend.position = "none")
 
+
+
 # Location ----------------------------------------------------------------
+
+label_data <- result_table %>%
+  group_by(Location, abs_increment) %>%
+  summarise(avg_difference_percent = mean(avg_difference_percent),
+            .groups = "drop") %>%
+  group_by(Location) %>%
+  filter(abs_increment == max(abs_increment))
+
+
+library(ggrepel)
+ggplot(result_table, aes(x = abs_increment, y = avg_difference_percent,  color = Location)) +
+  stat_summary(fun = mean, geom = "line", linewidth = 1.2) +
+  geom_text_repel(data = label_data, aes(label = Location),
+    direction = "y",        # repel vertically only
+    hjust = 0,  nudge_x = 0.5,          # push labels to the right
+    segment.color = NA,     # no connecting lines
+    size = 4,
+    show.legend = FALSE
+  ) +
+  scale_color_manual(values = c("#332288",  "#117733","#117733","#117733","#117733","#117733",
+                                "#DDCC77", "#882255","#882255","#882255", "#882255"),
+                                  breaks = c("Finland", "Australia", "Mongolia", "Poland",  "Germany" ,"Cameroon",
+                                            "Switzerland", "USA East", "USA West", "Malaysia", "Brazil"))+
+  scale_x_continuous(expand = expansion(mult = c(0.02, 0.15)))+
+  labs(x = "Manipulation Degree [%]", y = "Average Relative Difference [%]" ) +
+  theme_minimal(base_size = 14) +
+  theme(legend.position = "none") +
+  coord_cartesian(clip = "off")
+
+
+label_data_2 <- result_table %>%
+  group_by(Location, abs_increment) %>%
+  summarise(average_difference = mean(average_difference),
+            .groups = "drop") %>%
+  group_by(Location) %>%
+  filter(abs_increment == max(abs_increment))
+
+ggplot(result_table, aes(x = abs_increment, y = average_difference,  color = Location)) +
+  stat_summary(fun = mean, geom = "line", linewidth = 1.2) +
+  geom_text_repel(data = label_data_2, aes(label = Location),
+                  direction = "y",        # repel vertically only
+                  hjust = 0,  nudge_x = 0.5,          # push labels to the right
+                  segment.color = NA,     # no connecting lines
+                  size = 4,
+                  show.legend = FALSE
+  ) +
+  scale_color_manual(values = c("#332288",  "#332288","#332288","#DDCC77","#DDCC77","#117733",
+                                "#DDCC77", "#117733","#117733","#882255", "#882255"),
+                     breaks = c("Finland", "Australia", "Mongolia", "Poland",  "Germany" ,"Cameroon",
+                                "Switzerland", "USA East", "USA West", "Malaysia", "Brazil"))+
+  scale_x_continuous(expand = expansion(mult = c(0.02, 0.15)))+
+  labs(x = "Manipulation Degree [%]", y = "Average Difference [m]" ) +
+  theme_minimal(base_size = 14) +
+  theme(legend.position = "none") +
+  coord_cartesian(clip = "off")
+
+
+
+# Location Facett ----------------------------------------------------------------
 
 plot_data <- result_table %>%
   group_by(band, Location, abs_increment) %>%
