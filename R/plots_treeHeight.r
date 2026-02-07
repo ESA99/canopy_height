@@ -14,7 +14,7 @@ tile_label <- c(
   "10TES" = "USA East", "17SNB" = "USA West"
 )
 
-# Compute densities first -------------------------------------------------
+# Compute densities  -------------------------------------------------
 
 densities <- lapply(f, function(fpath) {
   
@@ -93,7 +93,25 @@ ggplot(
 #   )
 
 
-## First draft:
+
+# Statistics --------------------------------------------------------------
+
+location_stats <- densities %>%
+  group_by(Location) %>%
+  summarise(
+    mean_height   = first(mean_height),
+    median_height = first(median_height)
+  ) %>%
+  arrange(mean_height)
+
+location_stats
+
+arrange(location_stats, desc(median_height))
+# arrange(location_stats, desc(mean_height))
+
+
+# First draft -------------------------------------------------------------
+
 
 ggplot(
   densities,
