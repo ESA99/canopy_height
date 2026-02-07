@@ -8,9 +8,6 @@ library(viridis)
 
 # Full results of all Tiles X all Bands
 result_table <- read.csv("results/2025-10-20_main.csv")
-# Complete Interaction results of all Tiles - 4 Interaction groups (High, Low, RGB, All (+ Blue)) # + mean height column
-result_table <- read.csv("results/2026-01-29_main_interactions.csv")
-
 
 band_map <- c( Blue = "02",  Green  = "03",  Red = "04",  RedEdge= "05",  
                NIR = "08", NIR2 = "8A",  SWIR1  = "11",  SWIR2  = "12")
@@ -47,7 +44,7 @@ ggplot(result_table, aes(x = abs_increment, y = avg_difference_percent, color = 
 ggline(
   result_table,
   x = "increment",
-  y = "avg_difference_percent",
+  y = "average_difference",
   color = "band",
   fill = "band",
   add = "mean_se",
@@ -62,7 +59,7 @@ ggline(
   geom_vline(xintercept = 0, linetype = "dashed", color = "grey30") +
   labs(
     x = "Manipulation Degree [%]",
-    y = "Average Relative Difference [%]",
+    y = "Average Difference [m]",
     color = "Band"
   ) +
   theme_pubr(base_size = 14) +
@@ -202,6 +199,76 @@ ggline(
   )
 
 
+# Single band by location -------------------------------------------------
+
+
+band_color <- "NIR"
+
+# Example color-blind–friendly palette (viridis)
+cb_palette <- viridis::viridis(length(unique(result_table$Location)), option = "D")
+
+tol_muted_11_alternative <- c("#DDCC77", "#AA4499", "#44AA99", "#CC6677", "#661100",
+                              "#117733", "#882255", "#332288", "#88CCEE", "#999933", "#6699CC" )
+
+# Order Legend entries
+  # average_difference
+  # avg_difference_percent
+legend_order <- result_table %>%
+  filter(band == band_color, increment == 25) %>%
+  arrange(desc(avg_difference_percent)) %>%   # top to bottom
+  pull(Location)
+
+plot_data <- result_table %>%
+  filter(band == band_color) %>%
+  mutate(Location = factor(Location, levels = legend_order))
+
+
+ggplot(
+  filter(plot_data, band == band_color),  # select band
+  aes(x = increment, y = average_difference,
+    color = Location, group = Location) ) +
+  # Add shaded SD ribbon
+  geom_ribbon(
+    aes(ymin = average_difference - std_dev,
+        ymax = average_difference + std_dev,
+        fill = Location),
+    alpha = 0.2, color = NA ) +
+  geom_line(linewidth = 1.1) +
+  geom_point(size = 2) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "grey50") +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "grey50") +
+  
+  # Color-blind–friendly scales
+  scale_color_manual(values = tol_muted_11_alternative) +
+  scale_fill_manual(values = tol_muted_11_alternative) +
+  
+  labs(x = "Manipulation [%]",
+    y = "Average Difference [m]",
+    # y = "Average Relative Difference [%]",
+    color = "Location", fill = "Location") +
+  theme_minimal(base_size = 14) +
+  theme(
+    legend.position = "right",
+    legend.box = "vertical",
+    axis.title = element_text(face = "bold"),
+    panel.grid.minor = element_blank()
+  )
+
+
+
+# Facett Location and Band ------------------------------------------
+
+# Relative difference
+ggplot(result_table, aes(x = abs(increment), y = avg_abs_diff_perc, color = band, fill = band)) +
+  geom_point(alpha = 0.4) +
+  geom_smooth(method = "loess", se = TRUE, alpha = 0.2) +
+  scale_color_manual(values = cbf_colors, breaks=c('Blue', 'Green', 'Red', 'RedEdge', 'NIR', 'NIR2', 'SWIR1', 'SWIR2')) +
+  scale_fill_manual(values = cbf_colors, breaks=c('Blue', 'Green', 'Red', 'RedEdge', 'NIR', 'NIR2', 'SWIR1', 'SWIR2')) +
+  facet_wrap(~Location) +
+  labs(x = "Manipulation Degree [%]", y = "Mean Relative Difference [%]") +
+  theme_minimal()
+
+
 # Cluster -----------------------------------------------------------------
 
 # Right Sided
@@ -307,78 +374,3 @@ ggplot(plot_data, aes(x = abs_increment, y = avg_diff_percent, color = group, gr
 
 
 
-# Interactions ------------------------------------------------------------
-
-
-
-
-
-##################################################################################################
-################                    ALTERNATIVE PLOTS TO CONSIDER                 ################
-##################################################################################################
-
-# Single band by location -------------------------------------------------
-
-
-band_color <- "NIR"
-
-# Example color-blind–friendly palette (viridis)
-cb_palette <- viridis::viridis(length(unique(result_table$Location)), option = "C")
-
-ggplot(
-  filter(result_table, band == band_color),  # select band
-  aes(
-    x = increment,
-    y = average_difference,
-    color = Location,   # color by Location
-    group = Location    # group by Location
-  )
-) +
-  # Add shaded SD ribbon
-  geom_ribbon(
-    aes(
-      ymin = average_difference - std_dev,
-      ymax = average_difference + std_dev,
-      fill = Location    # fill by Location
-    ),
-    alpha = 0.2,
-    color = NA
-  ) +
-  geom_line(linewidth = 1.1) +
-  geom_point(size = 2) +
-  geom_hline(yintercept = 0, linetype = "dashed", color = "grey50") +
-  geom_vline(xintercept = 0, linetype = "dashed", color = "grey50") +
-  
-  # Color-blind–friendly scales
-  scale_color_manual(values = tol_muted_11) +
-  scale_fill_manual(values = tol_muted_11) +
-  
-  labs(
-    title = "Near-Infrared",
-    x = "Manipulation [%]",
-    y = "Average Difference [m]",
-    # y = "Average Relative Difference [%]",
-    color = "Location",
-    fill = "Location"
-  ) +
-  theme_minimal(base_size = 14) +
-  theme(
-    legend.position = "right",
-    legend.box = "vertical",
-    axis.title = element_text(face = "bold"),
-    panel.grid.minor = element_blank()
-  )
-
-
-
-# Facett Location and Band ------------------------------------------
-
-# Relative difference
-ggplot(result_table, aes(x = abs(increment), y = avg_abs_diff_perc, color = band, fill = band)) +
-  geom_point(alpha = 0.4) +
-  geom_smooth(method = "loess", se = TRUE, alpha = 0.2) +
-  scale_color_manual(values = cbf_colors, breaks=c('Blue', 'Green', 'Red', 'RedEdge', 'NIR', 'NIR2', 'SWIR1', 'SWIR2')) +
-  scale_fill_manual(values = cbf_colors, breaks=c('Blue', 'Green', 'Red', 'RedEdge', 'NIR', 'NIR2', 'SWIR1', 'SWIR2')) +
-  facet_wrap(~Location) +
-  labs(x = "Manipulation Degree [%]", y = "Mean Relative Difference [%]") +
-  theme_minimal()
