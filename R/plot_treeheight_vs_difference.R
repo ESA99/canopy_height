@@ -45,8 +45,8 @@ ggplot(df_sample, aes(height, diff)) +
 
 # Multiple Manip Comparison -----------------------------------------------
 
-band <- "B08"
-tile <- "35VML"
+band <- "B8A"
+tile <- "49UCP"
 # tile_names <- c("10TES", "17SNB", "20MMD", "32TMT", "32UQU", "33NTG", "34UFD", "35VML", "49NHC", "49UCP", "55HEV")
 
 original   <- rast(paste0("/data/ESA99/export/all/predictions/",tile,"_original.tif"))    # tree canopy height
@@ -83,13 +83,13 @@ df_long$manipulation <- factor(
 )
 
 # Plot
-p <- ggplot(df_long, aes(height, difference)) +
-  geom_density_2d(color = "black") +
-  geom_hline(yintercept = 0, linetype = "dashed", color = "grey30") +
-  facet_wrap(~ manipulation) +
-  labs(x = "Tree/canopy height [m]",
-       y = "Difference [m]") +
-  theme_minimal()
+# p <- ggplot(df_long, aes(height, difference)) +
+#   geom_density_2d(color = "black") +
+#   geom_hline(yintercept = 0, linetype = "dashed", color = "grey30") +
+#   facet_wrap(~ manipulation) +
+#   labs(x = "Tree/canopy height [m]",
+#        y = "Difference [m]") +
+#   theme_minimal()
 
 
 
@@ -99,7 +99,8 @@ p <- ggplot(df_long, aes(height, difference)) +
 # Hexbin shows counts
 # Density contours show structure
 
-# Scatterplot cobined
+
+## Scatterplot cobined
 ggplot(df_long, aes(height, difference, color = manipulation)) +
   geom_point(alpha = 0.25, size = 0.5) +
   geom_hline(yintercept = 0, linetype = "dashed") +
