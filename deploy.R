@@ -47,7 +47,7 @@ timing_results <- data.frame(
   # All bands: "B02", "B03", "B04", "B05", "B08", "B8A", "B11", "B12"
   # Increments: 0.05, 0.1, 0.15, 0.2, 0.25
 
-variables <- dandelion::create_param_df(tiles = c( "33NTG"), 
+variables <- dandelion::create_param_df(tiles = c( "35VML"), 
                                          bands = 
                                                 # list(c("B02", "B03", "B04", "B05", "B08", "B8A", "B11", "B12"), # All
                                                      # c("B04","B11", "B12"), # Low responder
