@@ -1,13 +1,16 @@
 ### Plot Selection for Thesis ###
+library(dplyr)
 library(ggplot2)
 library(ggpubr)
-library(dplyr)
+library(ggrepel)
 library(viridis)
 
 # Setup -------------------------------------------------------------------
 
 # Full results of all Tiles X all Bands
 result_table <- read.csv("results/2025-10-20_main.csv")
+# high_canopy <- filter(result_table, Location == "Brazil" | Location == "Malaysia" | Location == "USA East" | Location =="USA West")
+
 
 band_map <- c( Blue = "02",  Green  = "03",  Red = "04",  RedEdge= "05",  
                NIR = "08", NIR2 = "8A",  SWIR1  = "11",  SWIR2  = "12")
@@ -26,8 +29,39 @@ int_colors <- c(ALL = "#009E73", Blue = "#88CCEE", High = "#DDCC77", Low = "#CC7
 
 # Spectral Line -----------------------------------------------------------
 
-# result_table$band <- factor(result_table$band, levels = c("Blue", "NIR2", "NIR", "Green", "SWIR2", "Red", "SWIR1", "RedEdge"))
+#### With Lables ####
+label_data <- result_table %>%
+  group_by(band, abs_increment) %>%
+  summarise(avg_difference_percent = mean(avg_difference_percent),
+            .groups = "drop") %>%
+  group_by(band) %>%
+  filter(abs_increment == max(abs_increment))
 
+
+ggplot(result_table, aes(x = abs_increment, y = avg_difference_percent,
+                         color = band, fill = band)) +
+  stat_summary(fun = mean, geom = "line", linewidth = 1.2) +
+  stat_summary(fun.data = mean_se, geom = "ribbon", alpha = 0.2, color = NA) +
+  geom_text_repel(data = label_data,
+                  aes(label = band),
+                  direction = "y",
+                  hjust = 0,
+                  nudge_x = 0.5,
+                  segment.color = NA,
+                  size = 4,
+                  show.legend = FALSE) +
+  scale_color_manual(values = cbf_colors,  breaks = c("Blue", "NIR2", "NIR", "Green","SWIR2", "Red", "SWIR1", "RedEdge")) +
+  scale_fill_manual(values = cbf_colors, breaks = c("Blue", "NIR2", "NIR", "Green", "SWIR2", "Red", "SWIR1", "RedEdge")) +
+  scale_x_continuous(expand = expansion(mult = c(0.02, 0.15))) +
+    labs(x = "Manipulation Degree [%]", y = "Average Relative Difference [%]") +
+  theme_minimal(base_size = 14) +
+  theme(legend.position = "none") +
+  coord_cartesian(clip = "off")
+
+
+
+##### With legend ####
+# result_table$band <- factor(result_table$band, levels = c("Blue", "NIR2", "NIR", "Green", "SWIR2", "Red", "SWIR1", "RedEdge"))
 ggplot(result_table, aes(x = abs_increment, y = avg_difference_percent, color = band, fill = band)) +
   stat_summary(fun = mean, geom = "line", linewidth = 1.2) +
   stat_summary(fun.data = mean_se, geom = "ribbon", alpha = 0.2, color = NA) +
@@ -36,6 +70,7 @@ ggplot(result_table, aes(x = abs_increment, y = avg_difference_percent, color = 
   labs(x = "Manipulation Degree [%]", y = "Average Relative Difference [%]",
        color = "Band", fill = "Band") +
   theme_minimal(base_size = 14)
+
 
 
 # Spectral Facett ---------------------------------------------------------
@@ -177,7 +212,7 @@ ggline(
   ncol = 2
 ) +
   geom_hline(
-    yintercept = c(50, 100),
+    yintercept = c(-100,-50,50,100),
     linetype = "dashed",
     color = "grey85",
     linewidth = 0.6
