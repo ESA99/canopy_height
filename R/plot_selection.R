@@ -130,8 +130,9 @@ ggboxplot(result_table, x = "increment",  y = "avg_difference_percent",
 
 
 
-# Location ----------------------------------------------------------------
+# Grouped Tiles ----------------------------------------------------------------
 
+## Relative Difference Groups
 label_data <- result_table %>%
   group_by(Location, abs_increment) %>%
   summarise(avg_difference_percent = mean(avg_difference_percent),
@@ -140,7 +141,6 @@ label_data <- result_table %>%
   filter(abs_increment == max(abs_increment))
 
 
-library(ggrepel)
 ggplot(result_table, aes(x = abs_increment, y = avg_difference_percent,  color = Location)) +
   stat_summary(fun = mean, geom = "line", linewidth = 1.2) +
   geom_text_repel(data = label_data, aes(label = Location),
@@ -160,7 +160,7 @@ ggplot(result_table, aes(x = abs_increment, y = avg_difference_percent,  color =
   theme(legend.position = "none") +
   coord_cartesian(clip = "off")
 
-
+## Average difference group plot
 label_data_2 <- result_table %>%
   group_by(Location, abs_increment) %>%
   summarise(average_difference = mean(average_difference),
@@ -186,6 +186,7 @@ ggplot(result_table, aes(x = abs_increment, y = average_difference,  color = Loc
   theme_minimal(base_size = 14) +
   theme(legend.position = "none") +
   coord_cartesian(clip = "off")
+
 
 
 
