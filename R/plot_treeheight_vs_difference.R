@@ -5,7 +5,7 @@ library(hexbin)
 # Data
 manip_deg <- "10_D"
 band <- "B08"
-tile <- "49NHC"
+tile <- "49UCP"
 tile_names <- c("10TES", "17SNB", "20MMD", "32TMT", "32UQU", "33NTG", "34UFD", "35VML", "49NHC", "49UCP", "55HEV")
 
 original   <- rast(paste0("/data/ESA99/export/2026-01-29/predictions/",tile,"_original.tif"))    # tree canopy height
@@ -109,6 +109,11 @@ ggplot(df_long, aes(height, difference, color = manipulation)) +
     y = "Difference",
     color = "Manipulation level"
   ) +
+  scale_color_manual(values = c(
+    "low" = "#1b9e77",   # replace with your categories & desired hex colors
+    "medium" = "#d95f02",
+    "high" = "#7570b3"
+  )) +
   theme_minimal()
 
 ## Facetted scatterplot

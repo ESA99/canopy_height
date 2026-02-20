@@ -43,8 +43,8 @@ densities <- lapply(f, function(fpath) {
 densities <- densities %>%
   mutate(Location = fct_reorder(Location, mean_height, .desc = TRUE))
 
-densities <- densities %>%
-  mutate(Location = fct_reorder(Location, median_height, .desc = TRUE))
+# densities <- densities %>%
+#   mutate(Location = fct_reorder(Location, median_height, .desc = TRUE))
 
 ggplot(
   densities,
@@ -68,7 +68,7 @@ ggplot(
     name = "Mean height [m]"
   ) +
   labs(
-    x = "Predicted tree height [m]",
+    x = "Estimated canopy height [m]",
     y = ""
   ) +
   theme_minimal(base_size = 14) +
@@ -76,7 +76,7 @@ ggplot(
   theme(
     panel.grid.major.y = element_blank(),
     legend.title = element_text(size = 12),
-    legend.position = "bottom",
+    legend.position = "top",
     legend.direction = "horizontal"
   ) + 
   guides(

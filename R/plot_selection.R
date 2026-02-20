@@ -12,6 +12,9 @@ result_table <- read.csv("results/2025-10-20_main.csv")
 # high_canopy <- filter(result_table, Location == "Brazil" | Location == "Malaysia" | Location == "USA East" | Location =="USA West")
 
 
+subset_table <- result_table %>%
+  filter(band %in% c("Blue", "NIR", "NIR2", "RedEdge"))
+
 band_map <- c( Blue = "02",  Green  = "03",  Red = "04",  RedEdge= "05",  
                NIR = "08", NIR2 = "8A",  SWIR1  = "11",  SWIR2  = "12")
 band_names <- paste( band_map[unique(result_table$band)], collapse = "+")
@@ -105,7 +108,7 @@ ggline(
 # Boxplot -----------------------------------------------------------------
 
 # Absolute diff Facett by band + points
-ggboxplot(result_table, x = "increment",  y = "average_difference",
+ggboxplot(subset_table, x = "increment",  y = "average_difference",
           fill = "band",  color = "black",
           palette = cbf_colors,  facet.by = "band",  scales = "fixed", alpha = 0.8, ncol = 2) +
   geom_hline(yintercept = 0, linetype = "dashed", color = "grey30") +
@@ -259,12 +262,11 @@ plot_data <- result_table %>%
   mutate(Location = factor(Location, levels = legend_order))
 
 
-ggplot(
-  filter(plot_data, band == band_color),  # select band
-  aes(x = increment, y = average_difference,
-    color = Location, group = Location) ) +
-  # Add shaded SD ribbon
-  geom_ribbon(
+ggplot( filter(plot_data),  # select band # alternatively ->  ,band == band_color
+        aes(x = increment, y = average_difference,
+        color = Location, group = Location) ) +
+  
+  geom_ribbon( # Add shaded SD ribbon
     aes(ymin = average_difference - std_dev,
         ymax = average_difference + std_dev,
         fill = Location),
@@ -295,14 +297,56 @@ ggplot(
 # Facett Location and Band ------------------------------------------
 
 # Relative difference
-ggplot(result_table, aes(x = abs(increment), y = avg_abs_diff_perc, color = band, fill = band)) +
+ggplot(result_table, aes(x = abs(increment), y = avg_difference_percent, color = band, fill = band)) +
   geom_point(alpha = 0.4) +
   geom_smooth(method = "loess", se = TRUE, alpha = 0.2) +
   scale_color_manual(values = cbf_colors, breaks=c('Blue', 'Green', 'Red', 'RedEdge', 'NIR', 'NIR2', 'SWIR1', 'SWIR2')) +
   scale_fill_manual(values = cbf_colors, breaks=c('Blue', 'Green', 'Red', 'RedEdge', 'NIR', 'NIR2', 'SWIR1', 'SWIR2')) +
-  facet_wrap(~Location) +
+  facet_wrap(~Location, ncol = 3) +
   labs(x = "Manipulation Degree [%]", y = "Mean Relative Difference [%]") +
   theme_minimal()
+
+
+# Compact version with changed legend:
+ggplot(result_table, aes(x = abs(increment), y = average_difference, color = band, fill = band)) +
+  geom_point(alpha = 0.4, size = 3) +  # control point size
+  geom_smooth(method = "loess", se = TRUE, alpha = 0.2) +
+  scale_color_manual(values = cbf_colors, 
+                     breaks = c('Blue', 'Green', 'Red', 'RedEdge', 'NIR', 'NIR2', 'SWIR1', 'SWIR2')) +
+  scale_fill_manual(values = cbf_colors, 
+                    breaks = c('Blue', 'Green', 'Red', 'RedEdge', 'NIR', 'NIR2', 'SWIR1', 'SWIR2')) +
+  facet_wrap(~Location, ncol = 3) +
+  labs(x = "Manipulation Degree [%]", y = "Mean Difference [m]", color = "Band", fill = "Band") +
+  theme_minimal() +
+  theme(legend.position = c(0.86, 0.06),   # x = 0.95 (right), y = 0.05 (bottom)
+        legend.title = element_text(size = 12, face = "bold"),
+        legend.text = element_text(size = 10),
+        legend.direction = "horizontal",
+        legend.box = "vertical",                     # allows title above
+        legend.spacing.x = unit(0.5, "cm"),         # horizontal spacing between keys
+        legend.key.size = unit(1, "cm"),            # size of legend keys
+        legend.margin = margin(5, 5, 5, 5),         # padding inside legend box
+        legend.box.just = "center"                   # center legend in the box
+  ) +
+  guides(
+    color = guide_legend(
+      title.position = "top",                  # title above
+      nrow = 2,                                # number of rows
+      byrow = TRUE,                            # fill rows first
+      label.position = "bottom",               # labels below keys
+      keywidth = unit(1.3, "cm"),               # width of keys
+      keyheight = unit(0.5, "cm")             # height of keys
+    ),
+    fill = guide_legend(
+      title.position = "top",
+      nrow = 2,
+      byrow = TRUE,
+      label.position = "bottom",
+      keywidth = unit(1, "cm"),
+      keyheight = unit(0.5, "cm")
+    )
+  )
+
 
 
 # Cluster -----------------------------------------------------------------
