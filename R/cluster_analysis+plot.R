@@ -4,6 +4,116 @@ library(tidyr)
 library(ggplot2)
 library(viridis)
 
+# Cluster analysis -----------------------------------------------------------------
+# Version clipped fromplot_selection
+# Might be the same as -> right sided cluster (see last section)
+
+# Right Sided
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(viridis)
+
+# Summarize data: average over tile, band, and abs_increment per Location
+location_summary <- result_table %>%
+  group_by(Location, abs_increment) %>%
+  summarise(avg_diff_percent = mean(avg_difference_percent, na.rm = TRUE),
+            .groups = "drop")
+
+# Pivot to wide format: one row per Location, columns = abs_increment
+features <- location_summary %>%
+  pivot_wider(names_from = abs_increment, values_from = avg_diff_percent, values_fill = 0)
+
+# Keep row names as Location
+feature_matrix <- as.data.frame(features[, -1])
+rownames(feature_matrix) <- features$Location
+
+# Standardize features
+feature_matrix_scaled <- scale(feature_matrix)
+
+# Hierarchical clustering
+dist_matrix <- dist(feature_matrix_scaled, method = "euclidean")
+hc <- hclust(dist_matrix, method = "ward.D2")
+
+# Plot dendrogram
+plot(hc, main = "Hierarchical clustering of Locations based on abs_increment")
+
+# Cut tree into k clusters
+k <- 3
+location_groups <- data.frame(
+  Location = rownames(feature_matrix_scaled),
+  group = factor(cutree(hc, k = k))
+)
+
+# Merge cluster info back to summary for plotting
+plot_data <- location_summary %>%
+  left_join(location_groups, by = "Location")
+
+# Location lables
+label_positions <- plot_data %>%
+  group_by(Location) %>%
+  filter(!is.na(abs_increment)) %>%           # remove NA increments
+  slice_max(order_by = abs_increment, n = 1) %>%  # pick the row with the max increment safely
+  ungroup()
+
+### Colors
+library(viridisLite)
+cluster_colors <- viridis(k, option = "plasma", begin = 0.1, end = 0.8)  # D = purple→yellow, better contrast
+plot_data$group <- factor(plot_data$group)
+names(cluster_colors) <- levels(plot_data$group)
+
+# cluster_colors["Cluster4"] <- "#" 
+
+cluster_order <- plot_data %>%
+  group_by(group) %>%
+  filter(abs_increment == max(abs_increment)) %>%
+  summarise(mean_val = mean(avg_diff_percent, na.rm = TRUE)) %>%
+  arrange(desc(mean_val)) %>%
+  pull(group)
+
+# order colours by max value at 25% manipulation degree
+plot_data$group <- factor(plot_data$group, levels = cluster_order)
+names(cluster_colors) <- cluster_order
+
+
+# Plot average difference over abs_increment colored by cluster
+ggplot(plot_data, aes(x = abs_increment, y = avg_diff_percent, color = group, group = Location)) +
+  geom_line(linewidth = 1.1) +
+  geom_point(size = 2) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "grey50") +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "grey50") +
+  # scale_color_viridis_d(option = "C") +
+  scale_color_manual(values = cluster_colors) + 
+  labs(
+    x = "Manipulation Degree [%]",
+    y = "Average Difference [%]",
+    color = "Cluster"
+  ) +
+  # Direct labels at the end of each line
+  geom_text_repel(
+    data = label_positions,
+    aes(label = Location),
+    nudge_x = 0.5,         # adjust horizontal label position
+    direction = "y",
+    hjust = 0,
+    segment.color = NA,    # remove connecting line
+    size = 3.5,
+    box.padding = 0.2,
+    point.padding = 0.5
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(axis.title = element_text(face = "bold"))
+
+
+# ggsave(paste0("plots/cluster/",Sys.Date(),"_",length(unique(result_table$Location)),"T_B",band_names,
+#               "_","right_line_location_Percent_cluster5",".png"),
+#        width = 300, height = 175, units = "mm", dpi = 300, bg = "white")
+
+
+
+
+
+
 # Hierarchial clustering --------------------------------------------------
 
 # Summarize data: average over tile and band per Location × increment
@@ -56,6 +166,7 @@ ggplot(plot_data, aes(x = increment, y = avg_diff_percent, color = group, group 
   ) +
   theme_minimal(base_size = 14) +
   theme(axis.title = element_text(face = "bold"))
+
 
 
 
