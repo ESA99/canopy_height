@@ -3,6 +3,7 @@ library(ggplot2)
 library(ggpubr)
 library(dplyr)
 library(viridis)
+library(ggrepel)
 
 # Complete Interaction results of all Tiles - 4 Interaction groups (High, Low, RGB, All (+ Blue)) # + mean height column
 result_table <- read.csv("results/2026-01-29_main_interactions.csv")
@@ -12,16 +13,36 @@ cbf_colors <- c(ALL = "#009E73", Blue = "#88CCEE", High = "#DDCC77", Low = "#882
 
 # Spectral Line -----------------------------------------------------------
 
-ggplot(result_table, aes(x = abs_increment, y = avg_difference_percent, color = band, fill = band)) +
+# Relative difference with lables
+label_data <- result_table %>%
+  group_by(band, abs_increment) %>%
+  summarise(avg_difference_percent = mean(avg_difference_percent),
+            .groups = "drop") %>%
+  group_by(band) %>%
+  filter(abs_increment == max(abs_increment))
+
+
+ggplot(result_table, aes(x = abs_increment, y = avg_difference_percent,
+                         color = band, fill = band)) +
   stat_summary(fun = mean, geom = "line", linewidth = 1.2) +
   stat_summary(fun.data = mean_se, geom = "ribbon", alpha = 0.2, color = NA) +
-  scale_color_manual(values = cbf_colors, breaks=c("RGB", "ALL", "Blue", "High", "Low")) +
-  scale_fill_manual(values = cbf_colors, breaks=c("RGB", "ALL", "Blue", "High", "Low")) +
-  labs(x = "Manipulation Degree [%]", y = "Average Relative Difference [%]",
-       color = "Band", fill = "Band") +
+  geom_text_repel(data = label_data,
+                  aes(label = band),
+                  direction = "y",
+                  hjust = 0,
+                  nudge_x = 0.5,
+                  segment.color = NA,
+                  size = 4,
+                  show.legend = FALSE) +
+  scale_color_manual(values = cbf_colors,  breaks = c("Blue", "NIR2", "NIR", "Green","SWIR2", "Red", "SWIR1", "RedEdge")) +
+  scale_fill_manual(values = cbf_colors, breaks = c("Blue", "NIR2", "NIR", "Green", "SWIR2", "Red", "SWIR1", "RedEdge")) +
+  scale_x_continuous(expand = expansion(mult = c(0.02, 0.15))) +
+  labs(x = "Manipulation Degree [%]", y = "Average Relative Difference [%]") +
   theme_minimal(base_size = 14) +
-  theme(legend.position = "right")
+  theme(legend.position = "none") +
+  coord_cartesian(clip = "off")
 
+# Avg difference with legend
 ggplot(result_table, aes(x = abs_increment, y = average_difference, color = band, fill = band)) +
   stat_summary(fun = mean, geom = "line", linewidth = 1.2) +
   stat_summary(fun.data = mean_se, geom = "ribbon", alpha = 0.2, color = NA) +
