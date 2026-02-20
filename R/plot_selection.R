@@ -25,6 +25,9 @@ cbf_colors <- c(  Blue     = "#0072B2", Green    = "#009E73", Red      = "#D55E0
 
 tol_muted_11 <- c("#332288",  "#6699CC",  "#88CCEE",  "#44AA99",  "#117733",  "#999933",  
                   "#DDCC77",  "#661100",  "#CC6677",  "#882255",  "#AA4499")
+# Subset: High Canopy:
+tol_muted_11 <- c("#332288",  "#44AA99",  
+                  "#DDCC77",  "#AA4499")
 
 int_colors <- c(ALL = "#009E73", Blue = "#88CCEE", High = "#DDCC77", Low = "#CC79A7", RGB = "#882255" )
 # For interactions:
