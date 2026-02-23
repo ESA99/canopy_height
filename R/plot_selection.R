@@ -6,9 +6,9 @@ library(ggrepel)
 library(viridis)
 
 # Wide save:
-# ggsave("plots/2026-02-00_PLOTNAME.png", width = 300, height = 175, units = "mm", dpi = 300, bg = "white")
+# ggsave(paste0("plots/",format(Sys.Date(), "%Y-%m-%d"),"_PLOTNAME.png"), width = 270, height = 175, units = "mm", dpi = 300, bg = "white")
 # Tall save
-# ggsave("plots/2026-02-01_PLOTNAME.png", width = 200, height = 250, units = "mm", dpi = 300, bg = "white")
+# ggsave(paste0("plots/",format(Sys.Date(), "%Y-%m-%d"),"_PLOTNAME.png"), width = 200, height = 250, units = "mm", dpi = 300, bg = "white")
 
 # Setup -------------------------------------------------------------------
 
@@ -21,7 +21,9 @@ result_table <- read.csv("results/2025-10-20_main.csv")
 
 # Subset: Strong responders
 # subset_table <- result_table %>%
-  # filter(band %in% c("Blue", "NIR", "NIR2", "RedEdge"))
+#   filter(band %in% c("Blue", "RedEdge", "NIR", "NIR2"))# %>%
+#   mutate(band = factor(band, levels = c("Blue", "RedEdge", "NIR", "NIR2"))) %>%
+#   arrange(band)
 
 # Colour Scales:
 band_map <- c( Blue = "02",  Green  = "03",  Red = "04",  RedEdge= "05",  
