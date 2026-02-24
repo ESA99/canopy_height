@@ -1,6 +1,7 @@
 ### Tree Height ridge plot ###
 library(terra)
 library(dplyr)
+library(ggplot2)
 library(ggridges)
 library(forcats)
 
@@ -46,6 +47,19 @@ densities <- densities %>%
 # densities <- densities %>%
 #   mutate(Location = fct_reorder(Location, median_height, .desc = TRUE))
 
+# Reorder USA East and Cameroon
+lvl <- levels(densities$Location)     # Extract current order
+
+i1 <- match("USA East", lvl)          # Get positions of the two tied levels
+i2 <- match("Cameroon", lvl)
+
+lvl[c(i1, i2)] <- lvl[c(i2, i1)]      # Swap
+
+densities$Location <- factor(densities$Location, levels = lvl)
+
+
+
+# Ridge plot - densities
 ggplot(
   densities,
   aes(
@@ -91,6 +105,10 @@ ggplot(
 #     color = "black",
 #     nudge_y = 0.1
 #   )
+
+
+ggsave(paste0("plots/tree_height/",format(Sys.Date(), "%Y-%m-%d"),"_CH_ridge_test_2.png"), 
+       width = 240, height = 210, units = "mm", dpi = 300, bg = "white")
 
 
 

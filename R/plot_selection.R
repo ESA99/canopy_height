@@ -313,11 +313,11 @@ ggplot( filter(plot_data),  # select band # alternatively ->  ,band == band_colo
 ggplot(result_table, aes(x = abs(increment), y = avg_difference_percent, color = band, fill = band)) +
   geom_point(alpha = 0.4) +
   geom_smooth(method = "loess", se = TRUE, alpha = 0.2) +
-  scale_color_manual(values = cbf_colors, breaks=c('Blue', 'Green', 'Red', 'RedEdge', 'NIR', 'NIR2', 'SWIR1', 'SWIR2')) +
-  scale_fill_manual(values = cbf_colors, breaks=c('Blue', 'Green', 'Red', 'RedEdge', 'NIR', 'NIR2', 'SWIR1', 'SWIR2')) +
-  facet_wrap(~Location, ncol = 3) +
+  scale_color_manual(name = "Band", values = cbf_colors, breaks=c('Blue', 'Green', 'Red', 'RedEdge', 'NIR', 'NIR2', 'SWIR1', 'SWIR2')) +
+  scale_fill_manual(name = "Band", values = cbf_colors, breaks=c('Blue', 'Green', 'Red', 'RedEdge', 'NIR', 'NIR2', 'SWIR1', 'SWIR2')) +
+  facet_wrap(~Location, ncol = 2) +
   labs(x = "Manipulation Degree [%]", y = "Mean Relative Difference [%]") +
-  theme_minimal()
+  theme_minimal(base_size = 16)
 
 
 # Compact version with changed legend:
