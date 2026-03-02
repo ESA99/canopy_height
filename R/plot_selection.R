@@ -360,3 +360,64 @@ ggplot(result_table, aes(x = abs(increment), y = average_difference, color = ban
     )
   )
 
+
+
+## GGPUBR version
+# No SD shade
+ggscatter(result_table, 
+          x = "increment",
+          # x = "abs_increment",
+          y = "average_difference",
+          # y = "avg_difference_percent",
+          color = "band", 
+          fill = "band",
+          alpha = 0.6,
+          size = 2,
+          add = "loess", 
+          add.params = list(se = TRUE, alpha = 0.2, span = 0.3),
+          facet.by = "Location", 
+          scales = "fixed",
+          ncol = 3,
+          palette = cbf_colors) +
+  geom_hline(linetype = "dashed",
+             yintercept = c(-10, -5, 5, 10),       # Absolute differences
+             # yintercept = c(-100, -50, 50, 100),   # relative Difference
+             color = "grey85", 
+             linewidth = 0.6) +
+  geom_hline(yintercept = 0, 
+             linetype = "dashed", 
+             color = "grey30") +
+  labs(x = "Manipulation Degree [%]",
+       # y = "Mean Difference [m]",
+       y = "Mean Difference [%]",
+       color = "Band",
+       fill = "Band") +
+  theme_pubr(base_size = 14) +
+  theme(legend.position = c(0.86, 0.06),   # x = 0.95 (right), y = 0.05 (bottom)
+        legend.title = element_text(size = 12, face = "bold"),
+        legend.text = element_text(size = 10),
+        legend.direction = "horizontal",
+        legend.box = "vertical",                     # allows title above
+        legend.spacing.x = unit(0.5, "cm"),         # horizontal spacing between keys
+        legend.key.size = unit(1, "cm"),            # size of legend keys
+        legend.margin = margin(5, 5, 5, 5),         # padding inside legend box
+        legend.box.just = "center"                   # center legend in the box
+  ) +
+  guides(
+    color = guide_legend(
+      title.position = "top",                  # title above
+      nrow = 4,                                # number of rows
+      byrow = TRUE,                            # fill rows first
+      label.position = "bottom",               # labels below keys
+      keywidth = unit(1.3, "cm"),               # width of keys
+      keyheight = unit(0.5, "cm")             # height of keys
+    ),
+    fill = guide_legend(
+      title.position = "top",
+      nrow = 4,
+      byrow = TRUE,
+      label.position = "bottom",
+      keywidth = unit(1, "cm"),
+      keyheight = unit(0.5, "cm")
+    )
+  )
