@@ -18,6 +18,7 @@ venv/
 *.npy
 *.pt
 *.json
+*.rds
 
 .Rproj.user
 .Rhistory
