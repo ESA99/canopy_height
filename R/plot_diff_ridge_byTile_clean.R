@@ -25,6 +25,12 @@ tile_label <- c( "55HEV" = "Australia", "20MMD" = "Brazil", "33NTG" = "Cameroon"
 scenario_levels <- c("-25%", "-20%", "-15%", "-10%", "-5%",
                      "+5%", "+10%", "+15%", "+20%", "+25%")
 
+mean_height <- data.frame( 
+  tile = c("Finland", "Mongolia", "Poland", "Australia", "Germany",
+           "Switzerland", "Cameroon", "USA East", "USA West","Brazil", "Malaysia"),
+  height = c(4.56, 4.77, 6.19, 9.27, 10.1, 17.2, 21.1, 21.1, 22.8,33.3, 43.5) )
+
+
 # Files and meta data table -----------------------------------------------
 
 files <- list.files(diff_folder, pattern = "\\.tif$", full.names = TRUE)
