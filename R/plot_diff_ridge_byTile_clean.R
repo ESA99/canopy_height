@@ -4,6 +4,7 @@ library(dplyr)
 library(tidyverse)
 library(ggplot2)
 library(ggpubr)
+library(ggridges)
 library(hexbin)
 library(ggrepel)
 library(viridis)
@@ -25,10 +26,11 @@ tile_label <- c( "55HEV" = "Australia", "20MMD" = "Brazil", "33NTG" = "Cameroon"
 scenario_levels <- c("-25%", "-20%", "-15%", "-10%", "-5%",
                      "+5%", "+10%", "+15%", "+20%", "+25%")
 
-mean_height <- data.frame( 
-  tile = c("Finland", "Mongolia", "Poland", "Australia", "Germany",
-           "Switzerland", "Cameroon", "USA East", "USA West","Brazil", "Malaysia"),
-  height = c(4.56, 4.77, 6.19, 9.27, 10.1, 17.2, 21.1, 21.1, 22.8,33.3, 43.5) )
+# Height values (rounded version later)
+# mean_height <- data.frame( 
+#   tile = c("Finland", "Mongolia", "Poland", "Australia", "Germany",
+#            "Switzerland", "Cameroon", "USA East", "USA West","Brazil", "Malaysia"),
+#   height = c(4.56, 4.77, 6.19, 9.27, 10.1, 17.2, 21.1, 21.1, 22.8,33.3, 43.5) )
 
 
 # Files and meta data table -----------------------------------------------
@@ -138,46 +140,63 @@ all_tiles_long <- lapply(tile_names, function(tile_sel) {
 # Save/Import Results -----------------------------------------------------
 
 # saveRDS(all_tiles_long, file = "R/data/all_tiles_long.rds", compress = TRUE)
-# all_tiles_long <- readRDS("R/data/all_tiles_long.rds")
-# str(all_tiles_long)
+all_tiles_long <- readRDS("R/data/all_tiles_long.rds")
+str(all_tiles_long)
 
 
 
-# Tile ordering -----------------------------------------------------------
+# Add mean heights and order tiles --------------------------------------------------------
 
-# Manual order by mean canopy height
-tile_order <- c("Finland", "Mongolia", "Poland", "Australia", "Germany", "Switzerland", "Cameroon", "USA East", "USA West", "Brazil", "Malaysia")  
-all_tiles_long$tile <- factor(all_tiles_long$tile, levels = tile_order)
+# Apply factor manually by mean canopy height
+tile_order <- c("Finland", "Mongolia", "Poland", "Australia", "Germany", "Switzerland", "Cameroon", "USA East", "USA West", "Brazil", "Malaysia")
+all_tiles_long$tile <- factor(all_tiles_long$tile, levels = heights$tile)
 
-# # By median difference
+# # Order By median difference
 # all_tiles_long <- all_tiles_long %>%
 #     group_by(tile) %>%
 #     mutate(median_diff = median(difference)) %>%
 #     ungroup() %>%
 #     mutate(tile = factor(tile, levels = unique(tile[order(median_diff, decreasing = TRUE)]))) # decreasing = TRUE → largest median on top
 
+# Mean height label data
+heights <-data.frame(
+  tile = c("Finland", "Mongolia", "Poland", "Australia", "Germany", 
+           "Switzerland", "Cameroon", "USA East", "USA West", "Brazil", "Malaysia"),
+  mean_height = c(4.6, 4.8, 6.2, 9.3, 10.1, 17.2, 21.1, 21.1, 22.8, 33.3, 43.5)
+) 
+
+# Order heights df
+heights <- heights %>%
+  mutate(tile = factor(tile, levels = tile_order))
+
 
 # Select scenario ---------------------------------------------------------
 
-# Filter for desired scenario
-filter_scenarios <- "both"  # options: "positive", "negative", "both"
+# # Filter for desired scenario
+# filter_scenarios <- "both"  # options: "positive", "negative", "both"
+# 
+# all_tiles_long <- all_tiles_long %>%
+#   filter(
+#     (filter_scenarios == "positive" & grepl("^\\+", scenario)) |
+#       (filter_scenarios == "negative" & grepl("^\\-", scenario)) |
+#       (filter_scenarios == "both")
+#   )
 
-all_tiles_long <- all_tiles_long %>%
-  filter(
-    (filter_scenarios == "positive" & grepl("^\\+", scenario)) |
-      (filter_scenarios == "negative" & grepl("^\\-", scenario)) |
-      (filter_scenarios == "both")
-  )
+
+# Plot variables ----------------------------------------------------------
 
 # Select variables
-# fill_var <- "abs_scenario"
-fill_var <- "scenario"
+fill_var <- "abs_scenario"
+# fill_var <- "scenario"
 
-scale_var <- "discrete"
-# scale_var <- "continuous"
+# scale_var <- "discrete"
+scale_var <- "continuous"
 
 x_range <- 15
 
+# Mean height label position
+label_x_pos <- x_range * 0.98
+y_offset <- 0.20 
 
 # Colour Scales -----------------------------------------------------------
 
@@ -224,12 +243,25 @@ ggplot(all_tiles_long,
   coord_cartesian(xlim = c(-x_range, x_range)) +            # clip range
   scale_x_continuous(breaks = seq(-x_range, x_range, by = 5)) + 
   
+  # Add mean_height as text labels at the right side
+  geom_text(
+    data = heights,
+    aes(x = label_x_pos, 
+        y = as.numeric(factor(tile)) + y_offset, 
+        label = paste0(mean_height, " m")),
+    inherit.aes = FALSE,   # prevents inheriting other mappings
+    hjust = 1,             # right-align the text
+    size = 3.5,             # adjust text size
+    colour = "grey35"
+  ) +
+  
   theme_minimal(base_size = 14) +
   labs(x = "Difference [m]",
        y = "Tile") +
   theme(legend.position = "right",
         legend.title = element_text(size = 10, face = "bold"), 
-        legend.text  = element_text(size = 10) 
+        legend.text  = element_text(size = 10),
+        panel.grid.minor = element_blank()       # don't show minor grid lines
         )+
   guides(
     fill = guide_legend(
@@ -246,7 +278,7 @@ ggplot(all_tiles_long,
 # Export ------------------------------------------------------------------
 
 # Tall format to fit inner margins of A4 document, with space for caption
-ggsave(paste0("plots/",format(Sys.Date(), "%Y-%m-%d"),"_DiffDist_TileRidge_disc_10.png"), width = 200, height = 270, units = "mm", dpi = 300, bg = "white")
+ggsave(paste0("plots/",format(Sys.Date(), "%Y-%m-%d"),"_DiffDist_TileRidge_MH_disc_5.png"), width = 200, height = 260, units = "mm", dpi = 300, bg = "white")
 
 
 

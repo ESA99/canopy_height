@@ -206,14 +206,14 @@ ggplot(result_table, aes(x = abs_increment, y = average_difference,  color = Loc
 
 
 
-# Location Facett ----------------------------------------------------------------
+# Band-Facet - tiles ----------------------------------------------------------------
 
 plot_data <- result_table %>%
   group_by(band, Location, abs_increment) %>%
   summarise(avg_difference_percent = mean(avg_difference_percent, na.rm = TRUE), .groups = "drop")
 plot_data$manipulation <- plot_data$abs_increment#*100
 
-# Facetted by band location plot, avg relative difference
+# Faceted by band location plot, avg relative difference
 ggline(
   plot_data,
   x = "manipulation",
@@ -307,7 +307,7 @@ ggplot( filter(plot_data),  # select band # alternatively ->  ,band == band_colo
 
 
 
-# Facett Location and Band ------------------------------------------
+# Tile-Facet - bands ------------------------------------------
 
 # Relative difference
 ggplot(result_table, aes(x = abs(increment), y = avg_difference_percent, color = band, fill = band)) +
@@ -365,8 +365,8 @@ ggplot(result_table, aes(x = abs(increment), y = average_difference, color = ban
 ## GGPUBR version
 # No SD shade
 ggscatter(result_table, 
-          x = "increment",
-          # x = "abs_increment",
+          # x = "increment",
+          x = "abs_increment",
           y = "average_difference",
           # y = "avg_difference_percent",
           color = "band", 
@@ -388,13 +388,14 @@ ggscatter(result_table,
              linetype = "dashed", 
              color = "grey30") +
   labs(x = "Manipulation Degree [%]",
-       # y = "Mean Difference [m]",
-       y = "Mean Difference [%]",
+       y = "Mean Difference [m]",
+       # y = "Mean Difference [%]",
        color = "Band",
        fill = "Band") +
   theme_pubr(base_size = 14) +
-  theme(legend.position = c(0.86, 0.06),   # x = 0.95 (right), y = 0.05 (bottom)
-        legend.title = element_text(size = 12, face = "bold"),
+  theme(legend.title = element_text(size = 12, face = "bold"),
+        # legend.position = "right",
+        legend.position = c(0.86, 0.06),   # x = 0.95 (right), y = 0.05 (bottom)
         legend.text = element_text(size = 10),
         legend.direction = "horizontal",
         legend.box = "vertical",                     # allows title above
