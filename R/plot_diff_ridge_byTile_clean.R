@@ -10,6 +10,8 @@ library(ggrepel)
 library(viridis)
 library(RColorBrewer)
 
+### Improved version -> df_all.R ###
+
 diff_folder <- "/data/ESA99/export/all/difference_rasters/"
 orig_folder <- "/data/ESA99/export/2026-01-29/predictions/"
 

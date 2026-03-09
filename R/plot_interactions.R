@@ -2,6 +2,8 @@
 library(ggplot2)
 library(ggpubr)
 library(dplyr)
+library(rlang)
+library(tidyverse)
 library(viridis)
 library(ggrepel)
 
@@ -10,19 +12,38 @@ result_table <- read.csv("results/2026-01-29_main_interactions.csv")
 
 cbf_colors <- c(ALL = "#009E73", Blue = "#88CCEE", High = "#DDCC77", Low = "#882285", RGB = "#CC79A7" )
 
+result_table <- result_table %>% filter(band != "Blue")
+
+# Wide save:
+ggsave(paste0("plots/",format(Sys.Date(), "%Y-%m-%d"),"_Line_Abs_Inter.png"), width = 270, height = 175, units = "mm", dpi = 300, bg = "white")
+# Tall save
+# ggsave(paste0("plots/",format(Sys.Date(), "%Y-%m-%d"),"_PLOTNAME.png"), width = 200, height = 250, units = "mm", dpi = 300, bg = "white")
+
 
 # Spectral Line -----------------------------------------------------------
 
-# Relative difference with lables
+fill_var <- "average_difference"
+# fill_var <- avg_difference_percent
+
 label_data <- result_table %>%
   group_by(band, abs_increment) %>%
-  summarise(avg_difference_percent = mean(avg_difference_percent),
-            .groups = "drop") %>%
+  summarise(
+    across(all_of(fill_var), mean),
+    .groups = "drop"
+  ) %>%
   group_by(band) %>%
   filter(abs_increment == max(abs_increment))
 
+# Relative difference with lables # OLD LABELS
+# label_data <- result_table %>%
+#   group_by(band, abs_increment) %>%
+#   summarise(.data[[fill_var]] = mean(.data[[fill_var]]),
+#             .groups = "drop") %>%
+#   group_by(band) %>%
+#   filter(abs_increment == max(abs_increment))
 
-ggplot(result_table, aes(x = abs_increment, y = avg_difference_percent,
+
+ggplot(result_table, aes(x = abs_increment, y = .data[[fill_var]],
                          color = band, fill = band)) +
   stat_summary(fun = mean, geom = "line", linewidth = 1.2) +
   stat_summary(fun.data = mean_se, geom = "ribbon", alpha = 0.2, color = NA) +
@@ -37,10 +58,14 @@ ggplot(result_table, aes(x = abs_increment, y = avg_difference_percent,
   scale_color_manual(values = cbf_colors,  breaks = c("Blue", "NIR2", "NIR", "Green","SWIR2", "Red", "SWIR1", "RedEdge")) +
   scale_fill_manual(values = cbf_colors, breaks = c("Blue", "NIR2", "NIR", "Green", "SWIR2", "Red", "SWIR1", "RedEdge")) +
   scale_x_continuous(expand = expansion(mult = c(0.02, 0.15))) +
-  labs(x = "Manipulation Degree [%]", y = "Average Relative Difference [%]") +
+  labs(x = "Manipulation Degree [%]", 
+       y = ifelse(fill_var == "average_difference", "Average Difference [m]", "Average Relative Difference [%]") ) +
   theme_minimal(base_size = 14) +
   theme(legend.position = "none") +
   coord_cartesian(clip = "off")
+
+
+
 
 # Avg difference with legend
 ggplot(result_table, aes(x = abs_increment, y = average_difference, color = band, fill = band)) +
