@@ -232,7 +232,7 @@ df_sample <- df_clean %>%
 
 # Statistics Plot Functions ----------------------------------------------------
 
-source("R/stat_plot_FUN_test.R")
+source("R/stat_plot_FUN.R")
 
 # Scatter plot
 plot_scatter_smooth(df_sample, "original", "difference")
