@@ -15,7 +15,7 @@ library(RColorBrewer)
 #=============================================================================================
 
 diff_folder <- "/data/ESA99/export/all/difference_rasters/"
-orig_folder <- "/data/ESA99/export/all/predictions/"
+pred_folder <- "/data/ESA99/export/all/predictions/"
 
 tile_names <- c("10TES", "17SNB", "20MMD", "32TMT", "32UQU", "33NTG", "34UFD", "35VML", "49NHC", "49UCP", "55HEV")
 bands <- c("B02", "B03", "B04", "B05", "B08", "B8A", "B11", "B12")
@@ -31,6 +31,7 @@ scenario_levels <- c("-25%", "-20%", "-15%", "-10%", "-5%","+5%", "+10%", "+15%"
 
 tile_order <- c("Finland", "Mongolia", "Poland", "Australia", "Germany", "Switzerland", "Cameroon", "USA East", "USA West", "Brazil", "Malaysia")
 
+# Original Canopy Height Estimate + Order / Factor
 heights <-data.frame(tile = c("Finland", "Mongolia", "Poland", "Australia", "Germany", "Switzerland", "Cameroon", "USA East", "USA West", "Brazil", "Malaysia"),
                      mean_height = c(4.6, 4.8, 6.2, 9.3, 10.1, 17.2, 21.1, 21.1, 22.8, 33.3, 43.5) ) 
 heights <- heights %>%
@@ -40,7 +41,7 @@ heights <- heights %>%
 # Metadata ----------------------------------------------------------------
 
 diff_files <- list.files(diff_folder, pattern = "\\.tif$", full.names = TRUE)
-orig_files <- list.files(orig_folder, pattern = "original", full.names = T)
+orig_files <- list.files(pred_folder, pattern = "original", full.names = T)
 
 meta <- tibble(file = diff_files) %>%
   mutate(filename = basename(file)) %>%
@@ -75,7 +76,6 @@ meta_original <- tibble(file = orig_files) %>%
 # memory efficient
 output_folder <- "R/data/tile_samples"
 dir.create(output_folder, showWarnings = FALSE)
-
 
 # Function to process one tile
 process_tile_sample <- function(diff_file, tile_name, band, increment, direction, meta_original, n_sample = 100000) {
@@ -155,14 +155,14 @@ csv_files <- list.files(output_folder, pattern = "\\.csv$", full.names = TRUE)
 pixel_df <- lapply(csv_files, function(f) {
   read_csv(f,
            col_types = cols(
-             Tile = col_character(),
-             Band = col_character(),
-             Increment = col_character(),   # force character
-             Direction = col_character(),
-             Scenario = col_character(),
-             Difference = col_double(),
-             Original = col_double(),
-             Percent_Difference = col_double()
+             tile = col_character(),
+             tand = col_character(),
+             increment = col_character(),   # force character
+             direction = col_character(),
+             scenario = col_character(),
+             difference = col_double(),
+             original = col_double(),
+             percent_diff = col_double()
            ))
 }) %>% bind_rows()
 # Quick check
@@ -175,17 +175,7 @@ pixel_df <- pixel_df %>%
   mutate(Tile = factor(Tile, levels = tile_order) ) 
 
 
-# Order heights df
-heights <-data.frame(
-  tile = c("Finland", "Mongolia", "Poland", "Australia", "Germany", 
-           "Switzerland", "Cameroon", "USA East", "USA West", "Brazil", "Malaysia"),
-  mean_height = c(4.6, 4.8, 6.2, 9.3, 10.1, 17.2, 21.1, 21.1, 22.8, 33.3, 43.5)
-) 
-heights <- heights %>%
-  mutate(tile = factor(tile, levels = tile_order))
-
-
-names(pixel_df) <- c("tile", "band", "increment", "direction", "scenario", "difference", "original", "percent_diff")
+# names(pixel_df) <- c("tile", "band", "increment", "direction", "scenario", "difference", "original", "percent_diff")
 
 # Create abs_scenario variable
 pixel_df <- pixel_df %>%
@@ -212,10 +202,10 @@ pixel_df <- pixel_df %>%
 
 # saveRDS(pixel_df, file = "R/data/pixel_df.rds", compress = TRUE)
 pixel_df <- readRDS("R/data/pixel_df.rds")
-str(all_tiles_long)
+str(pixel_df)
 
 
-# Statistics --------------------------------------------------------------
+# Statistic --------------------------------------------------------------
 
 df_clean <- pixel_df %>% 
   filter(!is.na(original), original != 0)
@@ -227,11 +217,40 @@ cor_diff
 cor_pct
 
 # Optional: Fit linear models for visualization / comparison
-lm_diff <- lm(original ~ difference, data = df_clean)
-lm_pct  <- lm(original ~ percent_diff, data = df_clean)
+lm_diff <- lm(difference ~ original, data = df_clean)
+lm_pct  <- lm(percent_diff ~ original, data = df_clean)
 
 summary(lm_diff)
 summary(lm_pct)
+
+
+set.seed(42)
+
+df_sample <- df_clean %>%
+  slice_sample(n = 1e6)
+
+
+# Statistics Plot Functions ----------------------------------------------------
+
+source("R/stat_plot_FUN_test.R")
+
+# Scatter plot
+plot_scatter_smooth(df_sample, "original", "difference")
+plot_scatter_smooth(df_sample, "original", "percent_diff")
+
+# Binned mean ± SD
+plot_binned_sd(df_sample, "original", c("difference", "percent_diff"))
+
+# Single binned line
+plot_single_bin(df_sample, "original", "difference")
+plot_single_bin(df_sample, "original", "percent_diff")
+
+# Histogram + line
+plot_histogram_line(df_sample, "original", "difference")
+plot_histogram_line(df_sample, "original", "percent_diff")
+
+# Log-transformed percent_diff
+plot_scatter_log(df_sample, "original", "percent_diff")
 
 
 # Plotting ----------------------------------------------------------------
@@ -330,4 +349,5 @@ ggplot(pixel_df,
     )
   )
 
-
+# Tall plot export
+# ggsave(paste0("plots/",format(Sys.Date(), "%Y-%m-%d"),"_PLOTNAME.png"), width = 200, height = 250, units = "mm", dpi = 300, bg = "white")
