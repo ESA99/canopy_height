@@ -25,6 +25,10 @@ result_table <- read.csv("results/2025-10-20_main.csv")
 #   mutate(band = factor(band, levels = c("Blue", "RedEdge", "NIR", "NIR2"))) %>%
 #   arrange(band)
 
+# Subset: Tile Facet
+# result_table <- filter(result_table, Location == "Mongolia" | Location == "Malaysia" | Location == "Switzerland" | Location =="USA West"| Location == "Finland" | Location =="Cameroon")
+# result_table <- result_table %>% mutate(Location = factor(Location, levels = c("Malaysia", "Cameroon", "Finland", "Mongolia", "Switzerland", "USA West")))
+
 # Colour Scales:
 band_map <- c( Blue = "02",  Green  = "03",  Red = "04",  RedEdge= "05",  
                NIR = "08", NIR2 = "8A",  SWIR1  = "11",  SWIR2  = "12")
