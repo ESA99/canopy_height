@@ -1,0 +1,259 @@
+---
+title: "Masters Thesis"
+author: "Emilio Sánchez"
+format: 
+  html:
+    toc: true
+---
+```{r}
+#| echo: false
+#| message: false
+library(terra)
+library(tidyverse)
+library(dplyr)
+library(stringr)
+library(readr)
+library(ggplot2)
+library(ggpubr)
+library(ggridges)
+library(ggrepel)
+library(hexbin)
+library(viridis)
+library(RColorBrewer)
+```
+
+## Abstract
+
+Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
+
+# Methods
+# Sample Locations
+
+In total eleven tiles were used for the analysis of the model. They were selected to be distributed globally, cover multiple different biomes and based on the presented tiles by the original paper.
+
+```{r}
+#| message: false
+#| echo: false
+
+library(tmap)
+library(sf)
+library(dplyr)
+
+tiles <- st_read("/home/emilio/canopy_height/R/data/final_tile_selection.gpkg", quiet = TRUE)
+
+tile_label <- c("55HEV" = "Australia", "20MMD" = "Brazil", "33NTG" = "Cameroon", "32UQU" = "Germany", 
+                "35VML" = "Finland", "49NHC" = "Malaysia", "49UCP" = "Mongolia", 
+                "34UFD" = "Poland", "32TMT" = "Switzerland", "10TES" = "USA East", "17SNB" = "USA West")
+
+
+tiles <- tiles %>%
+  mutate(Location = tile_label[Name])
+
+tmap::tmap_mode("view")
+tmap::tm_shape(tiles) +
+  tmap::tm_borders(col = "red", lwd = 2) +
+  tmap::tm_text("Location", size = 0.8, col = "grey95")+
+  tmap::tm_view(
+                basemaps = c("Esri.WorldImagery", "CartoDB.DarkMatterNoLabels"),
+                set.view = c(10.0, 20.0, 2))  # longitude, latitude, zoom level
+
+```
+
+# Results
+
+
+## Differences between tiles
+
+```{r}
+df_sample <- readRDS("../R/data/pixel_df_sample.rds")
+
+```
+
+Make this interactive with shiny...
+
+```{r}
+#| echo: false
+#| message: false
+tile_order <- c("Finland", "Mongolia", "Poland", "Australia", "Germany", "Switzerland", "Cameroon", "USA East", "USA West", "Brazil", "Malaysia")
+
+heights <-data.frame(tile = c("Finland", "Mongolia", "Poland", "Australia", "Germany", "Switzerland", "Cameroon", "USA East", "USA West", "Brazil", "Malaysia"),
+                     mean_height = c(4.6, 4.8, 6.2, 9.3, 10.1, 17.2, 21.1, 21.1, 22.8, 33.3, 43.5) ) 
+heights <- heights %>%
+  mutate(tile = factor(tile, levels = tile_order))
+
+
+x_var <- "difference"
+x_range <- 15
+
+# x_var <- "percent_diff"
+# x_range <- 50
+
+# fill_var <- "abs_scenario"
+fill_var <- "scenario"
+
+scale_var <- "continuous"
+# scale_var <- "discrete"
+
+
+
+# Colour Scales -----------------------------------------------------------
+
+if(scale_var == "discrete"){
+  
+  if(fill_var == "abs_scenario"){
+    scenario_palette <- c("#AA3377","#EE6677","#CCBB44","#228833","#66CCEE")  # 5 colors
+  } else {
+    # scenario_palette <- c("#d73027","#fc8d59","#fee08b","#d9ef8b","#91cf60",   # negatives -25% to -5%
+    # "#66c2a5","#3288bd","#5e4fa2","#9e0168","#fdae61")    # positives +5% to +25%
+    
+    # scenario_palette <- brewer.pal(10, "Paired")
+    scenario_palette <- brewer.pal(10, "Spectral")
+  }
+  
+} else {
+  
+  ifelse(fill_var == "abs_scenario",
+         scenario_palette <- viridis(5, option = "D"),
+         scenario_palette <- viridis(10, option = "D") )  
+  
+}
+
+
+# Plots -------------------------------------------------------------------
+
+# Mean height label position
+label_x_pos <- x_range * 0.98
+y_offset <- 0.20 
+
+
+### Shaded density curves, ridge plot -> tiles sorted by CH, 
+ggplot(df_sample,
+       aes(x = !!sym(x_var),
+           y = tile,
+           fill = !!sym(fill_var))) +   # fill colours
+  
+  geom_density_ridges(
+    aes(group = interaction(tile, !!sym(fill_var)), colour = !!sym(fill_var)),
+    scale = 1,        # vertical scaling
+    alpha = 0.2,      # transparency so overlapping colours are visible
+    bandwidth = 2     # smooth the curve
+  ) +
+  
+  scale_fill_manual(values = scenario_palette, name = "Manipulation") +
+  scale_colour_manual(values = scenario_palette, guide = "none") + 
+  
+  geom_vline(xintercept = 0, linetype = "dashed", colour = "grey35") +
+  coord_cartesian(xlim = c(-x_range, x_range)) +            # clip range
+  scale_x_continuous(breaks = seq(-x_range, x_range, by = 5)) + 
+  
+  # Add mean_height as text labels at the right side
+  geom_text(
+    data = heights,
+    aes(x = label_x_pos, 
+        y = as.numeric(factor(tile)) + y_offset, 
+        label = paste0(mean_height, " m")),
+    inherit.aes = FALSE,   # prevents inheriting other mappings
+    hjust = 1,             # right-align the text
+    size = 3.5,             # adjust text size
+    colour = "grey35"
+  ) +
+  
+  theme_minimal(base_size = 14) +
+  labs(x = "Difference [m]",
+       y = "Tile") +
+  theme(legend.position = "right",
+        legend.title = element_text(size = 10, face = "bold"), 
+        legend.text  = element_text(size = 10),
+        panel.grid.minor = element_blank()       # don't show minor grid lines
+  )+
+  guides(
+    fill = guide_legend(
+      override.aes = list(
+        alpha = 0.2,
+        colour = scenario_palette, # add colored outline
+        size = 1.6        # thickness of outline
+      )
+    )
+  )
+```
+
+
+## Statistics
+
+`pixel_df_sample.rds` is a sammple of 1,000,000 pixels of df_clean, that is the NA removed version of df_all, an 80,000,000 pixel sample of all predictions. 
+
+```{r}
+cor_diff <- cor(df_sample$original, df_sample$difference, use = "complete.obs")
+cor_pct  <- cor(df_sample$original, df_sample$percent_diff, use = "complete.obs")
+cor_diff
+cor_pct
+
+
+```
+
+Plotting of the lm gives this negative trend.
+
+```{r}
+#| echo: false
+df_bin <- df_sample %>%
+  mutate(bin = cut(original, breaks = seq(0, 60, 2))) %>%
+  group_by(bin) %>%
+  summarise(
+    height = mean(original, na.rm = TRUE),
+    diff_mean = mean(difference, na.rm = TRUE),
+    diff_sd = sd(difference, na.rm = TRUE),
+    percent_mean = mean(percent_diff, na.rm = TRUE),
+    percent_sd = sd(percent_diff, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+scale_factor <- 0.025
+
+ggplot(df_bin, aes(height)) +
+  # diff_mean ± diff_sd
+  geom_ribbon(aes(ymin = diff_mean - diff_sd, ymax = diff_mean + diff_sd), 
+              fill = "grey80", alpha = 0.3) +
+  # geom_line(aes(y = diff_mean), color = "black", linewidth = 1.2, linetype = "solid") + # data line without smoothing
+  geom_smooth(aes(y = diff_mean), method = "loess", span = 0.2, color = "black", linewidth = 1.2, se = FALSE)+
+  
+  # #Thinn break lines secondary y axis
+  # geom_hline(yintercept = sec_breaks[sec_breaks != 0] * scale_factor,
+  #            color = "blue", linewidth = 0.1, alpha = 0.5 )+
+  
+  # percent_diff ± percent_sd (scaled)
+  geom_ribbon(aes(
+    ymin = (percent_mean - percent_sd) * scale_factor,
+    ymax = (percent_mean + percent_sd) * scale_factor
+  ), fill = "blue", alpha = 0.2) +
+  geom_line(aes(y = percent_mean * scale_factor), color = "blue", linewidth = 1.2, linetype = "dashed") +
+  
+  # Axes
+  scale_y_continuous(
+    name = "Prediction difference [m]",
+    # breaks = seq(-10, 10, 5),
+    # minor_breaks = seq(-10, 6, 1),
+    minor_breaks = NULL,
+    sec.axis = sec_axis(~ . / scale_factor, 
+                        name = "Relative difference [%]",
+                        breaks = seq(-400, 400, by = 100))    # Break points right y axis
+  ) +
+  scale_x_continuous(
+    breaks = seq(0, max(df_bin$height), by = 10),
+    minor_breaks = NULL
+  )+
+  geom_hline(yintercept = 0, color = "grey30", linewidth = 0.4)+
+  labs(x = "Canopy height [m]") +
+  theme_minimal(base_size = 14) +         ## Adjust all text sizes!
+  theme(
+    axis.title.y.right = element_text(color = "blue"),
+    axis.text.y.right = element_text(color = "blue")
+  )
+```
+
+
+The `echo: false` option disables the printing of code (only output is displayed).
+
+```{r}
+#| echo: false
+2 * 2
+```

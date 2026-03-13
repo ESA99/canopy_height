@@ -36,8 +36,9 @@ results/originals/
 results/preds/
 results/individual_results/
 
+# Quarto rendering files:
 documentation/Documentation_files/
-
+documentation/masterthesis_files/
 
 # final_results/
 temp/

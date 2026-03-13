@@ -72,16 +72,30 @@ df_bin <- df_sample %>%
     .groups = "drop"
   )
 
-# Compute scaling factor for secondary axis
-scale_factor <- max(df_bin$diff_mean + df_bin$diff_sd, na.rm = TRUE) /
-  max(df_bin$percent_mean + df_bin$percent_sd, na.rm = TRUE)
+### Compute scaling factor for secondary axis
+# scale_factor <- max(df_bin$diff_mean + df_bin$diff_sd, na.rm = TRUE) /
+  # max(df_bin$percent_mean + df_bin$percent_sd, na.rm = TRUE)
+
+# scale_factor <- max(abs(df_bin$diff_mean), na.rm = TRUE) /
+#   max(abs(df_bin$percent_mean), na.rm = TRUE)
+# scale_factor <- scale_factor / 2
+
+scale_factor <- 0.025
+# scale_factor <- 0.02
+
+# sec_breaks <- seq(-400, 400, 200) # where to put thin break lines -> secondary y axis
 
 # Plot
 ggplot(df_bin, aes(height)) +
   # diff_mean ± diff_sd
   geom_ribbon(aes(ymin = diff_mean - diff_sd, ymax = diff_mean + diff_sd), 
               fill = "grey80", alpha = 0.3) +
-  geom_line(aes(y = diff_mean), color = "black", linewidth = 1.2, linetype = "solid") +
+  # geom_line(aes(y = diff_mean), color = "black", linewidth = 1.2, linetype = "solid") + # data line without smoothing
+  geom_smooth(aes(y = diff_mean), method = "loess", span = 0.2, color = "black", linewidth = 1.2, se = FALSE)+
+  
+  # #Thinn break lines secondary y axis
+  # geom_hline(yintercept = sec_breaks[sec_breaks != 0] * scale_factor,
+  #            color = "blue", linewidth = 0.1, alpha = 0.5 )+
   
   # percent_diff ± percent_sd (scaled)
   geom_ribbon(aes(
@@ -93,10 +107,20 @@ ggplot(df_bin, aes(height)) +
   # Axes
   scale_y_continuous(
     name = "Prediction difference [m]",
-    sec.axis = sec_axis(~ . / scale_factor, name = "Relative difference [%]")
+    # breaks = seq(-10, 10, 5),
+    # minor_breaks = seq(-10, 6, 1),
+    minor_breaks = NULL,
+    sec.axis = sec_axis(~ . / scale_factor, 
+                        name = "Relative difference [%]",
+                        breaks = seq(-400, 400, by = 100))    # Break points right y axis
   ) +
+  scale_x_continuous(
+    breaks = seq(0, max(df_bin$height), by = 10),
+    minor_breaks = NULL
+  )+
+  geom_hline(yintercept = 0, color = "grey30", linewidth = 0.4)+
   labs(x = "Canopy height [m]") +
-  theme_bw(base_size = 14) +         ## Adjust all text sizes!
+  theme_minimal(base_size = 14) +         ## Adjust all text sizes!
   theme(
     axis.title.y.right = element_text(color = "blue"),
     axis.text.y.right = element_text(color = "blue")

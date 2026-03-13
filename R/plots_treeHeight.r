@@ -98,16 +98,30 @@ ggplot(
       barwidth = unit(9, "cm"),
       barheight = unit(0.5, "cm")
     )
+  )+
+  geom_text(
+    aes(x = 60, y = Location, label = paste0(round(mean_height, 1), " m") ),
+    color = "grey35",
+    inherit.aes = FALSE,
+    nudge_y = 0.1,
+    nudge_x = 1,
+    hjust = 0,            # alignement
+    size = 12 * 0.35,       # approximate size matching base_size = 14 (ggplot uses mm units)
+    fontface = "plain",  # not bold
+    family = "sans"  
+  )+
+  geom_text(
+    aes(x = mean_height, y = Location, label = "^" ),
+    color = "grey10",
+    inherit.aes = FALSE,
+    size = 8 * 0.35,
+    fontface = "plain",  # not bold
+    family = "sans" 
   )
-# +
-#   geom_text(
-#     aes(x = mean_height, y = Location, label = round(mean_height, 1)),
-#     color = "black",
-#     nudge_y = 0.1
-#   )
 
 
-ggsave(paste0("plots/tree_height/",format(Sys.Date(), "%Y-%m-%d"),"_CH_ridge_test_2.png"), 
+
+ggsave(paste0("plots/CH_distribution/",format(Sys.Date(), "%Y-%m-%d"),"_CH_ridge_test_4.png"), 
        width = 240, height = 210, units = "mm", dpi = 300, bg = "white")
 
 
