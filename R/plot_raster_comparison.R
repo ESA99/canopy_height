@@ -54,8 +54,8 @@ meta_pred <- pred_files %>%
 # Variable selection ------------------------------------------------------
 # "10TES", "17SNB", "20MMD", "32TMT", "32UQU", "33NTG", "34UFD", "35VML", "49NHC", "49UCP", "55HEV"
 
-tile_sel <- "17SNB"
-band_sel <- "B05"
+tile_sel <- "10TES"
+band_sel <- "B02"
 direct_sel <- "I"
 
 ### Original selection
@@ -98,7 +98,6 @@ lyr_names <- names(combined)
 # original + difference
 combined_od <- c(o, d)
 lyr_names <- names(combined_od)
-
 
 
 # Prediction rasters -------------------------------------------------------
@@ -199,9 +198,10 @@ ggplot() +
   
   # Layout
   coord_sf(expand = FALSE) +
-  scale_x_continuous(n.breaks = 3) +
+  scale_x_continuous(n.breaks = 5) +
   theme_minimal(base_size = 12) +
   theme(
+    axis.text.x = element_text(size = 8),
     panel.spacing = unit(0.2, "lines"),
     strip.text = element_text(face = "bold"),
     legend.title = element_text(face = "bold"),
@@ -212,5 +212,5 @@ ggplot() +
 
 # Export ------------------------------------------------------------------
 
-ggsave(paste0("plots/comp_strips/",format(Sys.Date(), "%Y-%m-%d"),"_USAEast_RE_Opred.png"), width = 300, height = 100, units = "mm", dpi = 300, bg = "white")
+ggsave(paste0("plots/comp_strips/",format(Sys.Date(), "%Y-%m-%d"),"_USAWest_Blue_Odiff.png"), width = 300, height = 100, units = "mm", dpi = 300, bg = "white")
 
