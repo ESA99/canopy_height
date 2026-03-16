@@ -198,10 +198,10 @@ ggplot() +
   
   # Layout
   coord_sf(expand = FALSE) +
-  scale_x_continuous(n.breaks = 5) +
+  scale_x_continuous(n.breaks = 4) +
   theme_minimal(base_size = 12) +
   theme(
-    axis.text.x = element_text(size = 8),
+    axis.text.x = element_text(size = 9),
     panel.spacing = unit(0.2, "lines"),
     strip.text = element_text(face = "bold"),
     legend.title = element_text(face = "bold"),
