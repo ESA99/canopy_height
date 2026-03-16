@@ -14,8 +14,8 @@ library(RColorBrewer)
 
 #=============================================================================================
 
-diff_folder <- "/data/ESA99/export/all/difference_rasters/"
-pred_folder <- "/data/ESA99/export/all/predictions/"
+diff_folder <- "/data/ESA99/export/all/difference_rasters"
+pred_folder <- "/data/ESA99/export/all/predictions"
 
 tile_names <- c("10TES", "17SNB", "20MMD", "32TMT", "32UQU", "33NTG", "34UFD", "35VML", "49NHC", "49UCP", "55HEV")
 bands <- c("B02", "B03", "B04", "B05", "B08", "B8A", "B11", "B12")
@@ -42,6 +42,8 @@ heights <- heights %>%
 
 diff_files <- list.files(diff_folder, pattern = "\\.tif$", full.names = TRUE)
 orig_files <- list.files(pred_folder, pattern = "original", full.names = T)
+pred_files <- tibble(file = list.files(pred_folder, full.names = TRUE)) %>%
+  filter(!grepl("original", file))
 
 meta <- tibble(file = diff_files) %>%
   mutate(filename = basename(file)) %>%
@@ -66,6 +68,17 @@ meta_original <- tibble(file = orig_files) %>%
          Direction = NA) %>%
   select(file, Tile, Band, Increment, Direction)
 
+
+meta_pred <- pred_files %>%
+  mutate(filename = basename(file)) %>%
+  separate(
+    filename,
+    into = c("Tile", "Band", "Increment", "Direction"),
+    sep = "_",
+    remove = TRUE
+  ) %>%
+  mutate(Direction = str_remove(Direction, "\\.tif$"),
+         label = paste0(ifelse(Direction == "I", "+", "-"), as.character(Increment), " %")) 
 
 
 # Process: Extract pixel --------------------------------------------------
