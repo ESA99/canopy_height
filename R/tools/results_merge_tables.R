@@ -16,7 +16,7 @@ result_table <- B
 # Checks for tile-band combinations without 0-Increment row and adds them if needed
 add_zero_step_rows <- function(result_table) {
   
-  # 1: Identify which combinations are missing a zero increment row
+  # Identify which combinations are missing a zero increment row
   missing_zero_rows <- result_table %>%
     distinct(tile, band) %>%  # Identify all tile-band combinations
     anti_join(
@@ -28,7 +28,7 @@ add_zero_step_rows <- function(result_table) {
     message("No columns missing")
   } else {
     
-    # 2: Create the zero increment rows
+    # Create the zero increment rows
     zero_increment_rows <- missing_zero_rows %>%
       mutate(
         increment = 0,
@@ -37,11 +37,11 @@ add_zero_step_rows <- function(result_table) {
         year = 2020
       )
     
-    # 3: Add missing columns
+    # Add missing columns
     missing_cols <- setdiff(names(result_table), names(zero_increment_rows))
     zero_increment_rows[missing_cols] <- 0.0  # Add all missing columns as 0.0
     
-    # 4: Combine with original table
+    # Combine with original table
     new_table <- bind_rows(result_table, zero_increment_rows)
     
     cat(nrow(missing_zero_rows), "rows added to table.\n")

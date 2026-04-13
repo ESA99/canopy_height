@@ -4,7 +4,7 @@ library(ggplot2)
 library(mgcv) # for GAM smoothing
 
 # --------------------------------------------
-# 1️⃣ Scatter + smooth line
+# Scatter + smooth line
 # --------------------------------------------
 plot_scatter_smooth <- function(df, x_var, y_var, sample_n = 500000,
                                 alpha = 0.03, point_size = 0.3,
@@ -21,7 +21,7 @@ plot_scatter_smooth <- function(df, x_var, y_var, sample_n = 500000,
 }
 
 # --------------------------------------------
-# 2️⃣ Binned mean ± SD plot
+# Binned mean ± SD plot
 # Can handle one or two y variables with secondary axis
 # --------------------------------------------
 plot_binned_sd <- function(df, x_var, y_vars, bin_width = 2, colors = c("black", "blue")) {
@@ -67,7 +67,7 @@ plot_binned_sd <- function(df, x_var, y_vars, bin_width = 2, colors = c("black",
 }
 
 # --------------------------------------------
-# 3️⃣ Single binned line plot
+# Single binned line plot
 # --------------------------------------------
 plot_single_bin <- function(df, x_var, y_var, bin_width = 2) {
   df_bin <- df %>%
@@ -87,7 +87,7 @@ plot_single_bin <- function(df, x_var, y_var, bin_width = 2) {
 }
 
 # --------------------------------------------
-# 4️⃣ Histogram + line plot
+#⃣ Histogram + line plot
 # --------------------------------------------
 plot_histogram_line <- function(df, x_var, y_var, bin_width = 2, col_hist = "grey80", col_line = "red") {
   df_hist <- df %>%
@@ -114,7 +114,7 @@ plot_histogram_line <- function(df, x_var, y_var, bin_width = 2, col_hist = "gre
 }
 
 # --------------------------------------------
-# 5️⃣ Log-transformed scatter + smooth
+# Log-transformed scatter + smooth
 # --------------------------------------------
 plot_scatter_log <- function(df, x_var, y_var, sample_n = 500000,
                              alpha = 0.03, point_size = 0.3,

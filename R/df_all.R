@@ -266,7 +266,7 @@ plot_histogram_line(df_sample, "original", "percent_diff")
 plot_scatter_log(df_sample, "original", "percent_diff")
 
 
-# Plotting ----------------------------------------------------------------
+# Plotting Variables ----------------------------------------------------------------
 
 x_var <- "difference"
 x_range <- 15

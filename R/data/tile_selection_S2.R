@@ -11,6 +11,9 @@ library(terra)
 
 # View Tiles by continent -------------------------------------------------
 
+# https://sentinel.esa.int/documents/247904/1955685/S2A_OPER_GIP_TILPAR_MPC__20151209T095117_V20150622T000000_21000101T000000_B00.kml
+#New link to Sentinel 2 grid klm:
+# https://sentiwiki.copernicus.eu/__attachments/1692737/S2A_OPER_GIP_TILPAR_MPC__20151209T095117_V20150622T000000_21000101T000000_B00.zip?inst-v=42dcf634-2f2e-4a72-ba94-565c0b01b900
 sentinel_kml <- st_read("/home/emilio/global-canopy-height-model/workbench/data/S2A_OPER_GIP_TILPAR_MPC__20151209T095117_V20150622T000000_21000101T000000_B00.kml", quiet = TRUE)
 
 # Get continents shapefile using rnaturalearth
