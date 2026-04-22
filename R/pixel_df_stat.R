@@ -1,4 +1,5 @@
 # New data frame with correct sampling and original files and percent inclusion
+# SKIP TO LL 118 ff. if sampling already performed, to load data directly
 library(terra)
 library(tidyverse)
 library(dplyr)

@@ -1,3 +1,5 @@
+# Create and export Satellite scenes for the method plot of the sample locations
+
 library(tmap)
 library(terra)
 library(sf)
@@ -7,7 +9,7 @@ library(rnaturalearthdata)
 ### Data
 world <- ne_countries(scale = "medium", returnclass = "sf")
 
-locations <- st_read("~/canopy_height/R/data/final_tile_selection.gpkg")
+locations <- st_read("R/data/final_tile_selection.gpkg")
 st_crs(locations)
 
 locations_pts <- st_centroid(locations)
