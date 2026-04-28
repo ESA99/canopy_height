@@ -60,9 +60,7 @@ for tile_image_filename in ${tile_image_filenames}; do
                       	   --download_from_aws=${GCHM_DOWNLOAD_FROM_AWS} \
                       	   --sentinel2_dir=${sentinel2_dir} \
                       	   --remove_image_after_pred="False" \
-                           --modify_bands=${MODIFY_BANDS} \
-                           --modify_percentage=${MODIFY_PERCENTAGE} \
-                           --modify_decrease=${MODIFY_DECREASE}
+                           --shuffle_percentage=${SHUFFLE_PERCENTAGE}
 
     # check if proxy error
     exit_status=$?  # store the exit status for later use

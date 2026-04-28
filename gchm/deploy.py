@@ -2,6 +2,7 @@ from osgeo import gdal, osr, ogr, gdalconst
 import os
 import sys
 import numpy as np
+import rasterio
 import argparse
 from pathlib import Path
 import copy
@@ -13,7 +14,7 @@ import botocore
 import urllib3
 
 from gchm.models.architectures import Architectures
-from gchm.utils.transforms import Normalize, NormalizeVariance, denormalize, ModifyBands, Transformer
+from gchm.utils.transforms import Normalize, NormalizeVariance, denormalize, ShuffleRaster, Transformer
 from gchm.datasets.dataset_sentinel2_deploy import Sentinel2Deploy
 from gchm.utils.gdal_process import save_array_as_geotif
 from gchm.utils.parser import load_args_from_json, str2bool, str_or_none, str2int
@@ -48,9 +49,7 @@ def setup_parser():
     parser.add_argument("--remove_image_after_pred", type=str2bool, nargs='?', const=True, default=False,
                         help="if True: deletes the image after saving the prediction.")
     parser.add_argument("--sentinel2_dir", help="directory to save sentinel2 data (temporarily)")
-    parser.add_argument("--modify_bands", type=str2int, nargs="+", default=[])
-    parser.add_argument("--modify_percentage", type=float, default=None)
-    parser.add_argument("--modify_decrease", type=bool, default=False)
+    parser.add_argument("--shuffle_percentage", type=float, default=0)
 
     # fine-tune and re-weighting strategies
     parser.add_argument("--finetune_strategy", default='FT_Lm_SRCB',
@@ -220,17 +219,18 @@ if __name__ == "__main__":
     print('train_target_std', train_target_std)
 
     # setup input transforms
-    print(args.modify_bands)
-    print(args.modify_percentage)
-    print(args.modify_decrease)
+    print(args.shuffle_percentage)
 
-    if len(args.modify_bands):
+
+    if args.shuffle_percentage > 0:
+        print("Shuffle enabled"),
         input_transforms = Transformer(transforms=[
-            Normalize(mean=train_input_mean, std=train_input_std),
-            ModifyBands(bands=args.modify_bands, percentage=args.modify_percentage,decrease=args.modify_decrease)
+            ShuffleRaster(percentage=args.shuffle_percentage),
+            Normalize(mean=train_input_mean, std=train_input_std)
         ])
     else:
         input_transforms = Normalize(mean=train_input_mean, std=train_input_std)
+
 
     # create dataset
     try:
