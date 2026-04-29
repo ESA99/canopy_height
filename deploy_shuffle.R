@@ -81,6 +81,8 @@ results_df <- data.frame(
   band = character(nrow(variables)),
   increment = numeric(nrow(variables)),
   decrease = character(nrow(variables)),
+
+  shuffle_percentage = numeric(nrow(variables)),
   
   mean_height = numeric(nrow(variables)),
   
@@ -395,6 +397,7 @@ for (v in 1:nrow(variables)) {
     band = paste(variables$band[[v]], collapse = "-"),
     increment = variables$increment[v],
     decrease = variables$decrease[v],
+    shuffle_percentage = variables$shuffle_pct[v],
     mean_height = mean_CH,
     average_difference =    avg_diff,
     avg_abs_diff =           avg_abs_diff,

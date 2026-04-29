@@ -69,5 +69,5 @@ def main():
     show_images(img, shuffled_img, transformer.percentage)
 
 
-if __name__ == "__main__":
+if __name__ == "__main__": 
     main()
