@@ -1,22 +1,25 @@
 # Canopy height mapping from optical remote sensing data: reassessing deep learning methods
 
-## Experimental exploration of the GCHM by [Nico Lang](https://langnico.github.io/globalcanopyheight)
+**Status: 05.05.26**
+
+### Experimental exploration of the global canopy height model by [Lang et al.](https://langnico.github.io/globalcanopyheight)
 
 This repository tracks the exploration of the Model presented in [A high-resolution canopy height model of the Earth](https://arxiv.org/abs/2204.08322).
 **Goal** of this work is to understand how the model works and predicts, if any ecological relationships between spectral data and canopy height can be identified and how the model reacts to changes in input data.
 For a full explanation of the installation, setup and deployment see the original instructions: [Installation](https://github.com/langnico/global-canopy-height-model#installation-and-credentials).
+Additional Info for the installation can be found in the Section [Setup Notes](#setup-notes).
 
-**Status: 07.10.25**
+**Thesis documented under [esa99.github.io/pages/gchm](https://esa99.github.io/pages/gchm.html)**
 
 ## Table of Contents
 
 1.  [Info](#info-about-this-repository)
 2.  [Results](#results)
 3.  [Workflow](#workflow)
-    -   [2.1 Working Time](#working-time)
-    -   [2.2 Tiles](#tiles)
-    -   [2.3 Calculation groups](#calculation-groups)
-    -   [2.4 Prediction comparison](#prediction-comparison)
+    -   [2.1 Tiles](#tiles)
+    -   [2.2 Calculation groups](#calculation-groups)
+    -   [2.3 Working Time](#working-time)
+<!--    -   [2.4 Prediction comparison](#prediction-comparison)  -->
 4.  [Setup Notes](#setup-notes)
 5.  [Citation](https://github.com/ESA99/canopy_height#citation)
 
@@ -35,43 +38,40 @@ The x-axis shows the degree of manipulation applied to each spectral band, expre
 The y-axis represents the resulting average change in the predicted variable (in meters).
 Multiple spectral bands are visualized, color-coded similar to their conventional band colors (but in a colour blind freindly way), allowing comparison across different tile locations.  
 
-![Result plot ribbon](plots/2025-10-20_11T_B02+08+03+04+05+8+11+12_8B_RibbonSE_relative.png)
+![Result plot ribbon](plots/2026-02-20_line_right_relDiff_lables.png)
 Overview of the average relative difference by band.
 
-![Ribbon plot](plots/2025-10-06_11T_B02+08+03+04_avg_abs_percent_location_line_facett.png)
-One sided plot, showing the average relative difference to original prediction per tile and band.
+![Canopy Height Distribution](plots/CH_distribution/2026-02-20_CH_by_Tile_wide.png)
+Distribution of canopy heights between the tiles.
 
-![Ribbon plot](plots/2025-10-06_11T_B02+08+03+04_box_facet_percent_cbf.png)
-Boxplot overview of average relative difference per band by manipulation degree.
+![Difference Rasters](plots/comp_strips/2026-03-16_Mongolia_NIR_Odiff.png)
+Differences to original prediction after manipulation.
 
 
-## Workflow
+## Methods
+
+To systematically analyze the role of spectral data in deep learning models for estimating canopy height, an automated workflow was developed. 
+This workflow encompasses data preparation, variable creation, file management, model deployment, and the export of results. 
+Following the key elements of the process and the sequence of operations are illustrated. 
+The spectral manipulation function is integrated into the model deployment scripts. 
+The original code of the model remained unchanged.
+
+![Workflow](documentation/Workflow.png)
 
 The deploy.R script contains the full workflow and is deployed from bash after setting the correct conda environment and directory.
 At the beginning Tile-Name, Bands, Increment and direction are Set and then the script is deployed.
 The original code (deploy.py etc.) was modified to fit the script as well as extended by a manipulation-function performing the band manipulation inside the deployment.
 The original (pretrained) models and all other code are used unchanged.
-
 Functions from the package "dandelion" (<https://github.com/ESA99/dandelion>) were used and written specifically for the usecase of this modified deployment.
 
-#### Working Time
-
-The following timing values correspond to the model deployment on the ILÖK-RS Supercomputer.
-Each loop represents a single combination of tile, band, and increment.
-
-| Loops | Total [h] | Average [min] | Tile Group |
-|:-----:|:---------:|:-------------:|:----------:|
-|  27   |   04:49   |     10:43     |            |
-|  99   |   20:15   |     12:16     |            |
-|  123  |   24:11   |     11:48     |  Americas  |
-|  246  |   75:45   |     18:29     | EuAfMalasia   |
 
 ### Tiles
 
 The selection process is being coordinated in consultation with the University of Munich.
 Corresponding Worldcover as tiles are needed, and were cropped accordinlgy.
 
-![Tile Overview](documentation/Overview_Map.png)
+![Tile Overview](documentation/Map_streched_names.png)
+
 
 **Selection:** 3 Tiles presented in the paper + 1 Demo Tile from the Paper + 3 Tiles in Europe for management comparison + 4 tiles spread globally to ensure latitudinal variance and global coverage (+ Biome Diversity).
 Mongolia: Old selection 50TPT, new proposal by Lukas **49UCP**.
@@ -98,11 +98,24 @@ Americas (10TES, 17SNB, 20MMD) 2.
 Europe (32TMT, 32UQU, 34UFD, 35VML) 3.
 AfAsOc (33NTG, 49NHC, 49UCP, 55HEV)
 
+#### Working Time
+
+The following timing values correspond to the model deployment on the ILÖK-RS Supercomputer.
+Each loop represents a single combination of tile, band, and increment.
+
+| Loops | Total [h] | Average [min] | Tile Group |
+|:-----:|:---------:|:-------------:|:----------:|
+|  27   |   04:49   |     10:43     |            |
+|  99   |   20:15   |     12:16     |            |
+|  123  |   24:11   |     11:48     |  Americas  |
+|  246  |   75:45   |     18:29     | EuAfMalasia   |
+
+<!--
 ### Prediction comparison
 
 Analysis of different calculation techniques to compare if prediction results differ.
 Original-result-tile vs. Single-Tile-deployment vs. Multi-Tile-deployment (5-10).
-
+-->
 
 ## Setup Notes
 
