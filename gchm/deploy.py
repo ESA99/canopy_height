@@ -50,6 +50,7 @@ def setup_parser():
                         help="if True: deletes the image after saving the prediction.")
     parser.add_argument("--sentinel2_dir", help="directory to save sentinel2 data (temporarily)")
     parser.add_argument("--shuffle_percentage", type=float, default=0)
+    parser.add_argument("--shuffle_tile_size", type=int, default=None)
 
     # fine-tune and re-weighting strategies
     parser.add_argument("--finetune_strategy", default='FT_Lm_SRCB',
@@ -220,16 +221,33 @@ if __name__ == "__main__":
 
     # setup input transforms
     print(args.shuffle_percentage)
+    print(args.shuffle_tile_size)
 
+
+    transforms = []
 
     if args.shuffle_percentage > 0:
-        print("Shuffle enabled"),
-        input_transforms = Transformer(transforms=[
-            ShuffleRaster(percentage=args.shuffle_percentage),
-            Normalize(mean=train_input_mean, std=train_input_std)
-        ])
+        if args.shuffle_tile_size is None:
+            mode = "GLOBAL shuffle"
+        else:
+            mode = f"LOCAL tile shuffle ({args.shuffle_tile_size}x{args.shuffle_tile_size} px)"
+
+        print(f"Shuffle enabled: {mode}")
+
+        transforms.append(
+            ShuffleRaster(
+                percentage=args.shuffle_percentage,
+                tile_size=args.shuffle_tile_size
+            )
+        )
     else:
-        input_transforms = Normalize(mean=train_input_mean, std=train_input_std)
+        print("No pixel shuffling performed")
+
+    transforms.append(
+        Normalize(mean=train_input_mean, std=train_input_std)
+    )
+
+    input_transforms = Transformer(transforms=transforms)
 
 
     # create dataset

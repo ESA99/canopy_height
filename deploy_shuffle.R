@@ -45,10 +45,11 @@ timing_results <- data.frame(
   # Copy according image folders to: /canopy_height/deploy_example/sentinel2/2020/
   # All tiles: "10TES", "17SNB", "20MMD", "32TMT", "32UQU", "33NTG", "34UFD", "35VML", "49NHC", "49UCP", "55HEV"
 
-source("/home/emilio/canopy_height/R/pixel_shuffle/shuffle_df.R")
+source("/home/emilio/canopy_height/R/pixel_shuffle/shuffle_param_function.R")
 
 variables <- create_param_df_new(tiles = c("10TES", "17SNB", "20MMD", "32TMT", "32UQU", "33NTG", "34UFD", "35VML", "49NHC", "49UCP", "55HEV"), 
-                                        shuffle_pct = c(10, 20, 30, 50, 80),
+                                        shuffle_pct = c(10, 20, 30, 50, 80), # 10, 20, 30, 50, 80
+                                        shuffle_tile_px = 512, # NA
                                         year = "2020",
                                         base_folder = "/home/emilio/canopy_height"
 )
@@ -83,6 +84,7 @@ results_df <- data.frame(
   decrease = character(nrow(variables)),
 
   shuffle_percentage = numeric(nrow(variables)),
+  shuffle_tile_size = numeric(nrow(variables)),
   
   mean_height = numeric(nrow(variables)),
   
@@ -146,7 +148,8 @@ for (v in 1:nrow(variables)) {
   cat("======================================================================================================\n")
   cat("Starting deployment number", v, "of", nrow(variables),"\n")
   cat("Tile:",variables$tile_name[v], "\n",
-       "Pixel-Shuffle:",variables$shuffle_pct[[v]], "%", "\n")
+      "Pixel-Shuffle:",variables$shuffle_pct[[v]], "%", "\n",
+    "Tile Shuffle:",variables$shuffle_tile_px[[v]],"\n")
   
 
 # Text file creation ------------------------------------------------------
@@ -175,12 +178,13 @@ for (v in 1:nrow(variables)) {
   
   
   # Create & set GLOBAL VARIABLES from variables data frame
-  env_vars <- c(
+  env_vars <- list(
     tile_name = variables$tile_name[v],
     wcover = variables$WC_year[v],
     YEAR = variables$year[v],
     
     SHUFFLE_PERCENTAGE = variables$shuffle_pct[v],
+    SHUFFLE_TILE_SIZE = variables$shuffle_tile_px[v],
     
     GCHM_DEPLOY_DIR = file.path("./deploy_example","predictions", variables$year[v], variables$tile_name[v]), # important for out_dir
     DEPLOY_IMAGE_PATH = list.files(img_folder, full.names = T)[1], # just the first image of the tile
@@ -190,7 +194,16 @@ for (v in 1:nrow(variables)) {
     # experiment = "experiment"
   )
 
-  ("Global environment variables set.\n")
+  ### Remove all Variables that are NA -> let python use its default values! ###
+  env_vars <- env_vars[!sapply(env_vars, function(x) {
+    is.null(x) ||
+    length(x) == 0 ||
+    (is.na(x) && !is.character(x)) ||
+    (is.character(x) && trimws(x) == "")
+  })]
+
+  
+  cat("Global environment variables set.\n")
   
   
 # Worldcover adjustment ---------------------------------------------------
@@ -398,6 +411,7 @@ for (v in 1:nrow(variables)) {
     increment = variables$increment[v],
     decrease = variables$decrease[v],
     shuffle_percentage = variables$shuffle_pct[v],
+    shuffle_tile_size = variables$shuffle_tile_px[v],
     mean_height = mean_CH,
     average_difference =    avg_diff,
     avg_abs_diff =           avg_abs_diff,

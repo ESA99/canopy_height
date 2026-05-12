@@ -60,7 +60,8 @@ for tile_image_filename in ${tile_image_filenames}; do
                       	   --download_from_aws=${GCHM_DOWNLOAD_FROM_AWS} \
                       	   --sentinel2_dir=${sentinel2_dir} \
                       	   --remove_image_after_pred="False" \
-                           --shuffle_percentage=${SHUFFLE_PERCENTAGE}
+                            $( [ -n "${SHUFFLE_PERCENTAGE}" ] && echo "--shuffle_percentage=${SHUFFLE_PERCENTAGE}" ) \
+                            $( [ -n "${SHUFFLE_TILE_SIZE}" ] && echo "--shuffle_tile_size=${SHUFFLE_TILE_SIZE}" )
 
     # check if proxy error
     exit_status=$?  # store the exit status for later use

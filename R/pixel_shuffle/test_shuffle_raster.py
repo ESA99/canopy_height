@@ -5,7 +5,7 @@ import os
 sys.path.append("/home/emilio/canopy_height")
 from gchm.utils.transforms import ShuffleRaster
 
-def create_test_image(h=100, w=100, c=3):
+def create_test_image(h=110, w=110, c=3):
     """
     Create a synthetic image with clear spatial structure
     so shuffling is visually obvious.
@@ -26,7 +26,8 @@ def create_test_image(h=100, w=100, c=3):
     return img
 
 
-def show_images(original, transformed, percentage):
+def show_images(original, transformed, percentage, tile_size=None):
+
     fig, axes = plt.subplots(1, 2, figsize=(10, 5))
 
     axes[0].imshow(original)
@@ -34,7 +35,17 @@ def show_images(original, transformed, percentage):
     axes[0].axis("off")
 
     axes[1].imshow(transformed)
-    axes[1].set_title(f"Shuffled ({percentage}%)")
+
+    # Title adapts automatically
+    if tile_size is None:
+        title = f"Shuffled ({percentage}%)"
+    else:
+        title = (
+            f"Locally Shuffled ({percentage}%)\n"
+            f"Tile Size: {tile_size}×{tile_size} px"
+        )
+
+    axes[1].set_title(title)
     axes[1].axis("off")
 
     plt.tight_layout()
@@ -46,7 +57,7 @@ def main():
 
     img = create_test_image()
 
-    transformer = ShuffleRaster(percentage=80)
+    transformer = ShuffleRaster(percentage=40, tile_size=25)
     shuffled_img = transformer(img.copy())
 
     # Basic sanity checks
@@ -66,7 +77,7 @@ def main():
 
     print("Pixel values preserved ✔")
 
-    show_images(img, shuffled_img, transformer.percentage)
+    show_images(img, shuffled_img, transformer.percentage,transformer.tile_size)
 
 
 if __name__ == "__main__": 

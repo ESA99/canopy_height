@@ -3,6 +3,7 @@ create_param_df_new <- function(tiles,
                             increments = NULL,
                             decrease = NULL,
                             shuffle_pct = NULL,   # NEW
+                            shuffle_tile_px = NULL, #NEW
                             year,
                             base_folder,
                             worldcover = "2020") {
@@ -22,6 +23,7 @@ create_param_df_new <- function(tiles,
   if (!is.null(increments)) params$increment <- increments
   if (!is.null(decrease)) params$decrease <- decrease
   if (!is.null(shuffle_pct)) params$shuffle_pct <- shuffle_pct
+  if (!is.null(shuffle_tile_px)) params$shuffle_tile_px <- shuffle_tile_px
 
   # ---- Create combinations ----
   df <- do.call(expand.grid, c(params, stringsAsFactors = FALSE))
@@ -53,6 +55,10 @@ create_param_df_new <- function(tiles,
       parts <- c(parts, paste0("shuffle", row["shuffle_pct"]))
     }
 
+    if ("shuffle_tile_px" %in% names(df)) {
+      parts <- c(parts, paste0("local-", row["shuffle_tile_px"]))
+    }
+
     paste(parts, collapse = "_")
   })
 
@@ -69,6 +75,7 @@ create_param_df_new <- function(tiles,
     extra_row$original <- TRUE
     extra_row$tile_folder <- file.path(tile_folder, t)
     extra_row$out_name <- paste0(t, "_original")
+    extra_row$shuffle_tile_px <- shuffle_tile_px
 
     # ---- SAFE DEFAULTS ----
     if ("band" %in% names(df)) {
