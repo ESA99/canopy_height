@@ -5,7 +5,7 @@ packages <- c(
   "sf", "terra", "tmap", "remotes",
   "rnaturalearth", "rnaturalearthdata",
   "plyr", "dplyr", "leaflet",
-  "viridis", "cols4all", "colorspace"
+  "viridis", "cols4all", "colorspace", "transport"
 )
 
 # Install any packages that are missing
@@ -48,8 +48,8 @@ timing_results <- data.frame(
 source("/home/emilio/canopy_height/R/pixel_shuffle/shuffle_param_function.R")
 
 variables <- create_param_df_new(tiles = c("10TES", "17SNB", "20MMD", "32TMT", "32UQU", "33NTG", "34UFD", "35VML", "49NHC", "49UCP", "55HEV"), 
-                                        shuffle_pct = c(40, 60, 70), # 10, 20, 30, 50, 80
-                                        shuffle_tile_px = 512, # NA
+                                        shuffle_pct = c(2.5, 5, 15, 25), # 10, 20, 30, 50, 80
+                                        shuffle_tile_px = NA, # NA
                                         year = "2020",
                                         base_folder = "/home/emilio/canopy_height"
 )
@@ -58,7 +58,7 @@ variables <- create_param_df_new(tiles = c("10TES", "17SNB", "20MMD", "32TMT", "
 # Should loop results be saved individually as backup (csv files)?
 BACKUP_SAVING <- TRUE
 # Should the difference rasters be saved?
-DIFF_TIF <- TRUE
+DIFF_TIF <- FALSE
 # Should the prediction result tif's be saved and where?
 PRED_TIF <- TRUE
 # PRED_TIF_LOCATION <- "/data/ESA99/resultmaps_bands/I"
@@ -341,7 +341,56 @@ for (v in 1:nrow(variables)) {
       "Std dev [m]     :", round(std_dev, digits = 2), "\n",
       "Avg diff [%]    :", round(avg_percent_diff, digits = 1), "\n",
       "Avg abs diff [%]:", round(avg_abs_percent_diff, digits = 1), "\n")
-    
+
+
+  ### CHANGE METRICS ###
+
+# Mean prediction shift
+  original_mean <- global(original_pred, "mean", na.rm=TRUE)[[1]]
+  manipulated_mean <- global(manipulated_pred, "mean", na.rm=TRUE)[[1]]
+
+  mean_change <- manipulated_mean - original_mean
+
+  relative_mean_change <- ((manipulated_mean - original_mean) / original_mean) * 100
+
+# Mean Absolute Error (MAE)
+  mae <- mean(abs(manipulated_pred - original_pred), na.rm = TRUE)
+
+# RMSE
+  rmse <- sqrt(mean((manipulated_pred - original_pred)^2, na.rm=TRUE))
+
+# Correlation
+  correlation <- cor(
+  values(original_pred),
+  values(manipulated_pred),
+  use="complete.obs" )
+
+# SD change
+  original_sd <- global(original_pred, "sd", na.rm=TRUE)[[1]]
+  manipulated_sd <- global(manipulated_pred, "sd", na.rm=TRUE)[[1]]
+
+  sd_change <- manipulated_sd - original_sd
+
+  relative_sd_change <-
+    ((manipulated_sd - original_sd) / original_sd) * 100
+
+# Quantile shifts
+  orig_vals <- values(original_pred)
+  man_vals  <- values(manipulated_pred)
+
+  orig_q <- quantile(orig_vals, probs=c(0.05,0.25,0.5,0.75,0.95), na.rm=TRUE)
+  man_q  <- quantile(man_vals,  probs=c(0.05,0.25,0.5,0.75,0.95), na.rm=TRUE)
+
+  quantile_shift <- man_q - orig_q
+
+# Wasserstein difference
+  wasserstein <- wasserstein1d(
+      values(original_pred),
+      values(manipulated_pred)
+    )
+
+
+
 
 
 # Save Difference raster IF TRUE ------------------------------------------
