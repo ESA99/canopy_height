@@ -48,7 +48,7 @@ timing_results <- data.frame(
 source("/home/emilio/canopy_height/R/pixel_shuffle/shuffle_param_function.R")
 
 variables <- create_param_df_new(tiles = c("10TES", "17SNB", "20MMD", "32TMT", "32UQU", "33NTG", "34UFD", "35VML", "49NHC", "49UCP", "55HEV"), 
-                                        shuffle_pct = c(10, 20, 30, 50, 80), # 10, 20, 30, 50, 80
+                                        shuffle_pct = c(40, 60, 70), # 10, 20, 30, 50, 80
                                         shuffle_tile_px = 512, # NA
                                         year = "2020",
                                         base_folder = "/home/emilio/canopy_height"
@@ -129,7 +129,7 @@ if (all(exist_flags)) {
 }
 
 # Time estimate
-mean_loop_time <- 11 # minutes -> derived from timing data of past loops
+mean_loop_time <- 9.5 # minutes -> derived from timing data of past loops
 working_time <- (nrow(variables)*mean_loop_time/60 * 3600)
 finish_estimate <- Sys.time() +  working_time
 working_hours <- working_hours <- sprintf("%02d:%02d:%02d", as.integer(working_time %/% 3600),
@@ -138,7 +138,11 @@ cat("Estimated working time:",working_hours,"\n")
 cat("Estimated finishing time:", format(finish_estimate, "%Y-%m-%d %H:%M:%S"), "\n")
 cat("Tiles in process:", as.character(unique(variables$tile_name)), "\n")
 cat("Percentage of pixels to be shuffled:", as.character(unique(variables$shuffle_pct)), "\n")
-
+if (is.na(variables$shuffle_tile_px[1]) ) {
+  cat("Global pixel shuffling enabled.\n")
+}else{
+  cat("Local pixel shuffle:", variables$shuffle_tile_px[1], "X", variables$shuffle_tile_px[1], "\n")
+}
 
 # DEPLOYMENT LOOP ---------------------------------------------------------
 
@@ -566,5 +570,3 @@ cat("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 cat("++++++++++++++++++++++++++++++++ All jobs finished. Full script ran succesfully. ++++++++++++++++++++++++++++++++\n")
 cat("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n")
 cat("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n")
-
-

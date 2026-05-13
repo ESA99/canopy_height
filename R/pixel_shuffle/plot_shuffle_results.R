@@ -1,48 +1,26 @@
 ### Plot pixel shuffle differences ###
 
-# c("terra","dplyr","purrr", "ggplot2","ggpubr","ggrepel","viridis", "tidyterra") |>
-#   lapply(FUN = library, character.only = TRUE) |>
-#   invisible()
 invisible(lapply(c("terra","dplyr","purrr","ggplot2","ggrepel","viridis","tidyterra"), 
                  require, character.only = TRUE))
 
-# lapply(c("terra","dplyr","purrr","ggplot2","ggpubr","ggrepel","viridis"), function(pkg) {
-#   if (require(pkg, character.only = TRUE)) {
-#     message(pkg, " loaded")
-#   } else {
-#     message(pkg, " not installed")
-#   }
-# })
-
-### DATA ###
-# result_table <- read.csv("results/2026-04-28_result_table.csv")
-# 
-# # If percentage column is missing:
-# result_table$shuffle_percentage <- ifelse(
-#   grepl("original$", result_table$out_name),
-#   0,
-#   as.numeric(sub(".*shuffle", "", result_table$out_name))
-# )
-# # Add Location column as factor based on tiles
-# tile_label <- c("55HEV" = "Australia", "20MMD" = "Brazil", "33NTG" = "Cameroon", "32UQU" = "Germany",
-#                 "35VML" = "Finland", "49NHC" = "Malaysia", "49UCP" = "Mongolia",
-#                 "34UFD" = "Poland", "32TMT" = "Switzerland", "10TES" = "USA East", "17SNB" = "USA West")
-# 
-# result_table$Location <- factor(result_table$tile, levels = names(tile_label), labels = tile_label)
-
-
+# SETUP
 tile_label <- c("55HEV" = "Australia", "20MMD" = "Brazil", "33NTG" = "Cameroon", "32UQU" = "Germany", "35VML" = "Finland", 
   "49NHC" = "Malaysia", "49UCP" = "Mongolia","34UFD" = "Poland", "32TMT" = "Switzerland", "10TES" = "USA East", "17SNB" = "USA West")
 
+# Global shuffle results
 result_table <- read.csv("results/2026-04-28_result_table.csv") |>
   mutate(
-    shuffle_percentage = ifelse(
-      grepl("original$", out_name),
-      0,
-      as.numeric(sub(".*shuffle", "", out_name))
-    ),
-    Location = factor(tile, levels = names(tile_label), labels = tile_label)
-  )
+shuffle_percentage = ifelse(
+  grepl("original$", out_name),
+  0,
+  as.numeric(sub(".*shuffle", "", out_name))
+),
+Location = factor(tile, levels = names(tile_label), labels = tile_label)
+)
+
+# Local Shuffle 512x512 Results
+result_table <- read.csv("results/2026-05-12_local-shuffle512.csv") |>
+  mutate(Location = factor(tile, levels = names(tile_label), labels = tile_label))
 
 
 # Plots -------------------------------------------------------------------
@@ -175,3 +153,37 @@ plot_shuffle_byTile(result_table, "avg_abs_diff_perc", "Absolute average relativ
 # ggsave(paste0("plots/pixel_shuffle/",format(Sys.Date(), "%Y-%m-%d"),"_",filename ,"_tall.png"), width = 200, height = 250, units = "mm", dpi = 300, bg = "white")
 
 
+
+
+
+
+
+##################################################################
+
+# c("terra","dplyr","purrr", "ggplot2","ggpubr","ggrepel","viridis", "tidyterra") |>
+#   lapply(FUN = library, character.only = TRUE) |>
+#   invisible()
+
+# lapply(c("terra","dplyr","purrr","ggplot2","ggpubr","ggrepel","viridis"), function(pkg) {
+#   if (require(pkg, character.only = TRUE)) {
+#     message(pkg, " loaded")
+#   } else {
+#     message(pkg, " not installed")
+#   }
+# })
+
+### DATA ###
+# result_table <- read.csv("results/2026-04-28_result_table.csv")
+# 
+# # If percentage column is missing:
+# result_table$shuffle_percentage <- ifelse(
+#   grepl("original$", result_table$out_name),
+#   0,
+#   as.numeric(sub(".*shuffle", "", result_table$out_name))
+# )
+# # Add Location column as factor based on tiles
+# tile_label <- c("55HEV" = "Australia", "20MMD" = "Brazil", "33NTG" = "Cameroon", "32UQU" = "Germany",
+#                 "35VML" = "Finland", "49NHC" = "Malaysia", "49UCP" = "Mongolia",
+#                 "34UFD" = "Poland", "32TMT" = "Switzerland", "10TES" = "USA East", "17SNB" = "USA West")
+# 
+# result_table$Location <- factor(result_table$tile, levels = names(tile_label), labels = tile_label)
