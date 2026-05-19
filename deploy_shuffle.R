@@ -549,24 +549,29 @@ if (inherits(try_export, "try-error")) {
   
   cat("Saving individual result files due to fallback mechanism...\n")
   
+  individual_export_success <- logical(nrow(results_df))
+
   for (i in seq_len(nrow(results_df))) {
-    entry_df <- results_df[i, , drop = FALSE]   # single-row data.frame
+
+    entry_df <- results_df[i, , drop = FALSE]
     file_name <- paste0(sprintf("%03d", i), "_result.csv")
     file_path <- file.path(indiv_dir, file_name)
-    
-    tryCatch({
+
+    individual_export_success[i] <- tryCatch({
       write.csv(entry_df, file_path, row.names = FALSE)
-      individual_export_success <- TRUE
+      TRUE
     }, error = function(e) {
-      warning(sprintf("Failed to save individual result %d: %s", i, e$message))
-      individual_export_success <- FALSE
+      warning(sprintf("Failed to save individual result %d: %s", i, e$message ))
+      FALSE
     })
   }
-  
-  if (individual_export_success) {
+
+  if (all(individual_export_success)) {
     cat("All individual result files saved successfully to", indiv_dir, "\n")
   } else {
-    warning("Some individual results failed to save — check log messages above.")
+    warning(sprintf("%d individual result(s) failed to save — check log messages above.",
+        sum(!individual_export_success)
+      ) )
   }
   
 } else {
