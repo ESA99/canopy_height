@@ -7,20 +7,27 @@ invisible(lapply(c("terra","dplyr","purrr","ggplot2","ggrepel","viridis","tidyte
 tile_label <- c("55HEV" = "Australia", "20MMD" = "Brazil", "33NTG" = "Cameroon", "32UQU" = "Germany", "35VML" = "Finland", 
   "49NHC" = "Malaysia", "49UCP" = "Mongolia","34UFD" = "Poland", "32TMT" = "Switzerland", "10TES" = "USA East", "17SNB" = "USA West")
 
+
 # Global shuffle results
-result_table <- read.csv("results/2026-04-28_result_table.csv") |>
+result_table <- read.csv("results/2026-05-19_result_table.csv") |>
   mutate(
-shuffle_percentage = ifelse(
-  grepl("original$", out_name),
-  0,
-  as.numeric(sub(".*shuffle", "", out_name))
-),
-Location = factor(tile, levels = names(tile_label), labels = tile_label)
-)
+    Location = factor(tile, levels = names(tile_label), labels = tile_label),
+    patch_size = c(1)
+  )
+
+# result_table <- read.csv("results/2026-04-28_result_table.csv") |>
+#   mutate(
+# shuffle_percentage = ifelse(
+#   grepl("original$", out_name),
+#   0,
+#   as.numeric(sub(".*shuffle", "", out_name))
+# ),
+# Location = factor(tile, levels = names(tile_label), labels = tile_label)
+# )
 
 # Local Shuffle 512x512 Results
-result_table <- read.csv("results/2026-05-12_local-shuffle512.csv") |>
-  mutate(Location = factor(tile, levels = names(tile_label), labels = tile_label))
+# result_table <- read.csv("results/2026-05-12_local-shuffle512.csv") |>
+#   mutate(Location = factor(tile, levels = names(tile_label), labels = tile_label))
 
 
 # Plots -------------------------------------------------------------------

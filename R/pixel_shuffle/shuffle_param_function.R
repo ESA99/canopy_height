@@ -52,7 +52,10 @@ create_param_df_new <- function(tiles,
     }
 
     if ("shuffle_pct" %in% names(df)) {
-      parts <- c(parts, paste0("shuffle", row["shuffle_pct"]))
+      # parts <- c(parts, paste0("shuffle", row["shuffle_pct"]))
+      parts <- c(parts, paste0("shuffle", 
+        trimws(as.character(row["shuffle_pct"])) 
+        ))
     }
 
     if ("shuffle_tile_px" %in% names(df)) {

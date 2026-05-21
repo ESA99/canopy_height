@@ -1,0 +1,30 @@
+start_timer <- function() {
+  list(start = Sys.time())
+}
+
+end_timer <- function(timer) {
+  as.numeric(difftime(Sys.time(), timer$start, units = "mins"))
+}
+
+log_result <- function(results_list, v, result) {
+  results_list[[v]] <- result
+  results_list
+}
+
+
+start_time <- Sys.time()
+start_date_chr <- format(Sys.Date(), "%Y-%m-%d")
+
+# TIMING Calculation
+mean_loop_time <- 9.5 # minutes -> derived from timing data of past loops
+
+
+# OLD SETUP -----------------------------------------------------------
+
+# # Create empty data frame to store timing info
+# timing_results <- data.frame(
+#   Step = character(),
+#   Minutes = numeric(),
+#   stringsAsFactors = FALSE
+# )
+  # --->> Better write it differently later instead of creating empty data? using [[v]]

@@ -57,7 +57,7 @@ def main():
 
     img = create_test_image()
 
-    transformer = ShuffleRaster(percentage=40, tile_size=25)
+    transformer = ShuffleRaster(percentage=40, tile_size=50)
     shuffled_img = transformer(img.copy())
 
     # Basic sanity checks

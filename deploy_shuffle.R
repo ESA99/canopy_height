@@ -48,7 +48,7 @@ timing_results <- data.frame(
 source("/home/emilio/canopy_height/R/pixel_shuffle/shuffle_param_function.R")
 
 variables <- create_param_df_new(tiles = c("10TES", "17SNB", "20MMD", "32TMT", "32UQU", "33NTG", "34UFD", "35VML", "49NHC", "49UCP", "55HEV"), 
-                                        shuffle_pct = c(2.5, 5, 15, 25), # 10, 20, 30, 50, 80
+                                        shuffle_pct = c(2.5, 5, 10, 15, 20, 25, 30, 50, 65, 80, 100), # 10, 20, 30, 50, 80
                                         shuffle_tile_px = NA, # NA
                                         year = "2020",
                                         base_folder = "/home/emilio/canopy_height"
@@ -79,6 +79,8 @@ dir.create(PRED_TIF_LOCATION)
 # results_list <- vector("list", nrow(variables)) # create empty list, convert to df later -> more efficient   ### OLD LIST WAY -> now df
 results_df <- data.frame(
   tile = character(nrow(variables)),
+  out_name = character(nrow(variables)),
+
   band = character(nrow(variables)),
   increment = numeric(nrow(variables)),
   decrease = character(nrow(variables)),
@@ -96,8 +98,12 @@ results_df <- data.frame(
   
   correlation = numeric(nrow(variables)),
   std_dev = numeric(nrow(variables)),
-  out_name = character(nrow(variables)),
+
+  quantile_shift = numeric(nrow(variables)),
+  wasserstein = numeric(nrow(variables)),
+
   year = character(nrow(variables)),
+  
   stringsAsFactors = FALSE
 )
 
@@ -134,7 +140,7 @@ working_time <- (nrow(variables)*mean_loop_time/60 * 3600)
 finish_estimate <- Sys.time() +  working_time
 working_hours <- working_hours <- sprintf("%02d:%02d:%02d", as.integer(working_time %/% 3600),
   as.integer((working_time %% 3600) %/% 60),as.integer(working_time %% 60) )
-cat("Estimated working time:",working_hours,"\n")
+cat("Estimated working time:",nrow(variables), "x", mean_loop_time, "min. =", working_hours,"h.\n")
 cat("Estimated finishing time:", format(finish_estimate, "%Y-%m-%d %H:%M:%S"), "\n")
 cat("Tiles in process:", as.character(unique(variables$tile_name)), "\n")
 cat("Percentage of pixels to be shuffled:", as.character(unique(variables$shuffle_pct)), "\n")
@@ -350,20 +356,22 @@ for (v in 1:nrow(variables)) {
   manipulated_mean <- global(manipulated_pred, "mean", na.rm=TRUE)[[1]]
 
   mean_change <- manipulated_mean - original_mean
+  mean_abs_change <- global(abs(manipulated_pred - original_pred), "mean", na.rm = TRUE)[[1]]
 
   relative_mean_change <- ((manipulated_mean - original_mean) / original_mean) * 100
+  relative_mean_abs_change <- (mean_abs_change / original_mean) * 100
 
 # Mean Absolute Error (MAE)
-  mae <- mean(abs(manipulated_pred - original_pred), na.rm = TRUE)
+  # mae <- mean(abs(manipulated_pred - original_pred), na.rm = TRUE)
 
 # RMSE
   rmse <- sqrt(mean((manipulated_pred - original_pred)^2, na.rm=TRUE))
 
 # Correlation
-  correlation <- cor(
-  values(original_pred),
-  values(manipulated_pred),
-  use="complete.obs" )
+  # correlation <- cor(
+  # values(original_pred),
+  # values(manipulated_pred),
+  # use="complete.obs" )
 
 # SD change
   original_sd <- global(original_pred, "sd", na.rm=TRUE)[[1]]
@@ -460,6 +468,7 @@ for (v in 1:nrow(variables)) {
   # Save to result dataframe
   loop_results <- list(
     tile = variables$tile_name[v],
+    out_name = variables$out_name[v],
     band = paste(variables$band[[v]], collapse = "-"),
     increment = variables$increment[v],
     decrease = variables$decrease[v],
@@ -472,7 +481,8 @@ for (v in 1:nrow(variables)) {
     avg_abs_diff_perc =      avg_abs_percent_diff,
     correlation = correlation ,
     std_dev = std_dev,
-    out_name = variables$out_name[v],
+    quantile_shift = quantile_shift,
+    wasserstein = wasserstein,
     year = variables$year[v]
   )
   
