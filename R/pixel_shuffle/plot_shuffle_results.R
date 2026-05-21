@@ -53,10 +53,6 @@ plot_shuffle_byTile <- function(data, y_var, y_lab, show_average = FALSE, avg_nu
     dplyr::group_by(Location) %>%
     dplyr::filter(shuffle_percentage == max(shuffle_percentage))
   
-  avg_label <- data %>%
-    group_by(shuffle_percentage) %>%
-    summarise(value = mean(.data[[y_var]]), .groups = "drop") %>%
-    filter(shuffle_percentage == max(shuffle_percentage))
   
   # Base plot
   p <- ggplot(data,
@@ -107,6 +103,12 @@ plot_shuffle_byTile <- function(data, y_var, y_lab, show_average = FALSE, avg_nu
   
   # Optional: add global average
   if (show_average) {
+    
+    avg_label <- data %>%
+      group_by(shuffle_percentage) %>%
+      summarise(value = mean(.data[[y_var]]), .groups = "drop") %>%
+      filter(shuffle_percentage == max(shuffle_percentage))
+    
     p <- p +
       stat_summary(
         aes(group = 1),
@@ -141,21 +143,29 @@ plot_shuffle_byTile <- function(data, y_var, y_lab, show_average = FALSE, avg_nu
 }
 
 plot_shuffle(result_table, "average_difference", "Average difference [m]")
+# ggsave(paste0("plots/pixel_shuffle/",format(Sys.Date(), "%Y-%m-%d"),"_",filename ,"_medium.png"), width = 250, height = 200, units = "mm", dpi = 300, bg = "white")
 plot_shuffle(result_table, "avg_difference_percent", "Average relative difference [%]")
+# ggsave(paste0("plots/pixel_shuffle/",format(Sys.Date(), "%Y-%m-%d"),"_",filename ,"_medium.png"), width = 250, height = 200, units = "mm", dpi = 300, bg = "white")
 plot_shuffle(result_table, "avg_abs_diff", "Absolute average difference [m]")
+# ggsave(paste0("plots/pixel_shuffle/",format(Sys.Date(), "%Y-%m-%d"),"_",filename ,"_medium.png"), width = 250, height = 200, units = "mm", dpi = 300, bg = "white")
 plot_shuffle(result_table, "avg_abs_diff_perc", "Absolute average relative difference [%]")
+# ggsave(paste0("plots/pixel_shuffle/",format(Sys.Date(), "%Y-%m-%d"),"_",filename ,"_medium.png"), width = 250, height = 200, units = "mm", dpi = 300, bg = "white")
 
-plot_shuffle_byTile(result_table, "average_difference", "Average difference [m]", TRUE)
-plot_shuffle_byTile(result_table, "avg_difference_percent", "Average relative difference [%]", TRUE, 8)
-plot_shuffle_byTile(result_table, "avg_abs_diff", "Absolute average difference [m]", TRUE, avg_nudge = 10)
-plot_shuffle_byTile(result_table, "avg_abs_diff_perc", "Absolute average relative difference [%]", TRUE, avg_nudge = 1)
+plot_shuffle_byTile(result_table, "average_difference", "Average difference [m]", FALSE)
+# ggsave(paste0("plots/pixel_shuffle/",format(Sys.Date(), "%Y-%m-%d"),"_",filename ,"_medium.png"), width = 250, height = 200, units = "mm", dpi = 300, bg = "white")
+plot_shuffle_byTile(result_table, "avg_difference_percent", "Average relative difference [%]", FALSE, 8)
+# ggsave(paste0("plots/pixel_shuffle/",format(Sys.Date(), "%Y-%m-%d"),"_",filename ,"_medium.png"), width = 250, height = 200, units = "mm", dpi = 300, bg = "white")
+plot_shuffle_byTile(result_table, "avg_abs_diff", "Absolute average difference [m]", FALSE, avg_nudge = 10)
+# ggsave(paste0("plots/pixel_shuffle/",format(Sys.Date(), "%Y-%m-%d"),"_",filename ,"_medium.png"), width = 250, height = 200, units = "mm", dpi = 300, bg = "white")
+plot_shuffle_byTile(result_table, "avg_abs_diff_perc", "Absolute average relative difference [%]", FALSE, avg_nudge = 1)
+# ggsave(paste0("plots/pixel_shuffle/",format(Sys.Date(), "%Y-%m-%d"),"_",filename ,"_medium.png"), width = 250, height = 200, units = "mm", dpi = 300, bg = "white")
 
 #### EXPORT ####
 
 # Wide save:
 # ggsave(paste0("plots/pixel_shuffle/",format(Sys.Date(), "%Y-%m-%d"),"_",filename ,"_wide.png"), width = 270, height = 175, units = "mm", dpi = 300, bg = "white")
 # Medium save:
-# ggsave(paste0("plots/pixel_shuffle/",format(Sys.Date(), "%Y-%m-%d"),"_",filename ,"_medium.png"), width = 250, height = 200, units = "mm", dpi = 300, bg = "white")
+ggsave(paste0("plots/pixel_shuffle/",format(Sys.Date(), "%Y-%m-%d"),"_",filename ,"_medium.png"), width = 250, height = 200, units = "mm", dpi = 300, bg = "white")
 # Tall save
 # ggsave(paste0("plots/pixel_shuffle/",format(Sys.Date(), "%Y-%m-%d"),"_",filename ,"_tall.png"), width = 200, height = 250, units = "mm", dpi = 300, bg = "white")
 
