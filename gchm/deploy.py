@@ -1,3 +1,4 @@
+from gchm.utils.transforms import ModifyBands
 from osgeo import gdal, osr, ogr, gdalconst
 import os
 import sys
@@ -225,6 +226,34 @@ if __name__ == "__main__":
 
 
     transforms = []
+
+    # if args.MODE == "spectral":
+    #     print("Spectral manipulation enabled.")
+    #     transforms.append(
+    #         ModifyBandsifyBands(
+    #             bands=args.x,
+    #             percentage=args.y,
+    #             direction=args.z
+    #         )
+    #     )
+    # elif args.MODE == "shuffle":
+        # print("Pixel shuffeling enabled: {args.patch_size}x{args.patch_size} px patches.")
+    #     transforms.append(
+    #         ShuffleRaster(
+    #             percentage=args.shuffle_percentage,
+    #             patch_size=args.patch_size
+    #         )
+    #     )
+    # elif args.MODE == "geographical":
+    #     print("Geographic manipulation enabled")
+    #     transforms.append(
+    #         ShiftCoordinates(
+    #             direction=args.a,
+    #             ammount=args.b
+    #         )
+    #     )
+    # else:
+    #     print("No manipulation performed.")
 
     if args.shuffle_percentage > 0:
         if args.shuffle_tile_size is None:

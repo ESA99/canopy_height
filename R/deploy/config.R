@@ -4,7 +4,7 @@
 options(repos = c(CRAN = "https://cloud.r-project.org"))
 
 packages <- c(
-  "sf", "terra", "remotes", #"tmap",
+  "sf", "terra", "remotes", "tmap",
   "rnaturalearth", "rnaturalearthdata",
   "plyr", "dplyr", "leaflet",
   "viridis", "cols4all", "colorspace", "transport"
@@ -44,6 +44,10 @@ dir.create(PRED_TIF_LOCATION)
 # PRED_TIF_LOCATION <- "/data/ESA99/resultmaps_bands/I"
 # PRED_TIF_LOCATION <- file.path("/data/ESA99/pred_tif", format(Sys.Date(), "%Y-%m-%d"))
 
+
+# MODEL SELECTION --------------------------------------------------------
+
+MODEL_ID = 2
 
 # FLAGS ------------------------------------------------------------------
 

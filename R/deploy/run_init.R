@@ -5,9 +5,11 @@ run_id <- format(Sys.time(), "%H%M")
 run_dir <- file.path("results", paste0(start_date_chr, "_run_", run_id))
 
 dir.create(run_dir, recursive = TRUE, showWarnings = FALSE)
+message("Run Directory created: ", run_dir, "\n")
 
 loop_backup_dir <- file.path(run_dir, "loop_backups")
 dir.create(loop_backup_dir, recursive = TRUE, showWarnings = FALSE)
+message("Backup directory: ", loop_backup_dir, "\n")
 
 results_file <- file.path(run_dir, "results.csv")
 timing_file  <- file.path(run_dir, "timing.csv")
@@ -17,7 +19,8 @@ metadata_file <- file.path(run_dir, "metadata.json")
 # Translation table ------------------------------------------------------
 translation_table <- data.frame(
   BandName = c("B01", "B02", "B03", "B04", "B05", "B06", "B07", "B08", "B8A", "B09", "B11", "B12"), # "B10", cirrus not included
-  BandNumber = c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12) # B8A = 9, B09 = 10
+  BandNumber = c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12), # B8A = 9, B09 = 10
+  Colour = c("Aerosol", "Blue", "Green", "Red", "RedEdge","None","None", "NIR", "NIR2", "WaterVapour", "SWIR1", "SWIR2")
 )
 
 
@@ -42,7 +45,9 @@ write_metadata <- function(config, param_specs, run_dir) {
   )
 
   jsonlite::write_json(metadata,
-                       path = file.path(run_dir, "metadata.json"),
+                       path = metadata_file,
                        pretty = TRUE,
                        auto_unbox = TRUE)
+  
+  message("Metadata written to: ", metadata_file, "\n")
 }

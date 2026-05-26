@@ -25,10 +25,18 @@ working_hours <- working_hours <- sprintf("%02d:%02d:%02d", as.integer(working_t
   as.integer((working_time %% 3600) %/% 60),as.integer(working_time %% 60) )
 cat("Estimated working time:",nrow(variables), "x", mean_loop_time, "min. =", working_hours,"h.\n")
 cat("Estimated finishing time:", format(finish_estimate, "%Y-%m-%d %H:%M:%S"), "\n")
+cat("Manipulation method: ", variables$manipulation_type[1],"\n")
 cat("Tiles in process:", as.character(unique(variables$tile)), "\n")
-cat("Percentage of pixels to be shuffled:", as.character(unique(variables$shuffle_pct)), "\n")
-if (is.na(variables$patch_size[1]) ) {
-  cat("Global pixel shuffling enabled.\n")
-}else{
-  cat("Local pixel shuffle:", variables$patch_size[1], "X", variables$patch_size[1], "\n")
+
+if ("shuffle" %in% variables$manipulation_type){
+  cat("Percentage of pixels to be shuffled:", as.character(unique(variables$shuffle_pct)), "\n")
+  cat("Patch size: ", variables$patch_size[1], "X", variables$patch_size[1], "\n")
+} else if ("spectral" %in% variables$manipulation_type){
+  cat("Bands to be modified: ", as.character(unique(variables$band)),"\n")
+  cat("Increments: ", as.character(unique(variables$increment)),"\n")
+  cat("Decrease: ", param_specs$spectral$decrease,"\n")
+} else if ("geographical" %in% variables$manipulation_type){
+  stop("Geographical manipulation not yet implemented!")
 }
+
+
