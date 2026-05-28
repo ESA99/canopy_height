@@ -1,44 +1,16 @@
 import numpy as np
 
-class ModifyImage(object):
-    """ Perturb an image by a percentage. """
-
-    def __init__(self, percentage=None, decrease=True):
-        self.percentage = percentage
-        self.decrease=decrease
-
-    def __call__(self, x):
-        if self.percentage is None:
-            return x
-        if self.decrease:
-            x = x * (1-self.percentage)
-        else:
-            x = x * (1+self.percentage)
-        return x
-
-class ModifyBands(object):
-    """ Perturb bands by a percentage. """
-
-    def __init__(self, bands, percentage=0.05, decrease=True):
-        self.bands = bands
-        self.percentage = percentage
-        self.decrease = decrease
-
-    def __call__(self, x):
-        if self.percentage is None:
-            return x
-        if self.decrease:
-            x[:,:,self.bands] = x[:,:,self.bands] * (1-self.percentage)
-        else:
-            x[:,:,self.bands] = x[:,:,self.bands] * (1+self.percentage)
-        return x
-
 
 class ShuffleRaster:
     """
-    Applies a controlled spatial patch shuffle consistently 
-    across all spectral bands, preserving exact pixel values,
-    switching a percentage of patches with each other.
+    Fully correct, bijective patch shuffle.
+
+    GUARANTEES:
+    - No pixel creation or loss
+    - Exact patch permutation
+    - No ordering ambiguity
+    - No edge corruption inside valid patch grid
+    - Strict 1-to-1 mapping of patches
     """
 
     def __init__(self, percentage=10, patch_size=1):
@@ -132,51 +104,66 @@ class ShuffleRaster:
 
         return out
 
-class Transformer(object):
-    """Calls a list of transforms on an image"""
+# class ShuffleRaster:
+#     """
+#     Patch shuffle that preserves full image shape,
+#     including edge (partial) patches.
+#     """
 
-    def __init__(self, transforms):
-        self.transforms = transforms
+#     def __init__(self, percentage=10, patch_size=1):
+#         self.percentage = percentage
+#         self.patch_size = patch_size
 
-    def __call__(self, x):
-        for transform in self.transforms:
-            x = transform(x)
-        return x
+#     def __call__(self, x):
 
+#         if self.percentage <= 0:
+#             return x
 
-class Normalize(object):
-    """ Normalize tensor with mean and std. """
+#         h, w, c = x.shape
+#         p = self.patch_size
 
-    def __init__(self, mean, std):
-        self.mean = mean
-        self.std = std
+#         patches = []
+#         positions = []
 
-    def __call__(self, x):
-        x = x - self.mean
-        x = x / self.std
-        return x
+#         # -------------------------------------------------
+#         # EXTRACT PATCHES (INCLUDING EDGES)
+#         # -------------------------------------------------
+#         for y in range(0, h, p):
+#             for x_ in range(0, w, p):
 
+#                 patch = x[y:y+p, x_:x_+p, :]
 
-class NormalizeVariance(object):
-    """ Normalize variance tensor with std. """
+#                 patches.append(patch)
+#                 positions.append((y, x_))
 
-    def __init__(self, std):
-        self.var = std ** 2
+#         patches = np.array(patches, dtype=object)
 
-    def __call__(self, x):
-        x = x / self.var
-        return x
+#         n = len(patches)
+#         k = int((self.percentage / 100) * n)
 
+#         if k <= 1:
+#             return x
 
-def denormalize(x, mean, std):
-    """ Denormalize normalized numpy array with mean and std. """
-    x = x * std
-    x = x + mean
-    return x
+#         # -------------------------------------------------
+#         # SELECT PATCHES TO SHUFFLE
+#         # -------------------------------------------------
+#         idx = np.random.choice(n, k, replace=False)
 
+#         shuffled_idx = idx.copy()
+#         np.random.shuffle(shuffled_idx)
 
-def denormalize_variance(x, std):
-    """ Denormalize normalized numpy array (representing a variance) with std. """
-    x = x * std ** 2
-    return x
+#         # -------------------------------------------------
+#         # SWAP PATCHES
+#         # -------------------------------------------------
+#         patches[idx] = patches[shuffled_idx].copy()
 
+#         # -------------------------------------------------
+#         # REBUILD IMAGE
+#         # -------------------------------------------------
+#         out = np.zeros_like(x)
+
+#         for patch, (y, x_) in zip(patches, positions):
+#             ph, pw = patch.shape[:2]
+#             out[y:y+ph, x_:x_+pw, :] = patch
+
+#         return out

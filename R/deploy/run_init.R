@@ -1,8 +1,19 @@
 # Run folder setup -------------------------------------------------------
 
-run_id <- format(Sys.time(), "%H%M")
+existing <- list.dirs("results", FALSE, FALSE)
+ids <- as.integer(sub(".*_", "",
+  grep(paste0("^", runtime$start_date_chr, "_", base_specs$manipulation, "_[0-9]+$"),
+       existing, value = TRUE)
+))
 
-run_dir <- file.path("results", paste0(start_date_chr, "_run_", run_id))
+run_dir <- file.path(
+  "results",
+  paste0(
+    runtime$start_date_chr, "_",
+    base_specs$manipulation, "_",
+    max(ids, 0, na.rm = TRUE) + 1
+  )
+)
 
 dir.create(run_dir, recursive = TRUE, showWarnings = FALSE)
 message("Run Directory created: ", run_dir, "\n")
@@ -50,4 +61,9 @@ write_metadata <- function(config, param_specs, run_dir) {
                        auto_unbox = TRUE)
   
   message("Metadata written to: ", metadata_file, "\n")
+
+  writeLines(capture.output(sessionInfo()),
+           file.path(run_dir, "sessionInfo.txt"))
+  
+  message("Session Info saved to: ", file.path(run_dir, "sessionInfo.txt"), "\n")
 }

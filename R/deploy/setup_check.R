@@ -32,11 +32,10 @@ if ("shuffle" %in% variables$manipulation_type){
   cat("Percentage of pixels to be shuffled:", as.character(unique(variables$shuffle_pct)), "\n")
   cat("Patch size: ", variables$patch_size[1], "X", variables$patch_size[1], "\n")
 } else if ("spectral" %in% variables$manipulation_type){
-  cat("Bands to be modified: ", as.character(unique(variables$band)),"\n")
-  cat("Increments: ", as.character(unique(variables$increment)),"\n")
+  cat("Bands to be modified:", paste(unique(sapply(variables$band, paste, collapse = "-")), collapse = " "),"\n")
+  cat("Increments: ", as.character(unique(variables$increment)*100),"%\n")
   cat("Decrease: ", param_specs$spectral$decrease,"\n")
 } else if ("geographical" %in% variables$manipulation_type){
   stop("Geographical manipulation not yet implemented!")
 }
-
 

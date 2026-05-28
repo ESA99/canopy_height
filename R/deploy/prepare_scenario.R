@@ -13,7 +13,7 @@ prepare_scenario <- function(scenario, variables) {
         "Patch Size:",scenario$patch_size, "x", scenario$patch_size, "\n")
   } else if (scenario$manipulation_type == "spectral"){
     cat("Tile:",scenario$tile, "\n",
-        "Band:",scenario$band, "=", scenario$Colour, "\n",
+        "Band:",paste(unlist(scenario$band), collapse = "-"), "=", scenario$Colour, "\n",
         "Percentage:", scenario$increment*100, "%", "\n",
         "Direction:",ifelse(scenario$decrease == "False", "Increase", "Decrease"), "\n")
   } else if (scenario$manipulation_type == "geographical"){
@@ -81,9 +81,12 @@ set_environment_variables <- function(scenario){
 
   } else if (scenario$manipulation_type == "spectral") {
     # Translate band name
-    band_number <- translation_table$BandNumber[translation_table$BandName %in% scenario$band[]]
-    modify_bands_str <- paste(band_number, collapse = " ")
-
+    # band_number <- translation_table$BandNumber[translation_table$BandName %in% scenario$band[]]
+    # modify_bands_str <- paste(band_number, collapse = " ")
+    band_number <- translation_table$BandNumber[
+      match(unlist(scenario$band), translation_table$BandName)]
+    modify_bands_str <- paste(na.omit(band_number), collapse = " ")
+    
     env_vars$MODIFY_BANDS = modify_bands_str
     env_vars$MODIFY_PERCENTAGE = scenario$increment # or rate
     env_vars$MODIFY_DECREASE = scenario$decrease
@@ -97,3 +100,14 @@ set_environment_variables <- function(scenario){
   return(env_vars)
 
 }
+
+
+
+
+  # ### Remove all Variables that are NA -> let python use its default values! ###
+  # env_vars <- env_vars[!sapply(env_vars, function(x) {
+  #   is.null(x) ||
+  #   length(x) == 0 ||
+  #   (is.na(x) && !is.character(x)) ||
+  #   (is.character(x) && trimws(x) == "")
+  # })]

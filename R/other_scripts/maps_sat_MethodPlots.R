@@ -3,6 +3,7 @@
 library(tmap)
 library(terra)
 library(sf)
+library(stars)
 library(rnaturalearth)
 library(rnaturalearthdata)
 

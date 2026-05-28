@@ -1,4 +1,4 @@
-organize_prediction_files <- function(scenario, start_date_chr) {
+organize_prediction_files <- function(scenario) {
   
   ### Save image with a new name to designated folder (out_dir)
   cat("Copying and renaming prediction files.\n")

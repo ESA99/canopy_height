@@ -1,9 +1,8 @@
-from gchm.utils.transforms import ModifyBands
 from osgeo import gdal, osr, ogr, gdalconst
 import os
 import sys
 import numpy as np
-import rasterio
+# import rasterio
 import argparse
 from pathlib import Path
 import copy
@@ -15,7 +14,7 @@ import botocore
 import urllib3
 
 from gchm.models.architectures import Architectures
-from gchm.utils.transforms import Normalize, NormalizeVariance, denormalize, ShuffleRaster, Transformer
+from gchm.utils.transforms import ModifyBands, ShuffleRaster, Normalize, NormalizeVariance, denormalize, Transformer
 from gchm.datasets.dataset_sentinel2_deploy import Sentinel2Deploy
 from gchm.utils.gdal_process import save_array_as_geotif
 from gchm.utils.parser import load_args_from_json, str2bool, str_or_none, str2int
@@ -50,8 +49,17 @@ def setup_parser():
     parser.add_argument("--remove_image_after_pred", type=str2bool, nargs='?', const=True, default=False,
                         help="if True: deletes the image after saving the prediction.")
     parser.add_argument("--sentinel2_dir", help="directory to save sentinel2 data (temporarily)")
+    
+    ### CUSTOM ARGUMENTS FOR DEPLOYMENT ###
+    parser.add_argument("--model_id", type=int, default=1)
+    parser.add_argument("--modification_mode", type=str, default="")
+
     parser.add_argument("--shuffle_percentage", type=float, default=0)
-    parser.add_argument("--shuffle_tile_size", type=int, default=None)
+    parser.add_argument("--patch_size", type=int, default=1)
+
+    parser.add_argument("--spectral_bands", type=str2int, nargs="+", default=[])
+    parser.add_argument("--spectral_percentage", type=float, default=None)
+    parser.add_argument("--spectral_decrease", type=bool, default=False)
 
     # fine-tune and re-weighting strategies
     parser.add_argument("--finetune_strategy", default='FT_Lm_SRCB',
@@ -125,7 +133,9 @@ if __name__ == "__main__":
     args, unknown = parser.parse_known_args()
 
     # sample model id from ensemble
-    args.model_id = np.random.choice(args.num_models)
+    # print('##### My Model ID:',args.model_id)
+    # args.model_id = np.random.choice(args.num_models) # deactivate this line to use my model_id directly
+    print('#### Selected Model ID:',args.model_id, '####')
     args.model_dir = os.path.join(args.model_dir, "model_{}".format(args.model_id), args.finetune_strategy)
     print("Sampled model_id: {} out of {} models in ensemble.".format(args.model_id, args.num_models))
     print("Using args.model_dir: ", args.model_dir)
@@ -221,56 +231,45 @@ if __name__ == "__main__":
     print('train_target_std', train_target_std)
 
     # setup input transforms
-    print(args.shuffle_percentage)
-    print(args.shuffle_tile_size)
+    print('Shuffle percentage:',args.shuffle_percentage)
+    print('Patch size:',args.patch_size)
+    print('Bands:',args.spectral_bands)
+    print('Spectral modification:',args.spectral_percentage)
+    print('Spectral decrease:',args.spectral_decrease)
 
+    print('### Modification Mode:',args.modification_mode, '###')
 
     transforms = []
 
-    # if args.MODE == "spectral":
-    #     print("Spectral manipulation enabled.")
-    #     transforms.append(
-    #         ModifyBandsifyBands(
-    #             bands=args.x,
-    #             percentage=args.y,
-    #             direction=args.z
-    #         )
-    #     )
-    # elif args.MODE == "shuffle":
-        # print("Pixel shuffeling enabled: {args.patch_size}x{args.patch_size} px patches.")
-    #     transforms.append(
-    #         ShuffleRaster(
-    #             percentage=args.shuffle_percentage,
-    #             patch_size=args.patch_size
-    #         )
-    #     )
-    # elif args.MODE == "geographical":
-    #     print("Geographic manipulation enabled")
-    #     transforms.append(
-    #         ShiftCoordinates(
-    #             direction=args.a,
-    #             ammount=args.b
-    #         )
-    #     )
-    # else:
-    #     print("No manipulation performed.")
-
-    if args.shuffle_percentage > 0:
-        if args.shuffle_tile_size is None:
-            mode = "GLOBAL shuffle"
-        else:
-            mode = f"LOCAL tile shuffle ({args.shuffle_tile_size}x{args.shuffle_tile_size} px)"
-
-        print(f"Shuffle enabled: {mode}")
-
+    if args.modification_mode == "spectral":
+        print("***** Spectral manipulation enabled. *****")
+        transforms.append(
+            ModifyBands(
+                bands=args.spectral_bands,
+                percentage=args.spectral_percentage,
+                decrease=args.spectral_decrease
+            )
+        )
+    elif args.modification_mode == "shuffle":
+        print(f"***** Pixel shuffeling enabled: {args.patch_size}x{args.patch_size} px patches. *****")
         transforms.append(
             ShuffleRaster(
                 percentage=args.shuffle_percentage,
-                tile_size=args.shuffle_tile_size
+                patch_size=args.patch_size
             )
         )
+    elif args.modification_mode == "geographical":
+        pass
+        # print("***** Geographic manipulation enabled. *****")
+        # transforms.append(
+        #     ShiftCoordinates(
+        #         direction=args.a,
+        #         ammount=args.b
+        #     )
+        # )
     else:
-        print("No pixel shuffling performed")
+        print("***** No manipulation performed. *****")
+
 
     transforms.append(
         Normalize(mean=train_input_mean, std=train_input_std)

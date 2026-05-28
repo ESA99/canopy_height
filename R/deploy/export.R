@@ -73,20 +73,23 @@ script_summary <- function(results){
     )
   }
 
-  cat("Average time per loop:", mean(results$time_min), "minutes.\n")
+  cat("Average time per loop:", mean(as.numeric(as.character(results$time_min)),na.rm=TRUE), "minutes.\n")
   
   # Final Summary
   cat("**************************** Summary ****************************\n")
   cat("Process finished at:", format(Sys.time(), "%Y-%m-%d %H:%M"),"\n")
   cat("Total number of loops/predictions:",nrow(variables),"\n")
   cat("Tiles processed:",unique(variables$tile),"\n")
-  cat("Manipulation method:",unique(variables$manipulation_type,"\n") )
-  if (variables$manipulation_type[1] == "shuffle"){cat( unique( unlist(variables$shuffle_pct))," %\n" )}
-  if (variables$manipulation_type[1] == "spectral"){cat("Bands processed:",unique(unlist(variables$band)),"\n")}
-
-  if (BACKUP_SAVING) { cat("Backup saved for each loop to: ",backup_dir,"\n") } else { cat("No Backup saved.\n") }
+  cat("Manipulation method:",unique(variables$manipulation_type), "\n" )
+  if (variables$manipulation_type[1] == "shuffle"){
+    cat("Amount shuffled:",paste(unique(unlist(variables$shuffle_pct))[unique(unlist(variables$shuffle_pct)) != 0], collapse = " "),"%\n") }
+  if (variables$manipulation_type[1] == "spectral"){
+    bands_clean <- unique(sapply(variables$band, function(x) {paste(x, collapse = "-")}))
+    cat("Bands processed:", paste(bands_clean, collapse = " "), "\n")
+    cat("Bands processed:",unique(variables$Colour),"\n")}
+  if (BACKUP_SAVING) { cat("Backup saved for each loop to: ",loop_backup_dir,"\n") } else { cat("No Backup saved.\n") }
   if (PRED_TIF) { cat("Prediction TIFs saved to:", PRED_TIF_LOCATION, "\n")} else { cat("No prediction TIFs saved.\n") }
-  if (DIFF_TIF) { cat("Difference rasters saved to ",diff_file,"\n") } else { cat("Difference rasters not saved.\n") }
+  if (DIFF_TIF) { cat("Difference rasters saved to ", config$DIFF_TIF_LOCATION,"\n") } else { cat("Difference rasters not saved.\n") }
 
 
   cat("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n")

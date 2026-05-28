@@ -3,7 +3,15 @@ start_timer <- function() {
 }
 
 end_timer <- function(timer) {
-  as.numeric(difftime(Sys.time(), timer$start, units = "mins"))
+  elapsed_min <- as.numeric(
+    difftime(Sys.time(), timer$start, units = "mins")
+  )
+
+  list(
+    hours = elapsed_min / 60,
+    minutes = elapsed_min,
+    seconds = elapsed_min * 60
+  )
 }
 
 log_result <- function(results_list, v, result) {
@@ -11,9 +19,13 @@ log_result <- function(results_list, v, result) {
   results_list
 }
 
+# start_time <- Sys.time()
+# start_date_chr <- format(Sys.Date(), "%Y-%m-%d")
 
-start_time <- Sys.time()
-start_date_chr <- format(Sys.Date(), "%Y-%m-%d")
+runtime <- list(
+  start_time = Sys.time(),
+  start_date_chr = format(Sys.Date(), "%Y-%m-%d")
+)
 
 # TIMING Calculation
 mean_loop_time <- 9.5 # minutes -> derived from timing data of past loops

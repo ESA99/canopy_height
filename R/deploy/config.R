@@ -6,8 +6,9 @@ options(repos = c(CRAN = "https://cloud.r-project.org"))
 packages <- c(
   "sf", "terra", "remotes", "tmap",
   "rnaturalearth", "rnaturalearthdata",
-  "plyr", "dplyr", "leaflet",
+  "dplyr", "leaflet",
   "viridis", "cols4all", "colorspace", "transport"
+  # ,"plyr"
 )
 
 # Install any packages that are missing
@@ -37,12 +38,13 @@ BASE_DIR <- "/home/emilio/canopy_height"
 
 # Export location of tifs and backup
 EXPORT_TIF_LOC <- file.path("/data/ESA99/export",format(Sys.Date(), "%Y-%m-%d"))
-dir.create(EXPORT_TIF_LOC)
+dir.create(EXPORT_TIF_LOC, recursive = TRUE, showWarnings = FALSE)
 
 PRED_TIF_LOCATION <- file.path(EXPORT_TIF_LOC, "predictions")
-dir.create(PRED_TIF_LOCATION)
+dir.create(PRED_TIF_LOCATION, recursive = TRUE, showWarnings = FALSE)
 # PRED_TIF_LOCATION <- "/data/ESA99/resultmaps_bands/I"
 # PRED_TIF_LOCATION <- file.path("/data/ESA99/pred_tif", format(Sys.Date(), "%Y-%m-%d"))
+DIFF_TIF_LOCATION <- file.path(EXPORT_TIF_LOC, "difference_rasters")
 
 
 # MODEL SELECTION --------------------------------------------------------
@@ -52,7 +54,7 @@ MODEL_ID = 2
 # FLAGS ------------------------------------------------------------------
 
 BACKUP_SAVING <- TRUE    # Should loop results be saved individually as backup (csv files)?
-DIFF_TIF <- FALSE        # Should the difference rasters be saved?
+DIFF_TIF <- TRUE        # Should the difference rasters be saved?
 PRED_TIF <- TRUE         # Should the prediction result tif's be saved and where?
 
 
@@ -62,3 +64,18 @@ GLOBAL_SEED <- 42
 set.seed(GLOBAL_SEED)
 
 
+config <- list(
+  BASE_DIR = BASE_DIR,
+
+  EXPORT_TIF_LOC = EXPORT_TIF_LOC,
+  PRED_TIF_LOCATION = PRED_TIF_LOCATION,
+  DIFF_TIF_LOCATION = DIFF_TIF_LOCATION,
+
+  MODEL_ID = 2,
+
+  BACKUP_SAVING = TRUE,
+  DIFF_TIF = TRUE,   
+  PRED_TIF = TRUE,    
+
+  GLOBAL_SEED = 42
+)

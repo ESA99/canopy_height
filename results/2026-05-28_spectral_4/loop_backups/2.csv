@@ -1,0 +1,2 @@
+"mode","tile","out_name","year","original","mean_height","mean_change","mean_abs_change","relative_mean_change","relative_mean_abs_change","mae","rmse","correlation","SD","sd_change","relative_sd_change","band","increment","decrease","Colour"
+"spectral","49NHC","49NHC_spectral_B03-B04_I_15","2020",FALSE,34.8780640780239,-4.96747749204986,5.18638668357579,-12.4668339199603,13.0162283638555,5.18638668357579,5.83312133519539,0.89695421685829,6.64325711134311,-0.165547753968715,-2.43137756542437,"c(""B03"", ""B04"")",0.15,"False","Green-Red"
