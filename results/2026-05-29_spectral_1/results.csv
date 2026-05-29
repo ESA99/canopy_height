@@ -1,0 +1,3 @@
+"mode","tile","out_name","year","original","mean_height","mean_change","mean_abs_change","relative_mean_change","relative_mean_abs_change","mae","rmse","correlation","SD","sd_change","relative_sd_change","band","increment","decrease","Colour","time_min"
+"spectral","49NHC","49NHC_original","2020",TRUE,40.1037015821913,0,0,0,0,0,0,1,6.46511024994368,0,0,"B02",0,"False","Blue",7.47580272356669
+"spectral","49NHC","49NHC_spectral_B02_I_15","2020",FALSE,41.4249846569194,1.32128307472808,1.81956076212323,3.29466613454658,4.53713919248599,1.81956076212323,2.62387561081347,0.937862125087673,5.73798151997599,-0.727128729967696,-11.2469656642596,"B02",0.15,"False","Blue",7.29303826888402

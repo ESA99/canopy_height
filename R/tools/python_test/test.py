@@ -1,50 +1,26 @@
 import numpy as np
 
-class ModifyImage(object):
-    """ Perturb an image by a percentage. """
-
-    def __init__(self, percentage=None, decrease=True):
-        self.percentage = percentage
-        self.decrease=decrease
-
-    def __call__(self, x):
-        if self.percentage is None:
-            return x
-        if self.decrease:
-            x = x * (1-self.percentage)
-        else:
-            x = x * (1+self.percentage)
-        return x
-
-class ModifyBands(object):
-    """ Perturb bands by a percentage. """
-
-    def __init__(self, bands, percentage=0.05, decrease=True):
-        self.bands = bands
-        self.percentage = percentage
-        self.decrease = decrease
-
-    def __call__(self, x):
-        if self.percentage is None:
-            return x
-        if self.decrease:
-            x[:,:,self.bands] = x[:,:,self.bands] * (1-self.percentage)
-        else:
-            x[:,:,self.bands] = x[:,:,self.bands] * (1+self.percentage)
-        return x
-
 class ShuffleRaster:
     """
     Applies controlled patch-based shuffling across a raster image.
-    X % of pixels are shuffled as patches of size y, optionally inside 
-    of subtiles of 512x512px (if None across the whole scene).
-    
-    Edge remainder pixels are excluded from shuffling but still inside the
-    output image, keeping geographical size and attributes
 
+    Improvements over original:
+    ------------------------------------
+    1. Edge handling:
+       - Instead of ignoring leftover pixels, we now CROP them away.
+       - Only full patch grids are processed.
+
+    2. Optional sub-tiling:
+       - Image can be split into larger tiles (e.g. 512x512).
+       - Patch shuffling is applied independently within each tile.
+       - Tiles at edges are cropped if they don't fit exactly.
+
+    3. Patch shuffling remains identical inside each region:
+       - same derangement logic
+       - same percentage behavior
     """
 
-    def __init__(self, percentage=20, patch_size=1, subtile_size=None):
+    def __init__(self, percentage=10, patch_size=1, subtile_size=None):
         self.percentage = percentage
         self.patch_size = patch_size
 
@@ -63,13 +39,17 @@ class ShuffleRaster:
         h, w, c = region.shape
         p = self.patch_size
 
+        # ---------------------------------------------
         # Crop to full patch grid (ignore leftovers)
+        # ---------------------------------------------
         hh = (h // p) * p
         ww = (w // p) * p
 
         region_core = region[:hh, :ww].copy()
 
+        # ---------------------------------------------
         # Extract patches
+        # ---------------------------------------------
         patches = []
         positions = []
 
@@ -90,11 +70,13 @@ class ShuffleRaster:
             out[:hh, :ww] = region_core
             return out
 
+        # ---------------------------------------------
         # Select random subset of patches
+        # ---------------------------------------------
         idx = np.random.choice(n, k, replace=False)
 
         # ---------------------------------------------
-        # Derangement helper -> prevents random shuffle to original position
+        # Derangement helper (no fixed points)
         # ---------------------------------------------
         def random_derangement(arr):
             arr = arr.copy()
@@ -114,6 +96,7 @@ class ShuffleRaster:
 
         # ---------------------------------------------
         # Reconstruct region
+        # ---------------------------------------------
         out = region.copy()
 
         for patch, (y, x) in zip(new_patches, positions):
@@ -162,6 +145,13 @@ class ShuffleRaster:
 
         return out
 
+
+
+
+
+
+
+# # Patch sized shuffle to X %, edge pixels are ignored but included
 # class ShuffleRaster:
 #     """
 #     Applies a controlled spatial patch shuffle consistently 
@@ -260,51 +250,196 @@ class ShuffleRaster:
 
 #         return out
 
-class Transformer(object):
-    """Calls a list of transforms on an image"""
+# class Transformer(object):
+#     """Calls a list of transforms on an image"""
 
-    def __init__(self, transforms):
-        self.transforms = transforms
+#     def __init__(self, transforms):
+#         self.transforms = transforms
 
-    def __call__(self, x):
-        for transform in self.transforms:
-            x = transform(x)
-        return x
-
-
-class Normalize(object):
-    """ Normalize tensor with mean and std. """
-
-    def __init__(self, mean, std):
-        self.mean = mean
-        self.std = std
-
-    def __call__(self, x):
-        x = x - self.mean
-        x = x / self.std
-        return x
+#     def __call__(self, x):
+#         for transform in self.transforms:
+#             x = transform(x)
+#         return x
 
 
-class NormalizeVariance(object):
-    """ Normalize variance tensor with std. """
-
-    def __init__(self, std):
-        self.var = std ** 2
-
-    def __call__(self, x):
-        x = x / self.var
-        return x
 
 
-def denormalize(x, mean, std):
-    """ Denormalize normalized numpy array with mean and std. """
-    x = x * std
-    x = x + mean
-    return x
 
 
-def denormalize_variance(x, std):
-    """ Denormalize normalized numpy array (representing a variance) with std. """
-    x = x * std ** 2
-    return x
 
+
+# class ShuffleRaster:
+#     """
+#     Fully correct, bijective patch shuffle.
+
+#     GUARANTEES:
+#     - No pixel creation or loss
+#     - Exact patch permutation
+#     - No ordering ambiguity
+#     - No edge corruption inside valid patch grid
+#     - Strict 1-to-1 mapping of patches
+#     """
+
+#     def __init__(self, percentage=10, patch_size=1):
+#         self.percentage = percentage
+#         self.patch_size = patch_size
+
+#     def __call__(self, x):
+
+#         if self.percentage <= 0:
+#             return x
+
+#         h, w, c = x.shape
+#         p = self.patch_size
+
+#         # -------------------------------------------------
+#         # 1. CROP TO FULL PATCH GRID ONLY
+#         # -------------------------------------------------
+#         hh = (h // p) * p
+#         ww = (w // p) * p
+
+#         x_core = x[:hh, :ww].copy()
+
+#         # -------------------------------------------------
+#         # 2. EXTRACT PATCHES WITH EXPLICIT INDEXING
+#         # -------------------------------------------------
+#         patches = []
+#         positions = []
+
+#         patch_id = 0
+
+#         for y in range(0, hh, p):
+#             for x_ in range(0, ww, p):
+
+#                 patches.append(x_core[y:y+p, x_:x_+p].copy())
+#                 positions.append((y, x_))
+
+#                 patch_id += 1
+
+#         patches = np.array(patches, dtype=object)
+
+#         n = len(patches)
+#         k = int((self.percentage / 100) * n)
+
+#         if k <= 1:
+#             out = x.copy()
+#             out[:hh, :ww] = x_core
+#             return out
+
+#         # -------------------------------------------------
+#         # 3. SELECT PATCH INDICES
+#         # -------------------------------------------------
+#         idx = np.random.choice(n, k, replace=False)
+
+#         # true permutation inside selected subset
+#         shuffled_idx = idx.copy()
+#         np.random.shuffle(shuffled_idx)
+
+#         # -------------------------------------------------
+#         # 4. APPLY DERANGEMENT (NO FIXED POINTS)
+#         # -------------------------------------------------
+
+#         def random_derangement(arr):
+#             """
+#             Returns a permutation of arr with no fixed points.
+#             """
+#             arr = arr.copy()
+#             n = len(arr)
+
+#             while True:
+#                 perm = arr.copy()
+#                 np.random.shuffle(perm)
+
+#                 # check no fixed points
+#                 if not np.any(perm == arr):
+#                     return perm
+
+
+#         shuffled_idx = random_derangement(idx)
+
+#         new_patches = patches.copy()
+#         new_patches[idx] = patches[shuffled_idx]
+
+#         # -------------------------------------------------
+#         # 5. RECONSTRUCT IMAGE USING ORIGINAL POSITIONS
+#         # -------------------------------------------------
+#         out = x.copy()
+
+#         for patch, (y, x_) in zip(new_patches, positions):
+
+#             out[y:y+p, x_:x_+p] = patch
+
+#         return out
+
+
+
+
+
+
+
+
+
+
+# class ShuffleRaster:
+#     """
+#     Patch shuffle that preserves full image shape,
+#     including edge (partial) patches.
+#     """
+
+#     def __init__(self, percentage=10, patch_size=1):
+#         self.percentage = percentage
+#         self.patch_size = patch_size
+
+#     def __call__(self, x):
+
+#         if self.percentage <= 0:
+#             return x
+
+#         h, w, c = x.shape
+#         p = self.patch_size
+
+#         patches = []
+#         positions = []
+
+#         # -------------------------------------------------
+#         # EXTRACT PATCHES (INCLUDING EDGES)
+#         # -------------------------------------------------
+#         for y in range(0, h, p):
+#             for x_ in range(0, w, p):
+
+#                 patch = x[y:y+p, x_:x_+p, :]
+
+#                 patches.append(patch)
+#                 positions.append((y, x_))
+
+#         patches = np.array(patches, dtype=object)
+
+#         n = len(patches)
+#         k = int((self.percentage / 100) * n)
+
+#         if k <= 1:
+#             return x
+
+#         # -------------------------------------------------
+#         # SELECT PATCHES TO SHUFFLE
+#         # -------------------------------------------------
+#         idx = np.random.choice(n, k, replace=False)
+
+#         shuffled_idx = idx.copy()
+#         np.random.shuffle(shuffled_idx)
+
+#         # -------------------------------------------------
+#         # SWAP PATCHES
+#         # -------------------------------------------------
+#         patches[idx] = patches[shuffled_idx].copy()
+
+#         # -------------------------------------------------
+#         # REBUILD IMAGE
+#         # -------------------------------------------------
+#         out = np.zeros_like(x)
+
+#         for patch, (y, x_) in zip(patches, positions):
+#             ph, pw = patch.shape[:2]
+#             out[y:y+ph, x_:x_+pw, :] = patch
+
+#         return out

@@ -11,6 +11,7 @@ create_param_grid <- function(base_specs, params) {
       WC_year = base_specs$WC_year,
       shuffle_pct = as.numeric(params$shuffle$shuffle_pct),
       patch_size = as.numeric(params$shuffle$patch_size),
+      subtile_size = params$shuffle$subtile_size,
       manipulation_type = "shuffle",
       rootDIR = base_specs$rootDIR,
       out_dir = file.path(base_specs$rootDIR, "final_results"),
@@ -28,6 +29,10 @@ create_param_grid <- function(base_specs, params) {
       if (!is.na(row["patch_size"])) {
         parts <- c(parts, paste0(row["patch_size"], "x", row["patch_size"]))
       }
+      if (!is.na(row["subtile_size"])) {
+        parts <- c(parts, paste0("ST",as.character(row["subtile_size"])) )
+      }
+
       paste(parts, collapse = "_")
     })
 
@@ -40,6 +45,7 @@ create_param_grid <- function(base_specs, params) {
                         WC_year = base_specs$WC_year,
                         shuffle_pct = c(0),
                         patch_size = params$shuffle$patch_size,
+                        subtile_size = NA,
                         manipulation_type = "shuffle",
                         rootDIR = base_specs$rootDIR,
                         out_dir = file.path(base_specs$rootDIR, "final_results"),
@@ -49,7 +55,7 @@ create_param_grid <- function(base_specs, params) {
       df <- rbind(original_row, df)
     }
 
-    message("Variable Table created. Scenario: Shuffle. ", nrow(df), " entries.\n")
+    message("***** Variable Table created. Scenario: Shuffle. ", nrow(df), " entries. *****\n")
   
 
   } else if ("spectral" %in% base_specs$manipulation) {
@@ -117,14 +123,14 @@ create_param_grid <- function(base_specs, params) {
       },
       character(1)
     )
-    message("Variable Table created. Scenario: Spectral. ", nrow(df), " entries.\n")
+    message("***** Variable Table created. Scenario: Spectral. ", nrow(df), " entries. *****\n")
 
 
   } else if  ("geographical" %in% base_specs$manipulation) {
       # Shift coordinates N-S by X km
     
     
-    message("Variable Table created. Scenario: Geographical. ", nrow(df), " entries.\n")
+    message("***** Variable Table created. Scenario: Geographical. ", nrow(df), " entries. *****\n")
 
   }
 

@@ -56,6 +56,7 @@ def setup_parser():
 
     parser.add_argument("--shuffle_percentage", type=float, default=0)
     parser.add_argument("--patch_size", type=int, default=1)
+    parser.add_argument("--subtile_size", type=int, default=None)
 
     parser.add_argument("--spectral_bands", type=str2int, nargs="+", default=[])
     parser.add_argument("--spectral_percentage", type=float, default=None)
@@ -233,6 +234,7 @@ if __name__ == "__main__":
     # setup input transforms
     print('Shuffle percentage:',args.shuffle_percentage)
     print('Patch size:',args.patch_size)
+    print('Subtile size:',args.subtile_size)
     print('Bands:',args.spectral_bands)
     print('Spectral modification:',args.spectral_percentage)
     print('Spectral decrease:',args.spectral_decrease)
@@ -251,11 +253,12 @@ if __name__ == "__main__":
             )
         )
     elif args.modification_mode == "shuffle":
-        print(f"***** Pixel shuffeling enabled: {args.patch_size}x{args.patch_size} px patches. *****")
+        print(f"***** Pixel shuffeling enabled: {args.patch_size}x{args.patch_size} px patches | Subtiles {args.subtile_size} *****")
         transforms.append(
             ShuffleRaster(
                 percentage=args.shuffle_percentage,
-                patch_size=args.patch_size
+                patch_size=args.patch_size,
+                subtile_size=args.subtile_size
             )
         )
     elif args.modification_mode == "geographical":

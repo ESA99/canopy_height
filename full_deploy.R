@@ -5,8 +5,8 @@ base_specs <- list(
   year = c("2020"),
   WC_year = c("2020"),
   rootDIR = "/home/emilio/canopy_height",
-  manipulation = c("shuffle") 
-  # manipulation = c("spectral")
+  # manipulation = c("shuffle") 
+  manipulation = c("spectral")
   # manipulation = c("geographical")
 )
 
@@ -15,16 +15,20 @@ param_specs <- list(
   shuffle = list(
     # shuffle_pct = c(2.5, 5, 10, 15, 20, 25, 30, 50, 65, 80, 100),
     shuffle_pct = c(10), # for testing
-    patch_size = c(1)
+    # patch_size = c(1,2,4,8,16,32,64,128,256,512)
+    patch_size = c(64),
+    # subtile_size = NA
+    subtile_size = 512
   ),
   
   spectral = list(
     # band = c("B02", "B03", "B04", "B05", "B08", "B8A", "B11", "B12"),
     # increment = c(0.05, 0.1, 0.15, 0.2, 0.25),
     # decrease = c(FALSE,TRUE)
-    band = list("B02",c("B03", "B04")), # for testing
+    # band = list("B02",c("B03", "B04")), # for testing
+    band = list("B02"), # for testing
     increment = c(0.15), # for testing
-    decrease = c("False", "True") # for testing
+    decrease = c("False") # for testing
     # decrease = c("False") # for testing
   ),
 

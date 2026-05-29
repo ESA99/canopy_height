@@ -29,8 +29,10 @@ cat("Manipulation method: ", variables$manipulation_type[1],"\n")
 cat("Tiles in process:", as.character(unique(variables$tile)), "\n")
 
 if ("shuffle" %in% variables$manipulation_type){
-  cat("Percentage of pixels to be shuffled:", as.character(unique(variables$shuffle_pct)), "\n")
-  cat("Patch size: ", variables$patch_size[1], "X", variables$patch_size[1], "\n")
+  cat("Ammount of shuffle:",paste(unique(unlist(variables$shuffle_pct))[unique(unlist(variables$shuffle_pct)) != 0], collapse = " "),"%\n")
+  cat("Patch size:", variables$patch_size[1], "X", variables$patch_size[1], "\n")
+  if (is.na(param_specs$shuffle$subtile_size)){ cat("Global pixel shuffle.\n") } else {
+    cat("Subtile Size:", param_specs$shuffle$subtile_size, "\n")}
 } else if ("spectral" %in% variables$manipulation_type){
   cat("Bands to be modified:", paste(unique(sapply(variables$band, paste, collapse = "-")), collapse = " "),"\n")
   cat("Increments: ", as.character(unique(variables$increment)*100),"%\n")
