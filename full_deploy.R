@@ -1,34 +1,38 @@
 # Scenario Setup -----------------------------------------------------
 base_specs <- list(
   # tile = c("10TES", "17SNB", "20MMD", "32TMT", "32UQU", "33NTG", "34UFD", "35VML", "49NHC", "49UCP", "55HEV"),
-  tile = c("49NHC"), # for testing
+  
+  # tile = c("10TES", "17SNB", "20MMD"),
+  # tile = c("32TMT", "32UQU", "33NTG"),
+  tile = c("34UFD", "35VML", "49NHC", "49UCP", "55HEV"),
+
   year = c("2020"),
   WC_year = c("2020"),
   rootDIR = "/home/emilio/canopy_height",
-  # manipulation = c("shuffle") 
-  manipulation = c("spectral")
+  manipulation = c("shuffle") 
+  # manipulation = c("spectral")
   # manipulation = c("geographical")
 )
 
 param_specs <- list(
   
   shuffle = list(
-    # shuffle_pct = c(2.5, 5, 10, 15, 20, 25, 30, 50, 65, 80, 100),
-    shuffle_pct = c(10), # for testing
-    # patch_size = c(1,2,4,8,16,32,64,128,256,512)
-    patch_size = c(64),
-    # subtile_size = NA
+    shuffle_pct = c(2.5, 5, 10, 15, 20, 25, 30, 50, 65, 80, 100),
+    patch_size = c(1,2,4,8,16,32,64,128,256),
     subtile_size = 512
+    # shuffle_pct = c(10), # for testing
+    # patch_size = c(64),
+    # subtile_size = NA
   ),
   
   spectral = list(
-    # band = c("B02", "B03", "B04", "B05", "B08", "B8A", "B11", "B12"),
-    # increment = c(0.05, 0.1, 0.15, 0.2, 0.25),
-    # decrease = c(FALSE,TRUE)
+    band = c("B02", "B03", "B04", "B05", "B08", "B8A", "B11", "B12"),
+    increment = c(0.05, 0.1, 0.15, 0.2, 0.25),
+    decrease = c("False","True")
     # band = list("B02",c("B03", "B04")), # for testing
-    band = list("B02"), # for testing
-    increment = c(0.15), # for testing
-    decrease = c("False") # for testing
+    # band = list("B02"), # for testing
+    # increment = c(0.15), # for testing
+    # decrease = c("False") # for testing
     # decrease = c("False") # for testing
   ),
 

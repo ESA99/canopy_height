@@ -1,8 +1,9 @@
-# Setup for Worldcover check
-wc_tile_status <- data.frame(
-  wc_tile = unique(variables$tile),
-  edited = FALSE
-)
+# Check manipulation type
+allowed <- c("shuffle", "spectral", "geographical")
+manip <- base_specs$manipulation
+
+stopifnot(length(manip) == 1)
+if (!manip %in% allowed) stop("Invalid manipulation type.")
 
 
 #### Check for data availability ####
@@ -41,3 +42,8 @@ if ("shuffle" %in% variables$manipulation_type){
   stop("Geographical manipulation not yet implemented!")
 }
 
+# Setup for Worldcover check
+wc_tile_status <- data.frame(
+  wc_tile = unique(variables$tile),
+  edited = FALSE
+)
