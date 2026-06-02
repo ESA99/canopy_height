@@ -294,7 +294,9 @@ if __name__ == "__main__":
                                   input_lat_lon=args.input_lat_lon,
                                   patch_size=args.deploy_patch_size,
                                   border=16,
-                                  from_aws=args.from_aws)
+                                  from_aws=args.from_aws,
+                                  shift_distance=args.shift_distance,
+                                  shift_direction=args.shift_direction)
         end = time.time()
         print("TIME LOADING BANDS:", time.strftime('%H:%M:%S', time.gmtime(end - start)))
     except RuntimeError:

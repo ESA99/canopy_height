@@ -20,10 +20,12 @@ class Sentinel2Deploy(Dataset):
         border (int): Cropped patches will overlap by the amount of pixel set as border.
         from_aws (bool): Option to download the Sentinel-2 images from AWS S3.
     """
-    def __init__(self, path, input_transforms=None, input_lat_lon=False, patch_size=128, border=8, from_aws=False):
+    def __init__(self, path, input_transforms=None, input_lat_lon=False, patch_size=128, border=8, from_aws=False, shift_distance=0, shift_direction="S"):
 
         self.path = path
         self.from_aws = from_aws
+        self.shift_distance = shift_distance
+        self.shift_direction = shift_direction
         self.input_transforms = input_transforms
         self.input_lat_lon = input_lat_lon
         self.patch_size = patch_size
@@ -46,10 +48,38 @@ class Sentinel2Deploy(Dataset):
         self.lat_mask = np.pad(self.lat_mask, ((self.border, self.border), (self.border, self.border)), mode='symmetric')
         self.lon_mask = np.pad(self.lon_mask, ((self.border, self.border), (self.border, self.border)), mode='symmetric')
 
+        ### GEOGRAPHICAL MODIFICATION ###
+        self._apply_lat_shift()
+
         print('self.image_shape_original: ', self.image_shape_original)
         print('after padding: self.image.shape: ', self.image.shape)
         print('after padding: self.lat_mask.shape: ', self.lat_mask.shape)
         print('after padding: self.lon_mask.shape: ', self.lon_mask.shape)
+
+    # Geographical modification function
+    def _apply_lat_shift(self):
+        if self.shift_distance == 0:
+            return
+
+        direction = self.shift_direction.upper()
+
+        if direction not in ["N", "S"]:
+            raise ValueError("shift_direction must be 'N' or 'S'")
+
+        sign = 1 if direction == "N" else -1
+
+        # convert km → degrees latitude
+        lat_shift_deg = sign * (self.shift_distance / 111.32)
+
+        print(
+            f"[Sentinel2Deploy] Shifting lat mask by "
+            f"{self.shift_distance} km {direction} "
+            f"({lat_shift_deg:.6f} degrees)"
+        )
+
+        self.lat_mask_base = self.lat_mask.copy()
+        # self.lat_mask = self.lat_mask_base + lat_shift_deg
+        self.lat_mask = self.lat_mask + lat_shift_deg
 
     def _get_patch_coords(self):
         img_rows, img_cols = self.image.shape[0:2]  # last dimension corresponds to channels
