@@ -65,6 +65,9 @@ for tile_image_filename in ${tile_image_filenames}; do
     fi
     [ -n "${MODIFY_PERCENTAGE}" ] && ARGS+=("--spectral_percentage=${MODIFY_PERCENTAGE}")
     [ -n "${MODIFY_DECREASE}" ] && ARGS+=("--spectral_decrease=${MODIFY_DECREASE}")
+    
+    [ -n "${SHIFT_DISTANCE}" ] && ARGS+=("--shift_distance=${SHIFT_DISTANCE}")
+    [ -n "${SHIFT_DIRECTION}" ] && ARGS+=("--shift_direction=${SHIFT_DIRECTION}")
 
     python3 gchm/deploy.py --model_dir=${GCHM_MODEL_DIR} \
                       	   --deploy_image_path=${deploy_image_path} \

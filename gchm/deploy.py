@@ -61,6 +61,9 @@ def setup_parser():
     parser.add_argument("--spectral_bands", type=str2int, nargs="+", default=[])
     parser.add_argument("--spectral_percentage", type=float, default=None)
     parser.add_argument("--spectral_decrease", type=bool, default=False)
+    
+    parser.add_argument("--shift_distance", type=int, default=0)
+    parser.add_argument("--shift_direction", type=str, default="S")
 
     # fine-tune and re-weighting strategies
     parser.add_argument("--finetune_strategy", default='FT_Lm_SRCB',
@@ -134,9 +137,9 @@ if __name__ == "__main__":
     args, unknown = parser.parse_known_args()
 
     # sample model id from ensemble
-    # print('##### My Model ID:',args.model_id)
-    # args.model_id = np.random.choice(args.num_models) # deactivate this line to use my model_id directly
-    print('#### Selected Model ID:',args.model_id, '####')
+    print('####### My Model ID:',args.model_id)
+    # args.model_id = np.random.choice(args.num_models) # IF DEACTIVATED: custom model_id is used directly
+    print('######### Selected Model ID:',args.model_id, '#########')
     args.model_dir = os.path.join(args.model_dir, "model_{}".format(args.model_id), args.finetune_strategy)
     print("Sampled model_id: {} out of {} models in ensemble.".format(args.model_id, args.num_models))
     print("Using args.model_dir: ", args.model_dir)
@@ -238,6 +241,8 @@ if __name__ == "__main__":
     print('Bands:',args.spectral_bands)
     print('Spectral modification:',args.spectral_percentage)
     print('Spectral decrease:',args.spectral_decrease)
+    print('Shift distance:',args.shift_distance)
+    print('Shift direction:',args.shift_direction)
 
     print('### Modification Mode:',args.modification_mode, '###')
 

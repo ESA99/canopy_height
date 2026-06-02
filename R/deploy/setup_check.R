@@ -39,7 +39,8 @@ if ("shuffle" %in% variables$manipulation_type){
   cat("Increments: ", as.character(unique(variables$increment)*100),"%\n")
   cat("Decrease: ", param_specs$spectral$decrease,"\n")
 } else if ("geographical" %in% variables$manipulation_type){
-  stop("Geographical manipulation not yet implemented!")
+  cat("Shifting distances:",paste(unique(unlist(variables$shift_distance))[unique(unlist(variables$shift_distance)) != 0], collapse = " "),"km\n")
+  cat("Directions:",unique(variables$direction),"\n")
 }
 
 # Setup for Worldcover check

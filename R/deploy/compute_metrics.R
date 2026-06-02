@@ -57,9 +57,10 @@ compute_metrics <- function(scenario, result_path, new_destination) {
   sd_change <- manipulated_sd - original_sd
   relative_sd_change <- (sd_change / original_sd) * 100
 
-
+  #=============== BASE VALUES RESULT DF ================
   loop_results <- list(
     mode = mode,
+    run = basename(run_dir),
     tile = scenario$tile,
     out_name = scenario$out_name,
     year = scenario$year,

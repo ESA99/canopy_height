@@ -27,11 +27,21 @@ timing_file  <- file.path(run_dir, "timing.csv")
 metadata_file <- file.path(run_dir, "metadata.json")
 
 
-# Translation table ------------------------------------------------------
-translation_table <- data.frame(
+# Translation tables ------------------------------------------------------
+band_translation <- data.frame(
   BandName = c("B01", "B02", "B03", "B04", "B05", "B06", "B07", "B08", "B8A", "B09", "B11", "B12"), # "B10", cirrus not included
   BandNumber = c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12), # B8A = 9, B09 = 10
   Colour = c("Aerosol", "Blue", "Green", "Red", "RedEdge","None","None", "NIR", "NIR2", "WaterVapour", "SWIR1", "SWIR2")
+)
+
+shift_limits <- data.frame(
+  tile = c("10TES", "17SNB", "20MMD", "33NTG", "32TMT",
+    "32UQU", "34UFD", "35VML", "49NHC", "55HEV", "49UCP"),
+  max_km_N = c(4700, 5700, 10100, 9300, 4600,
+               4500, 4000, 2800, 9700, 14000, 4500),
+  max_km_S = c(15100, 14100, 9800, 10600, 15200,
+               15300, 15800, 17000, 10200, 5800, 15300),
+  stringsAsFactors = FALSE
 )
 
 

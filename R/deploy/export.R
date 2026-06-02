@@ -63,17 +63,27 @@ save_results <- function(results){
 
 script_summary <- function(results){
 
+  results_df <- dplyr::bind_rows(results)
+
   # TIMING
+  # for (i in seq_along(results)) {
+  #   r <- results[[i]]
+  #   cat(
+  #     sprintf(
+  #       "Loop %03d | Tile: %-8s | Mode: %-12s | Time: %.2f min\n",
+  #       i,r$tile,r$mode,r$time_min)
+  #   )
+  # }
   for (i in seq_along(results)) {
     r <- results[[i]]
-    cat(
-      sprintf(
-        "Loop %03d | Tile: %-8s | Mode: %-12s | Time: %.2f min\n",
-        i,r$tile,r$mode,r$time_min)
+    if (is.null(r) || nrow(r) == 0) next
+    cat(sprintf(
+      "Loop %03d | Tile: %-8s | Mode: %-12s | Time: %.2f min\n",
+         i,        r$tile[1],   r$mode[1],     r$time_min[1]    ) 
     )
   }
 
-  cat("Average time per loop:", mean(as.numeric(as.character(results$time_min)),na.rm=TRUE), "minutes.\n")
+  cat("Average time per loop:", mean(results_df$time_min, na.rm = TRUE), "minutes.\n")
   
   # Final Summary
   cat("**************************** Summary ****************************\n")

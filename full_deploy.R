@@ -3,15 +3,15 @@ base_specs <- list(
   # tile = c("10TES", "17SNB", "20MMD", "32TMT", "32UQU", "33NTG", "34UFD", "35VML", "49NHC", "49UCP", "55HEV"),
   
   # tile = c("10TES", "17SNB", "20MMD"),
-  # tile = c("32TMT", "32UQU", "33NTG"),
-  tile = c("34UFD", "35VML", "49NHC", "49UCP", "55HEV"),
+  tile = c("32TMT", "32UQU", "33NTG"),
+  # tile = c("34UFD", "35VML", "49NHC", "49UCP", "55HEV"),
 
   year = c("2020"),
   WC_year = c("2020"),
   rootDIR = "/home/emilio/canopy_height",
-  manipulation = c("shuffle") 
+  # manipulation = c("shuffle") 
   # manipulation = c("spectral")
-  # manipulation = c("geographical")
+  manipulation = c("geographical")
 )
 
 param_specs <- list(
@@ -37,10 +37,10 @@ param_specs <- list(
   ),
 
   geographical = list(
-    km_steps = c(100, 200, 300, 500, 1000, 1500, 2000, 3000, 5000)
-    , direction = c("N","S")
-    # if abfrage -> schon über 90° N oder S ? dann nicht
-    # alle kacheln in beide richtungen
+    shift_distance = c(100, 200, 300, 500, 1000, 1500, 2000, 3000, 5000), 
+    shift_direction = c("N","S")
+    # shift_distance = c(100, 2000),  # testing
+    # shift_direction = c("S") # testing
   )
 )
 
