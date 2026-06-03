@@ -33,6 +33,58 @@ class ModifyBands(object):
             x[:,:,self.bands] = x[:,:,self.bands] * (1+self.percentage)
         return x
 
+class ShiftLatitude:
+    """
+    Shift Latitude of subtiles, via transforms by X km to North or south.
+    """
+    def __init__(self, distance_km = 0, direction = "S"):
+        self.distance_km = distance_km
+        self.direction = direction.upper()
+    
+        if direction not in ["N", "S"]:
+                raise ValueError("shift_direction must be 'N' or 'S'")
+    
+    def __call__(self, inputs):
+
+        if self.distance == 0:
+                return inputs
+
+        sign = 1 if self.direction == "N" else -1
+
+        # km -> degrees latitude
+        # lat_shift_deg = sign * (self.distance_km / 111.32)
+
+        inputs = inputs.copy()  # Saftey Net - Needed?
+        lat_channel = inputs.shape[-1] - 3 #LAT: Third channel from the back in the first dimension (channels)
+        # mean latitude of the patch
+        mean_lat = np.mean(inputs[..., lat_channel])
+        lat_rad = np.deg2rad(mean_lat)
+
+        meters_per_degree = (
+            111132.92
+            - 559.82 * np.cos(2 * lat_rad)
+            + 1.175 * np.cos(4 * lat_rad)
+            - 0.0023 * np.cos(6 * lat_rad)
+        )
+        lat_shift_deg = sign * ( (self.distance_km * 1000.0) / meters_per_degree)
+
+        # print(
+        #     f"[ShiftLatitude] Shifting latitude by "
+        #     f"{self.distance_km} km {self.direction} "
+        #     f"({lat_shift_deg:.6f}°)"
+        # )
+        print(
+            f"[ShiftLatitude] Shifting latitude by "
+            f"{self.distance_km} km {self.direction} "
+            f"at {mean_lat:.2f}° -> "
+            f"{lat_shift_deg:.6f}°"
+        )
+
+        inputs[..., lat_channel] += lat_shift_deg
+
+        return inputs
+
+
 class ShuffleRaster:
     """
     Applies controlled patch-based shuffling across a raster image.

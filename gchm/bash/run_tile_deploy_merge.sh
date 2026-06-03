@@ -55,7 +55,7 @@ for tile_image_filename in ${tile_image_filenames}; do
     [ -n "${MODE}" ] && ARGS+=("--modification_mode=${MODE}")
     
     [ -n "${SHUFFLE_PERCENTAGE}" ] && ARGS+=("--shuffle_percentage=${SHUFFLE_PERCENTAGE}")
-    [ -n "${SHUFFLE_PATCH_SIZE}" ] && ARGS+=("--patch_size=${SHUFFLE_PATCH_SIZE}")
+    [ -n "${SHUFFLE_PATCH_SIZE}" ] && ARGS+=("--shuffle_patch_size=${SHUFFLE_PATCH_SIZE}")
     [ -n "${SHUFFLE_SUBTILE_SIZE}" ] && ARGS+=("--subtile_size=${SHUFFLE_SUBTILE_SIZE}")
     
     # [ -n "${MODIFY_BANDS}" ] && ARGS+=("--spectral_bands=${MODIFY_BANDS}")

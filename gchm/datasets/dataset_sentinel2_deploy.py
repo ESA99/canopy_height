@@ -20,12 +20,11 @@ class Sentinel2Deploy(Dataset):
         border (int): Cropped patches will overlap by the amount of pixel set as border.
         from_aws (bool): Option to download the Sentinel-2 images from AWS S3.
     """
-    def __init__(self, path, input_transforms=None, input_lat_lon=False, patch_size=128, border=8, from_aws=False, shift_distance=0, shift_direction="S"):
+    def __init__(self, path, input_transforms=None, input_lat_lon=False, patch_size=128, border=8, from_aws=False, 
+    global_shuffle = False, percentage = 0, shuffle_patch_size = 1):
 
         self.path = path
         self.from_aws = from_aws
-        self.shift_distance = shift_distance
-        self.shift_direction = shift_direction
         self.input_transforms = input_transforms
         self.input_lat_lon = input_lat_lon
         self.patch_size = patch_size
@@ -35,6 +34,11 @@ class Sentinel2Deploy(Dataset):
         self.image_shape_original = self.image.shape
         # pad the image with channels in last dimension
         self.image = np.pad(self.image, ((self.border, self.border), (self.border, self.border), (0, 0)), mode='symmetric')
+        
+        # Global pixel shuffle if True
+        if self.global_shuffle:
+            self._global_px_shuffle(...)
+        
         self.patch_coords_dict = self._get_patch_coords()
         self.scl_zero_canopy_height = np.array([5, 6])  # "not vegetated", "water"
         self.scl_exclude_labels = np.array([8, 9, 11, 6])  # CLOUD_MEDIUM_PROBABILITY, CLOUD_HIGH_PROBABILITY, SNOW, water
@@ -48,38 +52,38 @@ class Sentinel2Deploy(Dataset):
         self.lat_mask = np.pad(self.lat_mask, ((self.border, self.border), (self.border, self.border)), mode='symmetric')
         self.lon_mask = np.pad(self.lon_mask, ((self.border, self.border), (self.border, self.border)), mode='symmetric')
 
-        ### GEOGRAPHICAL MODIFICATION ###
-        self._apply_lat_shift()
-
         print('self.image_shape_original: ', self.image_shape_original)
         print('after padding: self.image.shape: ', self.image.shape)
         print('after padding: self.lat_mask.shape: ', self.lat_mask.shape)
         print('after padding: self.lon_mask.shape: ', self.lon_mask.shape)
 
-    # Geographical modification function
-    def _apply_lat_shift(self):
-        if self.shift_distance == 0:
-            return
+    def _global_px_shuffle(self):
+        print("Global pixel shuffle in patches running...")
 
-        direction = self.shift_direction.upper()
+    # # Geographical modification function
+    # def _apply_lat_shift(self):
+    #     if self.shift_distance == 0:
+    #         return
 
-        if direction not in ["N", "S"]:
-            raise ValueError("shift_direction must be 'N' or 'S'")
+    #     direction = self.shift_direction.upper()
 
-        sign = 1 if direction == "N" else -1
+    #     if direction not in ["N", "S"]:
+    #         raise ValueError("shift_direction must be 'N' or 'S'")
 
-        # convert km → degrees latitude
-        lat_shift_deg = sign * (self.shift_distance / 111.32)
+    #     sign = 1 if direction == "N" else -1
 
-        print(
-            f"[Sentinel2Deploy] Shifting lat mask by "
-            f"{self.shift_distance} km {direction} "
-            f"({lat_shift_deg:.6f} degrees)"
-        )
+    #     # convert km → degrees latitude
+    #     lat_shift_deg = sign * (self.shift_distance / 111.32)
 
-        self.lat_mask_base = self.lat_mask.copy()
-        # self.lat_mask = self.lat_mask_base + lat_shift_deg
-        self.lat_mask = self.lat_mask + lat_shift_deg
+    #     print(
+    #         f"[Sentinel2Deploy] Shifting lat mask by "
+    #         f"{self.shift_distance} km {direction} "
+    #         f"({lat_shift_deg:.6f} degrees)"
+    #     )
+
+    #     self.lat_mask_base = self.lat_mask.copy()
+    #     # self.lat_mask = self.lat_mask_base + lat_shift_deg
+    #     self.lat_mask = self.lat_mask + lat_shift_deg
 
     def _get_patch_coords(self):
         img_rows, img_cols = self.image.shape[0:2]  # last dimension corresponds to channels

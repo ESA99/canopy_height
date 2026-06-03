@@ -14,7 +14,7 @@ import botocore
 import urllib3
 
 from gchm.models.architectures import Architectures
-from gchm.utils.transforms import ModifyBands, ShuffleRaster, Normalize, NormalizeVariance, denormalize, Transformer
+from gchm.utils.transforms import ModifyBands, ShuffleRaster, ShiftLatitude, Normalize, NormalizeVariance, denormalize, Transformer
 from gchm.datasets.dataset_sentinel2_deploy import Sentinel2Deploy
 from gchm.utils.gdal_process import save_array_as_geotif
 from gchm.utils.parser import load_args_from_json, str2bool, str_or_none, str2int
@@ -55,7 +55,7 @@ def setup_parser():
     parser.add_argument("--modification_mode", type=str, default="")
 
     parser.add_argument("--shuffle_percentage", type=float, default=0)
-    parser.add_argument("--patch_size", type=int, default=1)
+    parser.add_argument("--shuffle_patch_size", type=int, default=1)
     parser.add_argument("--subtile_size", type=int, default=None)
 
     parser.add_argument("--spectral_bands", type=str2int, nargs="+", default=[])
@@ -236,7 +236,7 @@ if __name__ == "__main__":
 
     # setup input transforms
     print('Shuffle percentage:',args.shuffle_percentage)
-    print('Patch size:',args.patch_size)
+    print('Patch size:',args.shuffle_patch_size)
     print('Subtile size:',args.subtile_size)
     print('Bands:',args.spectral_bands)
     print('Spectral modification:',args.spectral_percentage)
@@ -258,23 +258,29 @@ if __name__ == "__main__":
             )
         )
     elif args.modification_mode == "shuffle":
-        print(f"***** Pixel shuffeling enabled: {args.patch_size}x{args.patch_size} px patches | Subtiles {args.subtile_size} *****")
+
+        if args.shuffle_type == "local":
+            print(f"***** Local Pixel shuffeling enabled: {args.shuffle_patch_size}x{args.shuffle_patch_size} px patches within model subtiles (Default = 512x512) *****")
+            
+            # transforms.append(
+            #             ShuffleRaster(
+            #                 percentage=args.shuffle_percentage,
+            #                 shuffle_patch_size=args.shuffle_patch_size,
+            #                 # subtile_size=args.subtile_size
+            #             )
+            #         )
+        else:
+             print("Global Pixel shuffle enabled.")
+             args.global_shuffle = True
+    
+    elif args.modification_mode == "geographical":
+        print("***** Geographical manipulation enabled. *****")
         transforms.append(
-            ShuffleRaster(
-                percentage=args.shuffle_percentage,
-                patch_size=args.patch_size,
-                subtile_size=args.subtile_size
+            ShiftLatitude(
+                distance_km=args.shift_distance,
+                direction=args.shift_direction
             )
         )
-    elif args.modification_mode == "geographical":
-        pass
-        # print("***** Geographic manipulation enabled. *****")
-        # transforms.append(
-        #     ShiftCoordinates(
-        #         direction=args.a,
-        #         ammount=args.b
-        #     )
-        # )
     else:
         print("***** No manipulation performed. *****")
 
@@ -295,8 +301,10 @@ if __name__ == "__main__":
                                   patch_size=args.deploy_patch_size,
                                   border=16,
                                   from_aws=args.from_aws,
-                                  shift_distance=args.shift_distance,
-                                  shift_direction=args.shift_direction)
+                                  global_shuffle=args.global_shuffle,
+                                  percentage=args.shuffle_percentage,
+                                  shuffle_patch_size=args.shuffle_patch_size
+                                  )
         end = time.time()
         print("TIME LOADING BANDS:", time.strftime('%H:%M:%S', time.gmtime(end - start)))
     except RuntimeError:
