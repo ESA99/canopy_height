@@ -68,17 +68,13 @@ class ShiftLatitude:
         )
         lat_shift_deg = sign * ( (self.distance_km * 1000.0) / meters_per_degree)
 
+        ### Debugging Print
         # print(
         #     f"[ShiftLatitude] Shifting latitude by "
         #     f"{self.distance_km} km {self.direction} "
-        #     f"({lat_shift_deg:.6f}°)"
+        #     f"at {mean_lat:.2f}° -> "
+        #     f"{lat_shift_deg:.6f}°"
         # )
-        print(
-            f"[ShiftLatitude] Shifting latitude by "
-            f"{self.distance_km} km {self.direction} "
-            f"at {mean_lat:.2f}° -> "
-            f"{lat_shift_deg:.6f}°"
-        )
 
         inputs[..., lat_channel] += lat_shift_deg
 

@@ -4,6 +4,7 @@ save_results <- function(results){
 
   try_export <- try({
     write.csv(results_df, results_file, row.names = FALSE)
+    write.csv(results_df, results_file_global, row.names = FALSE)
     cat("=====================================================================================================\n")
     cat("                            Full combined results saved successfully!\n")
     cat("=====================================================================================================\n")
@@ -54,42 +55,30 @@ save_results <- function(results){
 
   } else {
 
-    cat("Full results table saved to", results_file, "\n")
+    cat("Full results table saved to", results_file,"AND",results_file_global, "\n")
   }
+
+  return(results_df)
 
 }
 
 
 
-script_summary <- function(results){
-
-  results_df <- dplyr::bind_rows(results)
+script_summary <- function(results_df){
 
   # TIMING
-  # for (i in seq_along(results)) {
-  #   r <- results[[i]]
-  #   cat(
-  #     sprintf(
-  #       "Loop %03d | Tile: %-8s | Mode: %-12s | Time: %.2f min\n",
-  #       i,r$tile,r$mode,r$time_min)
-  #   )
-  # }
-  for (i in seq_along(results)) {
-    r <- results[[i]]
-    if (is.null(r) || nrow(r) == 0) next
-    cat(sprintf(
-      "Loop %03d | Tile: %-8s | Mode: %-12s | Time: %.2f min\n",
-         i,        r$tile[1],   r$mode[1],     r$time_min[1]    ) 
-    )
+  for (i in seq_len(nrow(results_df))) {
+    cat(sprintf( "Loop %03d | Tile: %-8s | Mode: %-12s | Time: %.2f min\n",
+                  i,  results_df$tile[i], results_df$mode[i], results_df$time_min[i] ))
   }
 
   cat("Average time per loop:", mean(results_df$time_min, na.rm = TRUE), "minutes.\n")
-  
+
   # Final Summary
   cat("**************************** Summary ****************************\n")
   cat("Process finished at:", format(Sys.time(), "%Y-%m-%d %H:%M"),"\n")
-  cat("Total number of loops/predictions:",nrow(variables),"\n")
-  cat("Tiles processed:",unique(variables$tile),"\n")
+  cat("Total number of loops/predictions:",nrow(results_df),"\n")
+  cat("Tiles processed:",unique(results_df$tile),"\n")
   cat("Manipulation method:",unique(variables$manipulation_type), "\n" )
   if (variables$manipulation_type[1] == "shuffle"){
     cat("Amount shuffled:",paste(unique(unlist(variables$shuffle_pct))[unique(unlist(variables$shuffle_pct)) != 0], collapse = " "),"%\n") }

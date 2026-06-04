@@ -21,9 +21,10 @@ class Sentinel2Deploy(Dataset):
         from_aws (bool): Option to download the Sentinel-2 images from AWS S3.
     """
     def __init__(self, path, input_transforms=None, input_lat_lon=False, patch_size=128, border=8, from_aws=False, 
-    global_shuffle = False, shuffle_percentage = 0, shuffle_patch_size = 1):
+    global_shuffle = False, shuffle_percentage = 0, shuffle_patch_size = 1, mode = None):
 
         self.global_shuffle = global_shuffle
+        self.mode = mode
         self.shuffle_percentage = shuffle_percentage
         self.shuffle_patch_size = shuffle_patch_size
         self.path = path
@@ -36,7 +37,7 @@ class Sentinel2Deploy(Dataset):
         self.image, self.tile_info, self.scl, self.cloud = read_sentinel2_bands(data_path=self.path, from_aws=self.from_aws, channels_last=True)
         self.image_shape_original = self.image.shape
         
-        if self.global_shuffle:
+        if self.global_shuffle and self.mode == "shuffle":
             self._global_px_shuffle()
         
         # pad the image with channels in last dimension

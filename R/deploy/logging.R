@@ -28,8 +28,8 @@ runtime <- list(
 )
 
 # TIMING Calculation
-mean_loop_time <- 9.5 # minutes -> derived from timing data of past loops
-
+# mean_loop_time <- 9.5 # minutes -> derived from timing data of past loops
+mean_loop_times_sec <- c(shuffle = 5, spectral = 9, geographical = 6)*60
 
 # OLD SETUP -----------------------------------------------------------
 

@@ -1,19 +1,14 @@
 # Run folder setup -------------------------------------------------------
 
-existing <- list.dirs("results", FALSE, FALSE)
+existing <- list.dirs("results/runs", FALSE, FALSE)
 ids <- as.integer(sub(".*_", "",
   grep(paste0("^", runtime$start_date_chr, "_", base_specs$manipulation, "_[0-9]+$"),
        existing, value = TRUE)
 ))
 
-run_dir <- file.path(
-  "results/runs",
-  paste0(
-    runtime$start_date_chr, "_",
-    base_specs$manipulation, "_",
-    max(ids, 0, na.rm = TRUE) + 1
-  )
-)
+run_ID <- paste0( runtime$start_date_chr, "_", base_specs$manipulation, "_", max(ids, 0, na.rm = TRUE) + 1 )
+
+run_dir <- file.path("results/runs", run_ID)
 
 dir.create(run_dir, recursive = TRUE, showWarnings = FALSE)
 message("Run Directory created: ", run_dir, "\n")
@@ -23,6 +18,7 @@ dir.create(loop_backup_dir, recursive = TRUE, showWarnings = FALSE)
 message("Backup directory: ", loop_backup_dir, "\n")
 
 results_file <- file.path(run_dir, "results.csv")
+results_file_global <- file.path("results", paste0(run_ID, "_results.csv"))
 timing_file  <- file.path(run_dir, "timing.csv")
 metadata_file <- file.path(run_dir, "metadata.json")
 

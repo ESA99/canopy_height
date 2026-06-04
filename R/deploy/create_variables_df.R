@@ -49,7 +49,7 @@ create_param_grid <- function(base_specs, param_specs) {
                         WC_year = base_specs$WC_year,
                         shuffle_pct = c(0),
                         patch_size = param_specs$shuffle$patch_size,
-                        shuffle_type = c("local"),
+                        shuffle_type = param_specs$shuffle$shuffle_type,
                         manipulation_type = "shuffle",
                         rootDIR = base_specs$rootDIR,
                         out_dir = file.path(base_specs$rootDIR, "final_results"),

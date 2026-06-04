@@ -239,7 +239,12 @@ if __name__ == "__main__":
     # setup input transforms
     print('Shuffle percentage:',args.shuffle_percentage)
     print('Patch size:',args.shuffle_patch_size)
-    print("Shuffle type:", "global" if args.global_shuffle else "local")
+    if args.modification_mode == "shuffle" and args.global_shuffle:
+        print("Shuffle type: global")
+    elif args.modification_mode == "shuffle" and not args.global_shuffle:
+        print("Shuffle type: local")
+    else:
+        print("Shuffle type: NONE")
     # print('Subtile size:',args.subtile_size)
     print('Bands:',args.spectral_bands)
     print('Spectral modification:',args.spectral_percentage)
@@ -304,6 +309,7 @@ if __name__ == "__main__":
                                   border=16,
                                   from_aws=args.from_aws,
                                   global_shuffle=args.global_shuffle,
+                                  mode = args.modification_mode,
                                   shuffle_percentage=args.shuffle_percentage,
                                   shuffle_patch_size=args.shuffle_patch_size
                                   )
