@@ -12,7 +12,8 @@ prepare_scenario <- function(scenario, variables) {
     cat("Tile:",scenario$tile, "\n",
         "Pixel-Shuffle:",scenario$shuffle_pct, "%", "\n",
         "Patch Size:",scenario$patch_size, "x", scenario$patch_size, "\n",
-      if(!is.na(scenario$subtile_size)){paste("Subtile size:", scenario$subtile_size,"\n")} else{paste("Global shuffle.\n")})
+        "Shuffle Type:",scenario$shuffle_type,"\n")
+      # if(!is.na(scenario$subtile_size)){paste("Subtile size:", scenario$subtile_size,"\n")} else{paste("Global shuffle.\n")})
   } else if (scenario$manipulation_type == "spectral"){
     cat("Tile:",scenario$tile, "\n",
         "Band:",paste(unlist(scenario$band), collapse = "-"), "=", scenario$Colour, "\n",
@@ -82,7 +83,8 @@ set_environment_variables <- function(scenario){
   if (scenario$manipulation_type == "shuffle") {
     env_vars$SHUFFLE_PERCENTAGE = scenario$shuffle_pct
     env_vars$SHUFFLE_PATCH_SIZE = scenario$patch_size
-    env_vars$SHUFFLE_SUBTILE_SIZE = scenario$subtile_size
+    env_vars$SHUFFLE_TYPE = scenario$shuffle_type
+    # env_vars$SHUFFLE_SUBTILE_SIZE = scenario$subtile_size
 
   } else if (scenario$manipulation_type == "spectral") {
     # Translate band name

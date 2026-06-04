@@ -11,7 +11,8 @@ create_param_grid <- function(base_specs, param_specs) {
       WC_year = base_specs$WC_year,
       shuffle_pct = as.numeric(param_specs$shuffle$shuffle_pct),
       patch_size = as.numeric(param_specs$shuffle$patch_size),
-      subtile_size = param_specs$shuffle$subtile_size,
+      # subtile_size = param_specs$shuffle$subtile_size,
+      shuffle_type = param_specs$shuffle$shuffle_type,
       manipulation_type = "shuffle",
       rootDIR = base_specs$rootDIR,
       out_dir = file.path(base_specs$rootDIR, "final_results"),
@@ -32,8 +33,8 @@ create_param_grid <- function(base_specs, param_specs) {
       if (!is.na(row["patch_size"])) {
         parts <- c(parts, paste0(row["patch_size"], "x", row["patch_size"]))
       }
-      if (!is.na(row["subtile_size"])) {
-        parts <- c(parts, paste0("ST",as.character(row["subtile_size"])) )
+      if (!is.na(row["shuffle_type"])) {
+        parts <- c(parts, as.character(row["shuffle_type"]) )
       }
 
       paste(parts, collapse = "_")
@@ -48,7 +49,7 @@ create_param_grid <- function(base_specs, param_specs) {
                         WC_year = base_specs$WC_year,
                         shuffle_pct = c(0),
                         patch_size = param_specs$shuffle$patch_size,
-                        subtile_size = NA,
+                        shuffle_type = c("local"),
                         manipulation_type = "shuffle",
                         rootDIR = base_specs$rootDIR,
                         out_dir = file.path(base_specs$rootDIR, "final_results"),

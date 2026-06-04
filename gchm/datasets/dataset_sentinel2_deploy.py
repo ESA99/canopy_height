@@ -4,7 +4,7 @@ import numpy as np
 import math
 
 from gchm.utils.gdal_process import read_sentinel2_bands, create_latlon_mask, get_reference_band_ds_gdal
-
+from gchm.utils.transforms import ShuffleRaster
 
 class Sentinel2Deploy(Dataset):
     """
@@ -21,8 +21,11 @@ class Sentinel2Deploy(Dataset):
         from_aws (bool): Option to download the Sentinel-2 images from AWS S3.
     """
     def __init__(self, path, input_transforms=None, input_lat_lon=False, patch_size=128, border=8, from_aws=False, 
-    global_shuffle = False, percentage = 0, shuffle_patch_size = 1):
+    global_shuffle = False, shuffle_percentage = 0, shuffle_patch_size = 1):
 
+        self.global_shuffle = global_shuffle
+        self.shuffle_percentage = shuffle_percentage
+        self.shuffle_patch_size = shuffle_patch_size
         self.path = path
         self.from_aws = from_aws
         self.input_transforms = input_transforms
@@ -32,13 +35,12 @@ class Sentinel2Deploy(Dataset):
         self.patch_size_no_border = self.patch_size - 2 * self.border
         self.image, self.tile_info, self.scl, self.cloud = read_sentinel2_bands(data_path=self.path, from_aws=self.from_aws, channels_last=True)
         self.image_shape_original = self.image.shape
+        
+        if self.global_shuffle:
+            self._global_px_shuffle()
+        
         # pad the image with channels in last dimension
         self.image = np.pad(self.image, ((self.border, self.border), (self.border, self.border), (0, 0)), mode='symmetric')
-        
-        # Global pixel shuffle if True
-        if self.global_shuffle:
-            self._global_px_shuffle(...)
-        
         self.patch_coords_dict = self._get_patch_coords()
         self.scl_zero_canopy_height = np.array([5, 6])  # "not vegetated", "water"
         self.scl_exclude_labels = np.array([8, 9, 11, 6])  # CLOUD_MEDIUM_PROBABILITY, CLOUD_HIGH_PROBABILITY, SNOW, water
@@ -58,7 +60,20 @@ class Sentinel2Deploy(Dataset):
         print('after padding: self.lon_mask.shape: ', self.lon_mask.shape)
 
     def _global_px_shuffle(self):
-        print("Global pixel shuffle in patches running...")
+
+        print(
+            f"Global pixel shuffle in patches running "
+            f"(percentage={self.shuffle_percentage}, "
+            f"patch_size={self.shuffle_patch_size})"
+        )
+
+        shuffler = ShuffleRaster(
+            percentage=self.shuffle_percentage,
+            shuffle_patch_size=self.shuffle_patch_size
+        )
+
+        self.image = shuffler(self.image)
+
 
     # # Geographical modification function
     # def _apply_lat_shift(self):

@@ -32,15 +32,16 @@ cat("Tiles in process:", as.character(unique(variables$tile)), "\n")
 if ("shuffle" %in% variables$manipulation_type){
   cat("Ammount of shuffle:",paste(unique(unlist(variables$shuffle_pct))[unique(unlist(variables$shuffle_pct)) != 0], collapse = " "),"%\n")
   cat("Patch size:", variables$patch_size[1], "X", variables$patch_size[1], "\n")
-  if (is.na(param_specs$shuffle$subtile_size)){ cat("Global pixel shuffle.\n") } else {
-    cat("Subtile Size:", param_specs$shuffle$subtile_size, "\n")}
+  cat("Shuffle Type: ", param_specs$shuffle$shuffle_type,"\n")
+  # if (is.na(param_specs$shuffle$subtile_size)){ cat("Global pixel shuffle.\n") } else {
+  #   cat("Subtile Size:", param_specs$shuffle$subtile_size, "\n")}
 } else if ("spectral" %in% variables$manipulation_type){
   cat("Bands to be modified:", paste(unique(sapply(variables$band, paste, collapse = "-")), collapse = " "),"\n")
   cat("Increments: ", as.character(unique(variables$increment)*100),"%\n")
   cat("Decrease: ", param_specs$spectral$decrease,"\n")
 } else if ("geographical" %in% variables$manipulation_type){
   cat("Shifting distances:",paste(unique(unlist(variables$shift_distance))[unique(unlist(variables$shift_distance)) != 0], collapse = " "),"km\n")
-  cat("Directions:",unique(variables$direction),"\n")
+  cat("Directions:",unique(variables$shift_direction),"\n")
 }
 
 # Setup for Worldcover check

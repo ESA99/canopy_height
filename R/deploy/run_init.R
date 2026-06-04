@@ -7,7 +7,7 @@ ids <- as.integer(sub(".*_", "",
 ))
 
 run_dir <- file.path(
-  "results",
+  "results/runs",
   paste0(
     runtime$start_date_chr, "_",
     base_specs$manipulation, "_",

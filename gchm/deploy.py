@@ -56,7 +56,9 @@ def setup_parser():
 
     parser.add_argument("--shuffle_percentage", type=float, default=0)
     parser.add_argument("--shuffle_patch_size", type=int, default=1)
-    parser.add_argument("--subtile_size", type=int, default=None)
+    parser.add_argument("--global_shuffle", type=bool, default=False)
+    # parser.add_argument("--subtile_size", type=int, default=None)
+    
 
     parser.add_argument("--spectral_bands", type=str2int, nargs="+", default=[])
     parser.add_argument("--spectral_percentage", type=float, default=None)
@@ -237,7 +239,8 @@ if __name__ == "__main__":
     # setup input transforms
     print('Shuffle percentage:',args.shuffle_percentage)
     print('Patch size:',args.shuffle_patch_size)
-    print('Subtile size:',args.subtile_size)
+    print("Shuffle type:", "global" if args.global_shuffle else "local")
+    # print('Subtile size:',args.subtile_size)
     print('Bands:',args.spectral_bands)
     print('Spectral modification:',args.spectral_percentage)
     print('Spectral decrease:',args.spectral_decrease)
@@ -259,19 +262,18 @@ if __name__ == "__main__":
         )
     elif args.modification_mode == "shuffle":
 
-        if args.shuffle_type == "local":
-            print(f"***** Local Pixel shuffeling enabled: {args.shuffle_patch_size}x{args.shuffle_patch_size} px patches within model subtiles (Default = 512x512) *****")
-            
-            # transforms.append(
-            #             ShuffleRaster(
-            #                 percentage=args.shuffle_percentage,
-            #                 shuffle_patch_size=args.shuffle_patch_size,
-            #                 # subtile_size=args.subtile_size
-            #             )
-            #         )
+        if args.global_shuffle:
+            print("Global Pixel shuffle enabled.")
+            # args.global_shuffle = True
         else:
-             print("Global Pixel shuffle enabled.")
-             args.global_shuffle = True
+            print(f"***** Local Pixel shuffeling enabled: {args.shuffle_patch_size}x{args.shuffle_patch_size} px patches within model subtiles (Default = 512x512) *****")
+            transforms.append(
+                        ShuffleRaster(
+                            percentage=args.shuffle_percentage,
+                            shuffle_patch_size=args.shuffle_patch_size,
+                            # subtile_size=args.subtile_size
+                        )
+                    )
     
     elif args.modification_mode == "geographical":
         print("***** Geographical manipulation enabled. *****")
@@ -302,7 +304,7 @@ if __name__ == "__main__":
                                   border=16,
                                   from_aws=args.from_aws,
                                   global_shuffle=args.global_shuffle,
-                                  percentage=args.shuffle_percentage,
+                                  shuffle_percentage=args.shuffle_percentage,
                                   shuffle_patch_size=args.shuffle_patch_size
                                   )
         end = time.time()

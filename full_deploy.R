@@ -19,10 +19,15 @@ param_specs <- list(
   shuffle = list(
     shuffle_pct = c(2.5, 5, 10, 15, 20, 25, 30, 50, 65, 80, 100),
     patch_size = c(1,2,4,8,16,32,64,128,256),
-    subtile_size = 512
     # shuffle_pct = c(10), # for testing
     # patch_size = c(64),
+    
     # subtile_size = NA
+    # subtile_size = 512
+    
+    shuffle_type = c("local")
+    # shuffle_type = c("global")
+
   ),
   
   spectral = list(
