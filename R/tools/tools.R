@@ -4,7 +4,7 @@ library(data.table)
 
 # Merge loop backups -----------------------------------------------------
 
-merge_backup_files <- function(directory){
+merge_backup_files <- function(directory, export = TRUE){
 
   backup_files <- list.files(directory, pattern = "\\.csv$", full.names = T)
 
@@ -16,10 +16,13 @@ merge_backup_files <- function(directory){
   df_list <- lapply(backup_files, fread)
   big_dt <- rbindlist(df_list)
 
-  out_file <- paste0(dirname(directory),"/",date,"_combined_results.csv")
-  fwrite(big_dt, out_file)
-  message("Combined table of loop backups saved to: ", out_file)
+  if (export){
+    out_file <- paste0(dirname(directory),"/",date,"_combined_results.csv")
+    fwrite(big_dt, out_file)
+    message("Combined table of loop backups saved to: ", out_file)
+  }
 
+  return(big_dt)
 }
 
 

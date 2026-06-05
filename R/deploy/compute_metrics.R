@@ -95,7 +95,8 @@ compute_metrics <- function(scenario, result_path, new_destination) {
   }
   
   if (mode == "geographical") {
-    
+    loop_results$shift_distance = scenario$shift_distance
+    loop_results$shift_distance = scenario$shift_distance
   }
 
   # =========================================================
@@ -126,6 +127,7 @@ compute_metrics <- function(scenario, result_path, new_destination) {
 
     loop_results$shuffle_percentage = scenario$shuffle_pct
     loop_results$patch_size = scenario$patch_size
+    loop_results$shuffle_type = scenario$shuffle_type
   }
 
   return(loop_results)

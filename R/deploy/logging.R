@@ -27,6 +27,17 @@ runtime <- list(
   start_date_chr = format(Sys.Date(), "%Y-%m-%d")
 )
 
+format_runtime <- function(start_time) {
+  elapsed <- Sys.time() - start_time
+  
+  h <- as.integer(elapsed) %/% 3600
+  m <- as.integer(elapsed) %% 3600 %/% 60
+  s <- as.integer(elapsed) %% 60
+  
+  sprintf("%02d:%02d:%02d", h, m, s)
+}
+
+
 # TIMING Calculation
 # mean_loop_time <- 9.5 # minutes -> derived from timing data of past loops
 mean_loop_times_sec <- c(shuffle = 5, spectral = 9, geographical = 6)*60

@@ -2,20 +2,22 @@
 
 existing <- list.dirs("results/runs", FALSE, FALSE)
 ids <- as.integer(sub(".*_", "",
-  grep(paste0("^", runtime$start_date_chr, "_", base_specs$manipulation, "_[0-9]+$"),
-       existing, value = TRUE)
+grep(paste0("^", runtime$start_date_chr, "_", base_specs$manipulation, "_[0-9]+$"),
+existing, value = TRUE)
 ))
 
 run_ID <- paste0( runtime$start_date_chr, "_", base_specs$manipulation, "_", max(ids, 0, na.rm = TRUE) + 1 )
 
 run_dir <- file.path("results/runs", run_ID)
 
-dir.create(run_dir, recursive = TRUE, showWarnings = FALSE)
-message("Run Directory created: ", run_dir, "\n")
-
-loop_backup_dir <- file.path(run_dir, "loop_backups")
-dir.create(loop_backup_dir, recursive = TRUE, showWarnings = FALSE)
-message("Backup directory: ", loop_backup_dir, "\n")
+if (isFALSE(DEBUG)){ # Dont create Directories if in debug mode
+  dir.create(run_dir, recursive = TRUE, showWarnings = FALSE)
+  message("Run Directory created: ", run_dir, "\n")
+  
+  loop_backup_dir <- file.path(run_dir, "loop_backups")
+  dir.create(loop_backup_dir, recursive = TRUE, showWarnings = FALSE)
+  message("Backup directory: ", loop_backup_dir, "\n")
+}
 
 results_file <- file.path(run_dir, "results.csv")
 results_file_global <- file.path("results", paste0(run_ID, "_results.csv"))
@@ -40,6 +42,11 @@ shift_limits <- data.frame(
   stringsAsFactors = FALSE
 )
 
+tile_coordinates <- data.frame(
+  Name = c("10TES","17SNB","20MMD","33NTG","32TMT","32UQU","34UFD","35VML","49NHC","55HEV","49UCP"),
+  lon = c(-122.285282,-80.379497,-63.405779,12.786326,8.402194,12.430884,23.294500,26.091998,114.189928,147.613916,109.045451),
+  lat = c(46.455086,37.449419,-1.400945,5.831657,47.355772,48.205131,52.730829,63.527175,2.213706,-36.636058,48.239885)
+)
 
 # SNAPSHOT ---------------------------------------------------------------
 

@@ -1,3 +1,9 @@
+# Stop if in debugging mode
+if (isTRUE(DEBUG)) {
+  stop("########### DEBUGGING MODE TRUE ###########\n
+        Deployment stopped -> set DEBUG to FALSE")
+}
+
 # Check manipulation type
 allowed <- c("shuffle", "spectral", "geographical")
 manip <- base_specs$manipulation
@@ -5,6 +11,10 @@ manip <- base_specs$manipulation
 stopifnot(length(manip) == 1)
 if (!manip %in% allowed) stop("Invalid manipulation type.")
 
+# Check run directory
+if (!dir.exists(run_dir)) {
+  stop("******** Run directory missing! ********")
+}
 
 #### Check for data availability ####
 exist_flags <- file.path(file.path(variables$rootDIR[1], "deploy_example/sentinel2/2020/"), unique(variables$tile)) |>

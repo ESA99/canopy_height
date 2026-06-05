@@ -19,7 +19,7 @@ create_param_grid <- function(base_specs, param_specs) {
       original = FALSE
     )
 
-    df <- dplyr::bind_rows(grids$shuffle)
+    df <- grids$shuffle
     if (nrow(df) == 0) {
       stop("Shuffle variable grid has 0 rows. Check param_specs$shuffle inputs.")
     }
@@ -48,7 +48,7 @@ create_param_grid <- function(base_specs, param_specs) {
                         year = base_specs$year,
                         WC_year = base_specs$WC_year,
                         shuffle_pct = c(0),
-                        patch_size = param_specs$shuffle$patch_size,
+                        patch_size = param_specs$shuffle$patch_size[1],
                         shuffle_type = param_specs$shuffle$shuffle_type,
                         manipulation_type = "shuffle",
                         rootDIR = base_specs$rootDIR,
@@ -56,7 +56,7 @@ create_param_grid <- function(base_specs, param_specs) {
                         out_name = paste0(i,"_original"),
                         original = TRUE
                       )
-      df <- rbind(original_rows, df)
+      df <- dplyr::bind_rows(original_rows, df)
     }
 
     message("***** Variable Table created. Scenario: Shuffle. ", nrow(df), " entries. *****\n")
@@ -78,7 +78,7 @@ create_param_grid <- function(base_specs, param_specs) {
       original = FALSE
     ) 
 
-    df <- dplyr::bind_rows(grids$spectral)
+    df <- grids$spectral
     if (nrow(df) == 0) {
       stop("Spectral variable grid has 0 rows. Check param_specs$spectral inputs.")
     }
@@ -113,7 +113,7 @@ create_param_grid <- function(base_specs, param_specs) {
                         out_name = paste0(i,"_original"),
                         original = TRUE
                       )
-      df <- rbind(original_rows, df)
+      df <- dplyr::bind_rows(original_rows, df)
     }
     
     # df$Colour <- band_translation$Colour[
@@ -150,7 +150,7 @@ create_param_grid <- function(base_specs, param_specs) {
       original = FALSE
     )
 
-    df <- dplyr::bind_rows(grids$geographical)
+    df <- grids$geographical
     if (nrow(df) == 0) {
       stop("Geographical variable grid has 0 rows. Check param_specs$geographical inputs.")
     }
@@ -181,7 +181,7 @@ create_param_grid <- function(base_specs, param_specs) {
                         out_name = paste0(i,"_original"),
                         original = TRUE
                       )
-      df <- rbind(original_rows, df)
+      df <- dplyr::bind_rows(original_rows, df)
     }
 
     # Filter scnearios by max possible shift distance
@@ -210,6 +210,26 @@ create_param_grid <- function(base_specs, param_specs) {
     message("***** Variable Table created. Scenario: Geographical. ", nrow(df), " entries. *****\n")
 
 
+  }
+
+  # stopifnot(!anyDuplicated(df$out_name))
+
+  name_counts <- table(df$out_name)
+  dup_counts <- name_counts[name_counts > 1]
+
+  if (length(dup_counts) > 0) {
+    stop(
+      paste0(
+        "Duplicate out_name values detected:\n",
+        paste(
+          sprintf("%s (%d occurrences)",
+                  names(dup_counts),
+                  as.integer(dup_counts)),
+          collapse = "\n"
+        )
+      ),
+      call. = FALSE
+    )
   }
 
   return(df)

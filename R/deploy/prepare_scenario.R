@@ -5,9 +5,11 @@ prepare_scenario <- function(scenario, variables) {
   
   start_loop_time <- Sys.time() # Loop timing
   
-  cat("===================================================================================================================\n")
+  cat("=============================================================================================n")
   cat("Starting scenario number", v, "of", nrow(variables),"\n")
   cat("Deployment run:", basename(run_dir),"\n")
+  cat("Current Time:", format(Sys.time(), "%Y-%m-%d %H:%M:%S"), "\n")
+  cat("Global process running scince:", format_runtime(runtime$start_time), "hours.\n")
   if (scenario$manipulation_type == "shuffle"){
     cat("Tile:",scenario$tile, "\n",
         "Pixel-Shuffle:",scenario$shuffle_pct, "%", "\n",
@@ -25,7 +27,7 @@ prepare_scenario <- function(scenario, variables) {
 
   }
   
-  cat("===================================================================================================================\n")
+  cat("=============================================================================================\n")
   
   # Text file creation ------------------------------------------------------
   
