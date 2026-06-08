@@ -5,9 +5,6 @@ base_specs <- list(
   rootDIR = "/home/emilio/canopy_height",
   year = c("2020"),
   WC_year = c("2020"),
-  # tile = c("10TES", "17SNB", "20MMD", "49UCP"), #21
-  # tile = c("32TMT", "33NTG", "35VML", "49NHC"), #20
-  # tile = c("32UQU", "55HEV", "34UFD"),          #21
   tile = c("10TES", "17SNB", "20MMD", "32TMT", "32UQU", "33NTG", "34UFD", "35VML", "49NHC", "49UCP", "55HEV"),
   # manipulation = c("shuffle") 
   # manipulation = c("spectral")
@@ -34,6 +31,9 @@ param_specs <- list(
     shift_direction = c("N","S")
   )
 )
+
+# Automatic variable deployment via run_all.sh
+source("R/deploy/run_all_bash.R")
 
 # Deployment -------------------------------------------------------------
 
