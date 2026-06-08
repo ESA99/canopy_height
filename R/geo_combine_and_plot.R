@@ -2,6 +2,10 @@ library(dplyr)
 library(stringr)
 source("R/tools/tools.R")
 
+ggsave(paste0("plots/geo_shift//",format(Sys.Date(), "%Y-%m-%d") ,"_",
+"MeanChange_AVG_EQdist_lat",".png"), width = 250, height = 200, units = "mm", dpi = 300, bg = "white")
+
+
 geo <- merge_backup_files("/home/emilio/canopy_height/results/runs/2026-06-04_geographical_1/loop_backups/", F)
 
 geo[, direction :=
@@ -103,6 +107,8 @@ ggplot(
 
 
 
+
+
 # NEW APPROACH -----------------------------------------------------------
 
 library(data.table)
@@ -149,54 +155,54 @@ ggplot(
 # Distance to the equator
 geo[, distance_to_equator := abs(resulting_latitude)]
 
-ggplot(
-  geo,
-  aes(
-    x = distance_to_equator,
-    y = mean_change,
-    color = tile
-  )
-) +
-  geom_point(size = 2) +
-  geom_line(aes(group = tile)) +
-  theme_bw() +
-  labs(
-    x = "Distance from equator (degrees latitude)",
-    y = "Mean canopy height change",
-    title = "Response vs distance from equator"
-  )
+# ggplot(
+#   geo,
+#   aes(
+#     x = distance_to_equator,
+#     y = mean_change,
+#     color = tile
+#   )
+# ) +
+#   geom_point(size = 2) +
+#   geom_line(aes(group = tile)) +
+#   theme_bw() +
+#   labs(
+#     x = "Distance from equator (degrees latitude)",
+#     y = "Mean canopy height change",
+#     title = "Response vs distance from equator"
+#   )
 
 
-ggplot(
-  geo,
-  aes(
-    x = distance_to_equator,
-    y = mean_change,
-    color = tile
-  )
-) +
-  geom_line(aes(group = tile), linewidth = 0.8) +
-  geom_point(size = 2) +
+# ggplot(
+#   geo,
+#   aes(
+#     x = distance_to_equator,
+#     y = mean_change,
+#     color = tile
+#   )
+# ) +
+#   geom_line(aes(group = tile), linewidth = 0.8) +
+#   geom_point(size = 2) +
 
-  # ⭐ highlight originals safely
-  geom_point(
-    data = geo[original == TRUE],
-    aes(
-      x = abs(lat),   # <- SAFE fallback (original lat exists)
-      y = mean_change,
-      color = tile
-    ),
-    shape = 22,
-    size = 5,
-    stroke = 1.2
-  ) +
+#   # ⭐ highlight originals safely
+#   geom_point(
+#     data = geo[original == TRUE],
+#     aes(
+#       x = abs(lat),   # <- SAFE fallback (original lat exists)
+#       y = mean_change,
+#       color = tile
+#     ),
+#     shape = 22,
+#     size = 5,
+#     stroke = 1.2
+#   ) +
 
-  theme_bw() +
-  labs(
-    x = "Distance from equator (degrees latitude)",
-    y = "Mean canopy height change",
-    title = "Response vs distance from equator (original positions highlighted)"
-  )
+#   theme_bw() +
+#   labs(
+#     x = "Distance from equator (degrees latitude)",
+#     y = "Mean canopy height change",
+#     title = "Response vs distance from equator (original positions highlighted)"
+#   )
 
 
 ### ADD ORIGINAL POSITION TO PLOT ###
@@ -278,7 +284,7 @@ ggplot(
     data = orig_points,
     aes(x = lat, y = mean_change, color = tile, fill = tile),
     shape = 23,
-    size = 4.5,
+    size = 2.5,
     stroke = 1.6
   ) +
 
@@ -341,3 +347,74 @@ ggplot(
 
 
 
+
+#### MEAN CHANGE BY LATITUDE ####
+orig_points <- tile_coordinates[, .(
+  tile = Name,
+  distance_to_equator = abs(lat),
+  mean_change = 0
+)]
+
+plot_geo <- rbind(
+  geo[, .(tile, distance_to_equator, mean_change)],
+  orig_points,
+  fill = TRUE
+)
+
+plot_geo[, dist_bin := round(distance_to_equator)]
+
+dist_summary <- plot_geo[
+  ,
+  .(
+    mean_change = mean(mean_change, na.rm = TRUE),
+    sd_change = sd(mean_change, na.rm = TRUE),
+    n = .N
+  ),
+  by = dist_bin
+]
+
+dist_summary[, se := sd_change / sqrt(n)]
+
+ggplot(
+  plot_geo,
+  aes(
+    x = distance_to_equator,
+    y = mean_change
+  )
+) +
+  geom_point(alpha = 0.25) +
+  geom_smooth(
+    method = "gam",
+    formula = y ~ s(x),
+    linewidth = 1.2,
+    color = "darkgreen"
+  ) +
+  theme_bw() +
+  labs(
+    x = "Distance from equator (° latitude)",
+    y = "Mean CH change [m]",
+  )
+
+
+
+ggplot(
+  dist_summary,
+  aes(
+    x = dist_bin,
+    y = mean_change
+  )
+) +
+  geom_ribbon(
+    aes(
+      ymin = mean_change - se,
+      ymax = mean_change + se
+    ),
+    alpha = 0.2
+  ) +
+  geom_line(linewidth = 1.2) +
+  geom_point(size = 2) +
+  theme_bw() +
+  labs(
+    x = "Distance from equator (° latitude)",
+    y = "Mean CH change [m]",
+  )
