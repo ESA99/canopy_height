@@ -7,8 +7,8 @@ base_specs <- list(
   WC_year = c("2020"),
   tile = c("10TES", "17SNB", "20MMD", "32TMT", "32UQU", "33NTG", "34UFD", "35VML", "49NHC", "49UCP", "55HEV"),
   # manipulation = c("shuffle") 
-  # manipulation = c("spectral")
-  manipulation = c("geographical")
+  manipulation = c("spectral")
+  # manipulation = c("geographical")
 )
 
 param_specs <- list(
@@ -21,9 +21,15 @@ param_specs <- list(
   ),
   
   spectral = list(
-    band = c("B02", "B03", "B04", "B05", "B08", "B8A", "B11", "B12"),
     increment = c(0.05, 0.1, 0.15, 0.2, 0.25),
-    decrease = c("False","True")
+    decrease = c("False","True"),
+    band = c("B02", "B03", "B04", "B05", "B08", "B8A", "B11", "B12")
+    # band = list(c("B02", "B03", "B04", "B05", "B08", "B8A", "B11", "B12"), # All
+    #                                                  c("B04","B11", "B12"), # Low responder
+    #                                                  c("B02","B05", "B08", "B8A"), # High responder
+    #                                                  c("B02"),
+    #                                                  c("B02", "B03", "B04") # Visual bands
+    #             )
   ),
 
   geographical = list(
@@ -37,9 +43,11 @@ source("R/deploy/run_all_bash.R")
 
 # Deployment -------------------------------------------------------------
 
-source("R/deploy/DEBUG.R")
-base_specs <- apply_debug_base_specs(base_specs, DEBUG)
-param_specs <- apply_debug_params(param_specs,interactions = FALSE, DEBUG = DEBUG)
+if(DEBUG){
+  source("R/deploy/DEBUG.R")
+  base_specs <- apply_debug_base_specs(base_specs, DEBUG)
+  param_specs <- apply_debug_params(param_specs,interactions = FALSE, DEBUG = DEBUG)
+}
 
 source("R/deploy/config.R")
 source("R/deploy/logging.R")

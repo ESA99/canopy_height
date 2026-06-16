@@ -2,6 +2,28 @@
 # chmod +x run_all.sh
 # ./run_all.sh
 
+### Full deployment with logs ###
+#!/bin/bash
+
+for manipulation in spectral #geographical #shuffle
+do
+    echo "=== $manipulation ==="
+
+    for g in g1 g2 g3 g4 g5 g6
+    do
+        mkdir -p logs
+        Rscript full_deploy.R "$manipulation" "$g" \
+            > "logs/${manipulation}_${g}.log" 2>&1 &
+        pids+=($!)
+    done
+
+    wait "${pids[@]}"
+    unset pids
+
+    echo "Done: $manipulation"
+done
+
+
 ### FULL DEPLOYMENT ###
 # #!/bin/bash
 
@@ -33,32 +55,7 @@
 # done
 
 
-### Full deployment with logs ###
-#!/bin/bash
-
-for manipulation in geographical spectral #shuffle
-do
-    echo "=== $manipulation ==="
-
-    for g in g1 g2 g3 g4 g5 g6
-    do
-        mkdir -p logs
-        Rscript full_deploy.R "$manipulation" "$g" \
-            > "logs/${manipulation}_${g}.log" 2>&1 &
-        pids+=($!)
-    done
-
-    wait "${pids[@]}"
-    unset pids
-
-    echo "Done: $manipulation"
-done
-
-
-
-
-
-# #!/bin/bash
+### Deployment in 3 groups ###
 
 # for manipulation in geographical spectral shuffle
 # do

@@ -1,12 +1,29 @@
 # Run folder setup -------------------------------------------------------
 
-existing <- list.dirs("results/runs", FALSE, FALSE)
-ids <- as.integer(sub(".*_", "",
-grep(paste0("^", runtime$start_date_chr, "_", base_specs$manipulation, "_[0-9]+$"),
-existing, value = TRUE)
-))
+# # Sequential numbering
+# existing <- list.dirs("results/runs", FALSE, FALSE)
+# ids <- as.integer(sub(".*_", "",
+# grep(paste0("^", runtime$start_date_chr, "_", base_specs$manipulation, "_[0-9]+$"),
+# existing, value = TRUE)
+# ))
+# run_ID <- paste0( runtime$start_date_chr, "_", base_specs$manipulation, "_", max(ids, 0, na.rm = TRUE) + 1 )
 
-run_ID <- paste0( runtime$start_date_chr, "_", base_specs$manipulation, "_", max(ids, 0, na.rm = TRUE) + 1 )
+# # Random letters + milliseconds -> not random because of set.seed()!!
+# run_ID <- sprintf(
+#   "%s_%s_%s_%s",
+#   runtime$start_date_chr,
+#   base_specs$manipulation,
+#   format(Sys.time(), "%H%M%OS3"),
+#   paste(sample(c(letters, LETTERS, 0:9), 4, TRUE), collapse = "")
+# )
+
+# Parallel deployment group ID
+run_ID <- sprintf(
+  "%s_%s_%s",
+  runtime$start_date_chr,
+  base_specs$manipulation,
+  tile_group  # g1, g2, ...
+)
 
 run_dir <- file.path("results/runs", run_ID)
 

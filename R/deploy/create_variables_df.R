@@ -65,11 +65,18 @@ create_param_grid <- function(base_specs, param_specs) {
   # ========================== SPECTRAL ========================== #
   } else if ("spectral" %in% base_specs$manipulation) {
     
+    bands <- param_specs$spectral$band
+
+    if (!is.list(bands)) {
+      bands <- as.list(as.character(bands))
+    }
+
     grids$spectral <- expand.grid(
       tile = base_specs$tile,
       year = base_specs$year,
       WC_year = base_specs$WC_year,
-      band = param_specs$spectral$band,
+      # band = param_specs$spectral$band,
+      band = bands,
       increment = param_specs$spectral$increment,
       decrease = param_specs$spectral$decrease,
       manipulation_type = "spectral",
@@ -104,7 +111,8 @@ create_param_grid <- function(base_specs, param_specs) {
                         year = base_specs$year,
                         WC_year = base_specs$WC_year,
                         # band = "B02",
-                        band = I(list(param_specs$spectral$band[[1]])),
+                        # band = I(list(param_specs$spectral$band[[1]])),
+                        band = I(list(bands[[1]])),
                         increment = c(0),
                         decrease = "False",
                         manipulation_type = "spectral",
