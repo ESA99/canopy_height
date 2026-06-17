@@ -2,26 +2,36 @@
 # chmod +x run_all.sh
 # ./run_all.sh
 
-### Full deployment with logs ###
 #!/bin/bash
 
+### Full deployment with logs ###
 for manipulation in spectral #geographical #shuffle
 do
-    echo "=== $manipulation ==="
+    echo "[$(date '+%F %T')] Launching: $manipulation $g"
 
     for g in g1 g2 g3 g4 g5 g6
     do
         mkdir -p logs
+
+        echo "Launching: manipulation=$manipulation group=$g"
+
         Rscript full_deploy.R "$manipulation" "$g" \
             > "logs/${manipulation}_${g}.log" 2>&1 &
         pids+=($!)
     done
 
+    echo ""
+    echo "Waiting for ${#pids[@]} jobs to finish..."
     wait "${pids[@]}"
     unset pids
 
-    echo "Done: $manipulation"
+    echo "[$(date '+%F %T')] Finished manipulation: $manipulation"
 done
+
+echo ""
+echo "======================================"
+echo "ALL DEPLOYMENTS FINISHED"
+echo "======================================"
 
 
 ### FULL DEPLOYMENT ###

@@ -11,6 +11,9 @@ base_specs <- list(
   # manipulation = c("geographical")
 )
 
+# Tile+ Manipulation variable adjustment via run_all.sh
+source("R/deploy/run_all_bash.R")
+
 param_specs <- list(
   
   shuffle = list(
@@ -38,8 +41,6 @@ param_specs <- list(
   )
 )
 
-# Automatic variable deployment via run_all.sh
-source("R/deploy/run_all_bash.R")
 
 # Deployment -------------------------------------------------------------
 
