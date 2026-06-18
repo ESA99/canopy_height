@@ -96,7 +96,7 @@ compute_metrics <- function(scenario, result_path, new_destination) {
   
   if (mode == "geographical") {
     loop_results$shift_distance = scenario$shift_distance
-    loop_results$shift_distance = scenario$shift_distance
+    loop_results$shift_direction = scenario$shift_direction
   }
 
   # =========================================================

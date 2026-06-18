@@ -1,84 +1,96 @@
 library(dplyr)
 library(stringr)
-source("R/tools/tools.R")
-
-ggsave(paste0("plots/geo_shift//",format(Sys.Date(), "%Y-%m-%d") ,"_",
-"MeanChange_AVG_EQdist_lat",".png"), width = 250, height = 200, units = "mm", dpi = 300, bg = "white")
-
-
-geo <- merge_backup_files("/home/emilio/canopy_height/results/runs/2026-06-04_geographical_1/loop_backups/", F)
-
-geo[, direction :=
-      fifelse(
-        grepl("_[NS]$", out_name),
-        sub(".*_([NS])$", "\\1", out_name),
-        NA_character_
-      )]
-
-geo[, shift_distance :=
-      fifelse(
-        grepl("_original$", out_name),
-        0,
-        as.numeric(sub(".*_geographical_([0-9]+)_[NS]$", "\\1", out_name))
-      )]
-
-
-
-
 library(data.table)
 library(ggplot2)
+source("R/tools/tools.R")
 
-# originals
-orig <- geo[
-  shift_distance == 0,
-  .(tile, mean_change)
-]
+# ggsave(paste0("plots/geo_shift//",format(Sys.Date(), "%Y-%m-%d") ,"_",
+# "MeanChange_AVG_EQdist_lat",".png"), width = 250, height = 200, units = "mm", dpi = 300, bg = "white")
 
-# duplicate originals for N and S
-orig_plot <- rbind(
-  copy(orig)[, direction := "N"],
-  copy(orig)[, direction := "S"]
+save_geo_plot <- function(plotname, format = c("wide", "medium", "tall"),plot = ggplot2::last_plot()) {
+  
+  format <- match.arg(format)
+  
+  date_prefix <- format(Sys.Date(), "%Y-%m-%d")
+  
+  file_path <- paste0(
+    "plots/geo_shift/",
+    date_prefix, "_", plotname, ".png"
+  )
+  
+  dims <- switch(
+    format,
+    wide   = list(width = 270, height = 175),
+    medium = list(width = 250, height = 200),
+    tall   = list(width = 200, height = 250)
+  )
+  
+  ggsave(
+    filename = file_path,
+    plot = plot,
+    width = dims$width,
+    height = dims$height,
+    units = "mm",
+    dpi = 300,
+    bg = "white"
+  )
+  
+  message("Saved plot to: ", file_path)
+}
+
+tile_coordinates <- data.frame(
+  Name = c("10TES","17SNB","20MMD","33NTG","32TMT","32UQU","34UFD","35VML","49NHC","55HEV","49UCP"),
+  lon = c(-122.285282,-80.379497,-63.405779,12.786326,8.402194,12.430884,23.294500,26.091998,114.189928,147.613916,109.045451),
+  lat = c(46.455086,37.449419,-1.400945,5.831657,47.355772,48.205131,52.730829,63.527175,2.213706,-36.636058,48.239885)
 )
 
-orig_plot[, shift_distance := 0]
+### DATA ###
+# geo <- merge_backup_files("/results/runs/2026-06-04_geographical_1/loop_backups/", F)
+geo <- read.csv("/home/emilio/canopy_height/results/runs/2026-06-16_geographical_1/results.csv")
 
-# non-original scenarios
-shift_plot <- geo[
-  shift_distance > 0,
-  .(tile, direction, shift_distance, mean_change)
-]
+geo$shift_direction <- ifelse(
+        grepl("_[NS]$", geo$out_name),
+        sub(".*_([NS])$", "\\1", geo$out_name),
+        NA_character_
+      )
 
-# combine
-plot_df <- rbindlist(list(orig_plot, shift_plot), fill = TRUE)
+# Duplicate originals for N and S
+geo <- geo %>%
+  rowwise() %>%
+  reframe(
+    across(everything()),
+    shift_direction = if (is.na(shift_direction)) c("N", "S") else shift_direction
+  )
 
-# average across tiles
-plot_summary <- plot_df[
-  ,
-  .(
-    mean_change = mean(mean_change, na.rm = TRUE),
-    sd_change = sd(mean_change, na.rm = TRUE),
-    n = .N
-  ),
-  by = .(direction, shift_distance)
-]
+# # Summary stat for plotting
+# geo_summary <- geo %>%
+#   group_by(shift_distance, shift_direction) %>%
+#   summarise(
+#     mean_change = mean(mean_change, na.rm = TRUE),
+#     se = sd(mean_change, na.rm = TRUE) / sqrt(n()),
+#     .groups = "drop"
+#   )
 
-plot_summary[, se := sd_change / sqrt(n)]
-
-ggplot(
-  plot_summary,
+ggplot( geo,
   aes(
     x = shift_distance,
     y = mean_change,
-    color = direction
+    color = shift_direction
   )
 ) +
-  geom_line(linewidth = 1) +
-  geom_point(size = 2) +
-  geom_errorbar(
-    aes(
-      ymin = mean_change - se,
-      ymax = mean_change + se
-    ),
+  stat_summary(
+    fun = mean,
+    geom = "line",
+    linewidth = 1
+  ) +
+  stat_summary(
+    fun = mean,
+    geom = "point",
+    size = 2
+  ) +
+  stat_summary(
+    fun.data = mean_se,
+    geom = "errorbar",
     width = 0
   ) +
   labs(
@@ -88,19 +100,137 @@ ggplot(
   ) +
   theme_bw()
 
+save_geo_plot("MeanChange_Line", "medium")
 
+
+
+# By Tile
 ggplot(
   plot_df,
   aes(
     x = shift_distance,
     y = mean_change,
-    color = direction,
-    group = interaction(tile, direction)
+    color = shift_direction,
+    group = interaction(tile, shift_direction)
   )
 ) +
   geom_line(alpha = 0.5) +
   geom_point() +
-  facet_wrap(~tile)
+  facet_wrap(~tile)+
+  theme_minimal()
+
+save_geo_plot("ShiftDist_MeanChange_TileFacett", "wide")
+
+
+
+# Latitude ---------------------------------------------------------------
+
+geo_shifted <- geo %>%
+  left_join(
+    tile_coordinates,
+    by = c("tile" = "Name")
+  ) %>%
+  mutate(
+    new_lat = case_when(
+      shift_direction == "N" ~ lat + shift_distance / 111.32,
+      shift_direction == "S" ~ lat - shift_distance / 111.32,
+      TRUE ~ lat
+    ),
+    dist_equator = abs(new_lat)
+  )
+
+# Latitude by tile mean change
+ggplot(
+  geo_shifted,
+  aes(
+    x = new_lat,
+    y = mean_change,
+    group = tile,
+    colour = tile
+  )
+) +
+  geom_line(linewidth = 1) +
+  geom_point(size = 2) +
+
+  # highlight original position with same colour as line
+  geom_point(
+    data = subset(geo_shifted, original),
+    size = 3,
+    shape = 21,
+    stroke = 1.2,
+    fill = "white"
+  ) +
+
+  labs(
+    x = "Latitude after shift",
+    y = "Mean change",
+    colour = "Tile"
+  ) +
+  theme_bw()
+
+save_geo_plot("LAT_meanChange_byTile", "wide")
+
+# lat_summary <- geo_shifted %>%
+#   group_by(dist_equator) %>%
+#   summarise(
+#     mean_change = mean(mean_change, na.rm = TRUE),
+#     se = sd(mean_change, na.rm = TRUE) / sqrt(n()),
+#     .groups = "drop"
+#   )
+
+
+
+
+# Trend in relation to equator -------------------------------------------
+
+ggplot(
+  geo_shifted,
+  aes(
+    x = dist_equator,
+    y = mean_change
+  )
+) +
+  geom_point(
+    aes(colour = tile),
+    size = 2,
+    alpha = 0.7
+  ) +
+  geom_smooth(
+    method = "loess",
+    se = TRUE,
+    colour = "black",
+    linewidth = 1.2
+  ) +
+  labs(
+    x = "Distance to equator (° latitude)",
+    y = "Mean change",
+    colour = "Tile"
+  ) +
+  theme_bw()
+
+save_geo_plot("lat_equator_trend_colour", "medium")
+
+
+geo_summary <- geo_shifted %>%
+  group_by(dist_equator) %>%
+  summarise(
+    mean_change = mean(mean_change, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+ggplot(geo_summary, aes(dist_equator, mean_change)) +
+  geom_point(alpha = 0.25) +
+  # geom_smooth(method = "loess", se = TRUE, color = "darkgreen") +
+  geom_smooth(method = "gam", formula = y ~ s(x), linewidth = 1.2, color = "darkgreen") +
+  theme_bw() +
+  labs(
+    x = "Distance to equator (° latitude)",
+    y = "Mean change"
+  )
+
+save_geo_plot("lat_equator_trend", "medium")
+
+stop()
 
 
 
@@ -109,7 +239,11 @@ ggplot(
 
 
 
-# NEW APPROACH -----------------------------------------------------------
+
+
+
+
+# OLD APPROACH -----------------------------------------------------------
 
 library(data.table)
 library(ggplot2)

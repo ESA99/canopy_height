@@ -34,6 +34,9 @@ echo "ALL DEPLOYMENTS FINISHED"
 echo "======================================"
 
 
+
+
+
 ### FULL DEPLOYMENT ###
 # #!/bin/bash
 

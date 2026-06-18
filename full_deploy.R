@@ -99,11 +99,12 @@ for (v in seq_len(nrow(variables)) ) {
   
   ## COMPUTE METRICS
   loop_results <- compute_metrics(scenario, paths$result_path, paths$new_destination)
-  finish_loop(loop_results,BACKUP_SAVING,loop_backup_dir,v)
   
   time_info <- end_timer(timer)
   loop_results$time_min <- time_info$minutes
   timing_results[[v]] <- time_info$minutes
+  
+  finish_loop(loop_results, BACKUP_SAVING, loop_backup_dir, v)
 
   results[[v]] <- loop_results
     
