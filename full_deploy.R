@@ -6,13 +6,13 @@ base_specs <- list(
   year = c("2020"),
   WC_year = c("2020"),
   tile = c("10TES", "17SNB", "20MMD", "32TMT", "32UQU", "33NTG", "34UFD", "35VML", "49NHC", "49UCP", "55HEV"),
-  # manipulation = c("shuffle") 
-  manipulation = c("spectral")
+  manipulation = c("shuffle") 
+  # manipulation = c("spectral")
   # manipulation = c("geographical")
 )
 
-# Tile+ Manipulation variable adjustment via run_all.sh
-source("R/deploy/run_all_bash.R")
+# Tile + Manipulation variable adjustment via deploy_all.sh
+source("R/deploy/bash_deploy_run.R")
 
 param_specs <- list(
   

@@ -36,6 +36,8 @@ results/loop_backup/
 results/originals/
 results/preds/
 results/individual_results/
+results/archive
+results/runs/1_ARCHIVE
 
 # Quarto rendering files:
 documentation/Documentation_files/
