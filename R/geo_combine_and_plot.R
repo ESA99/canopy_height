@@ -4,40 +4,6 @@ library(data.table)
 library(ggplot2)
 source("R/tools/tools.R")
 
-# ggsave(paste0("plots/geo_shift//",format(Sys.Date(), "%Y-%m-%d") ,"_",
-# "MeanChange_AVG_EQdist_lat",".png"), width = 250, height = 200, units = "mm", dpi = 300, bg = "white")
-
-save_geo_plot <- function(plotname, format = c("wide", "medium", "tall"),plot = ggplot2::last_plot()) {
-  
-  format <- match.arg(format)
-  
-  date_prefix <- format(Sys.Date(), "%Y-%m-%d")
-  
-  file_path <- paste0(
-    "plots/geo_shift/",
-    date_prefix, "_", plotname, ".png"
-  )
-  
-  dims <- switch(
-    format,
-    wide   = list(width = 270, height = 175),
-    medium = list(width = 250, height = 200),
-    tall   = list(width = 200, height = 250)
-  )
-  
-  ggsave(
-    filename = file_path,
-    plot = plot,
-    width = dims$width,
-    height = dims$height,
-    units = "mm",
-    dpi = 300,
-    bg = "white"
-  )
-  
-  message("Saved plot to: ", file_path)
-}
-
 tile_coordinates <- data.frame(
   Name = c("10TES","17SNB","20MMD","33NTG","32TMT","32UQU","34UFD","35VML","49NHC","55HEV","49UCP"),
   lon = c(-122.285282,-80.379497,-63.405779,12.786326,8.402194,12.430884,23.294500,26.091998,114.189928,147.613916,109.045451),
@@ -45,8 +11,10 @@ tile_coordinates <- data.frame(
 )
 
 ### DATA ###
-# geo <- merge_backup_files("/results/runs/2026-06-04_geographical_1/loop_backups/", F)
 geo <- read.csv("/home/emilio/canopy_height/results/runs/2026-06-16_geographical_1/results.csv")
+# geo <- merge_backup_files("/results/runs/2026-06-04_geographical_1/loop_backups/", F)
+
+geo <- add_location_column(geo, order.by.mean = FALSE)
 
 geo$shift_direction <- ifelse(
         grepl("_[NS]$", geo$out_name),
@@ -106,17 +74,17 @@ save_geo_plot("MeanChange_Line", "medium")
 
 # By Tile
 ggplot(
-  plot_df,
+  geo,
   aes(
     x = shift_distance,
     y = mean_change,
     color = shift_direction,
-    group = interaction(tile, shift_direction)
+    group = interaction(location, shift_direction)
   )
 ) +
   geom_line(alpha = 0.5) +
   geom_point() +
-  facet_wrap(~tile)+
+  facet_wrap(~location)+
   theme_minimal()
 
 save_geo_plot("ShiftDist_MeanChange_TileFacett", "wide")
