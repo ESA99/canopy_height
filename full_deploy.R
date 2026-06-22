@@ -51,6 +51,7 @@ if(DEBUG){
 }
 
 source("R/deploy/config.R")
+source("R/deploy/info_tables.R")
 source("R/deploy/logging.R")
 source("R/deploy/run_init.R")
 source("R/deploy/create_variables_df.R")

@@ -40,7 +40,7 @@ format_runtime <- function(start_time) {
 
 # TIMING Calculation
 # mean_loop_time <- 9.5 # minutes -> derived from timing data of past loops
-mean_loop_times_sec <- c(shuffle = 6, spectral = 9, geographical = 10.8)*60
+mean_loop_times_sec <- c(shuffle = 7, spectral = 12, geographical = 10.8)*60
 
 # OLD SETUP -----------------------------------------------------------
 

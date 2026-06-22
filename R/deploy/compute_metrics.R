@@ -90,6 +90,7 @@ compute_metrics <- function(scenario, result_path, new_destination) {
   if (mode == "spectral") {
     loop_results$band = paste(scenario$band, collapse = "-")
     loop_results$increment = scenario$increment
+    loop_results$abs_increment = abs(scenario$increment)
     loop_results$decrease = scenario$decrease
     loop_results$Colour = scenario$Colour
   }

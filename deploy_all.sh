@@ -1,7 +1,3 @@
-# Run this once:
-# chmod +x deploy_all.sh
-# ./deploy_all.sh
-
 #!/bin/bash
 
 ### Full deployment with logs ###
@@ -9,7 +5,7 @@ for manipulation in shuffle #spectral #geographical
 do
     echo "[$(date '+%F %T')] Launching: $manipulation $g"
 
-    for g in g20 g21a g21b #g1 g2 g3 g4 g5 g6
+    for g in g1 g2 g3 g4 g5 g6 #g20 g21a g21b 
     do
         mkdir -p logs
 
@@ -34,6 +30,9 @@ echo "ALL DEPLOYMENTS FINISHED"
 echo "======================================"
 
 
+# Run this once:
+# chmod +x deploy_all.sh
+# ./deploy_all.sh
 
 
 
