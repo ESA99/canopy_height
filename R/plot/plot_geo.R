@@ -3,12 +3,7 @@ library(stringr)
 library(data.table)
 library(ggplot2)
 source("R/tools/tools.R")
-
-tile_coordinates <- data.frame(
-  Name = c("10TES","17SNB","20MMD","33NTG","32TMT","32UQU","34UFD","35VML","49NHC","55HEV","49UCP"),
-  lon = c(-122.285282,-80.379497,-63.405779,12.786326,8.402194,12.430884,23.294500,26.091998,114.189928,147.613916,109.045451),
-  lat = c(46.455086,37.449419,-1.400945,5.831657,47.355772,48.205131,52.730829,63.527175,2.213706,-36.636058,48.239885)
-)
+source("R/deploy/info_tables.R")
 
 ### DATA ###
 geo <- read.csv("/home/emilio/canopy_height/results/runs/2026-06-16_geographical_1/results.csv")

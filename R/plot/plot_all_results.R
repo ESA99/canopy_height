@@ -3,40 +3,18 @@
 invisible(lapply(c("terra","dplyr","purrr","ggplot2","ggrepel","viridis","tidyterra"), 
                  require, character.only = TRUE))
 
-tile_label <- c("55HEV" = "Australia", "20MMD" = "Brazil", "33NTG" = "Cameroon", "32UQU" = "Germany", "35VML" = "Finland", 
-  "49NHC" = "Malaysia", "49UCP" = "Mongolia","34UFD" = "Poland", "32TMT" = "Switzerland", "10TES" = "USA East", "17SNB" = "USA West"
-)
+source("R/deploy/info_tables.R")
+source("R/plot/plot_functions.R")
+source("R/tools/tools.R")
 
 
 # Result Tables ----------------------------------------------------------
-shuffle_results <- read.csv("results/2026-05-28_shuffle_1/results.csv") |>
-  mutate(
-    Location = factor(tile, levels = names(tile_label), labels = tile_label)
-)
+spectral_results <- read.csv("results/2026-06_spectral_main.csv")
 
-spectral_results <- read.csv("results/2026-05-29_spectral_1/results.csv") |>
-  mutate(
-    Location = factor(tile, levels = names(tile_label), labels = tile_label),
-    increment = increment*100,
-    abs_increment = abs(increment)
-)
+geo_results <- read.csv("results/2026-06_geo_main.csv")
 
-geo_results <- read.csv("results/2026-06-01_geographical_1/results.csv") |>
-  mutate(
-    Location = factor(tile, levels = names(tile_label), labels = tile_label)
-)
+shuffle_results <- read.csv("results/2026-06_shuffle_main.csv")
 
-# Plot Functions -------------------------------------------------------------------
-source("R/plot/plot_functions.R")
-
-# Saving the Plots in different ratios -----------------------------------
-
-# Wide save:
-# ggsave(paste0("plots/pixel_shuffle/",format(Sys.Date(), "%Y-%m-%d"),"_",filename ,"_wide.png"), width = 270, height = 175, units = "mm", dpi = 300, bg = "white")
-# Medium save:
-# ggsave(paste0("plots/pixel_shuffle/",format(Sys.Date(), "%Y-%m-%d"),"_",filename ,"_medium.png"), width = 250, height = 200, units = "mm", dpi = 300, bg = "white")
-# Tall save
-# ggsave(paste0("plots/pixel_shuffle/",format(Sys.Date(), "%Y-%m-%d"),"_",filename ,"_tall.png"), width = 200, height = 250, units = "mm", dpi = 300, bg = "white")
 
 
 # Spectral ---------------------------------------------------------------
@@ -75,7 +53,175 @@ plot_shuffle_byTile(shuffle_results, "relative_mean_abs_change", "Absolute avera
 
 # Geographical -----------------------------------------------------------
 
+# # Summary stat for plotting
+# geo_summary <- geo_results %>%
+#   group_by(shift_distance, shift_direction) %>%
+#   summarise(
+#     mean_change = mean(mean_change, na.rm = TRUE),
+#     se = sd(mean_change, na.rm = TRUE) / sqrt(n()),
+#     .groups = "drop"
+#   )
 
+ggplot( geo_results,
+  aes(
+    x = shift_distance,
+    y = mean_change,
+    color = shift_direction
+  )
+) +
+  stat_summary(
+    fun = mean,
+    geom = "line",
+    linewidth = 1
+  ) +
+  stat_summary(
+    fun = mean,
+    geom = "point",
+    size = 2
+  ) +
+  stat_summary(
+    fun.data = mean_se,
+    geom = "errorbar",
+    width = 0
+  ) +
+  labs(
+    x = "Shift distance (km)",
+    y = "Mean change",
+    color = "Direction"
+  ) +
+  theme_bw()
+
+save_geo_plot("MeanChange_Line", "medium")
+
+
+
+# By Tile
+ggplot(
+  geo_results,
+  aes(
+    x = shift_distance,
+    y = mean_change,
+    color = shift_direction,
+    group = interaction(location, shift_direction)
+  )
+) +
+  geom_line(alpha = 0.5) +
+  geom_point() +
+  facet_wrap(~location)+
+  theme_minimal()
+
+save_geo_plot("ShiftDist_MeanChange_TileFacett", "wide")
+
+
+
+# Latitude ---------------------------------------------------------------
+
+geo_shifted <- geo_results %>%
+  left_join(
+    tile_coordinates,
+    by = c("tile" = "Name")
+  ) %>%
+  mutate(
+    new_lat = case_when(
+      shift_direction == "N" ~ lat + shift_distance / 111.32,
+      shift_direction == "S" ~ lat - shift_distance / 111.32,
+      TRUE ~ lat
+    ),
+    dist_equator = abs(new_lat)
+  )
+
+# Latitude by tile mean change
+ggplot(
+  geo_shifted,
+  aes(
+    x = new_lat,
+    y = mean_change,
+    group = tile,
+    colour = tile
+  )
+) +
+  geom_line(linewidth = 1) +
+  geom_point(size = 2) +
+
+  # highlight original position with same colour as line
+  geom_point(
+    data = subset(geo_shifted, original),
+    size = 3,
+    shape = 21,
+    stroke = 1.2,
+    fill = "white"
+  ) +
+
+  labs(
+    x = "Latitude after shift",
+    y = "Mean change",
+    colour = "Tile"
+  ) +
+  theme_bw()
+
+save_geo_plot("LAT_meanChange_byTile", "wide")
+
+# lat_summary <- geo_shifted %>%
+#   group_by(dist_equator) %>%
+#   summarise(
+#     mean_change = mean(mean_change, na.rm = TRUE),
+#     se = sd(mean_change, na.rm = TRUE) / sqrt(n()),
+#     .groups = "drop"
+#   )
+
+
+
+
+# Trend in relation to equator -------------------------------------------
+
+ggplot(
+  geo_shifted,
+  aes(
+    x = dist_equator,
+    y = mean_change
+  )
+) +
+  geom_point(
+    aes(colour = tile),
+    size = 2,
+    alpha = 0.7
+  ) +
+  geom_smooth(
+    method = "loess",
+    se = TRUE,
+    colour = "black",
+    linewidth = 1.2
+  ) +
+  labs(
+    x = "Distance to equator (° latitude)",
+    y = "Mean change",
+    colour = "Tile"
+  ) +
+  theme_bw()
+
+save_geo_plot("lat_equator_trend_colour", "medium")
+
+
+geo_summary <- geo_shifted %>%
+  group_by(dist_equator) %>%
+  summarise(
+    mean_change = mean(mean_change, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+ggplot(geo_summary, aes(dist_equator, mean_change)) +
+  geom_point(alpha = 0.25) +
+  # geom_smooth(method = "loess", se = TRUE, color = "darkgreen") +
+  geom_smooth(method = "gam", formula = y ~ s(x), linewidth = 1.2, color = "darkgreen") +
+  theme_bw() +
+  labs(
+    x = "Distance to equator (° latitude)",
+    y = "Mean change"
+  )
+
+save_geo_plot("lat_equator_trend", "medium")
+
+stop()
 
 
 

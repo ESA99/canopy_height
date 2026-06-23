@@ -1,4 +1,6 @@
 # Plot functions for all manipulation types ------------------------------
+library(ggplot2)
+library(ggpubr)
 
 ### COLORS ###
 # All pallets were carefully selected to be colour blind friendly and intuitive to understand
@@ -29,7 +31,7 @@ tile_colors <- c( "#332288", "#6699CC", "#88CCEE",
 plot_spectral_labels <- function(data, y_var, y_lab){
 
   label_data <- data %>%
-    group_by(band, Colour, abs_increment) %>%
+    group_by(band, colour, abs_increment) %>%
     summarise(
       value = mean(.data[[y_var]], na.rm = TRUE),
       .groups = "drop"
@@ -42,8 +44,8 @@ plot_spectral_labels <- function(data, y_var, y_lab){
           aes(
             x = abs_increment,
             y = .data[[y_var]],
-            color = Colour,
-            fill = Colour
+            color = colour,
+            fill = colour
           )
         ) +
 
@@ -105,10 +107,78 @@ plot_spectral_labels <- function(data, y_var, y_lab){
   return(p)
 }
 
-plot_spectral_facets <- function(data, y_var, y_lab){
+# plot_spectral_facets <- function(data, y_var, y_lab){
+
+#   plot_data <- data %>%
+#     group_by(band, location, abs_increment) %>%
+#     summarise(
+#       value = mean(.data[[y_var]], na.rm = TRUE),
+#       .groups = "drop"
+#     ) %>%
+#     mutate(
+#       manipulation = abs_increment
+#     )
+
+#   p <- ggline(
+#           plot_data,
+#           x = "manipulation",
+#           y = "value",
+#           color = "location",
+#           fill  = "location",
+#           add = "mean_se",
+#           linewidth = 1.2,
+#           alpha = 0.2,
+#           palette = tile_colors,
+#           facet.by = "band",
+#           scales = "fixed",
+#           ncol = 2
+#         ) +
+
+#         geom_hline(
+#           yintercept = c(-100, -50, 50, 100),
+#           linetype = "dashed",
+#           color = "grey85",
+#           linewidth = 0.6
+#         ) +
+
+#         geom_hline(
+#           yintercept = 0,
+#           linetype = "dashed",
+#           color = "grey30"
+#         ) +
+
+#         labs(
+#           x = "Manipulation Degree [%]",
+#           y = y_lab,
+#           color = "location",
+#           fill  = "location"
+#         ) +
+
+#         theme_pubr(base_size = 14) +
+
+#         theme(
+#           legend.position = "bottom"
+#         )
+
+#   filename <<- paste0("facet_", y_var)
+
+#   return(p)
+# }
+
+plot_spectral_facets <- function(data, y_var, y_lab, line_spacing = 50, n_lines = 3) {
+
+  # Create symmetric reference lines
+  # hlines <- sort(c(-reference_lines, reference_lines))
+    hlines <- seq(
+    line_spacing,
+    line_spacing * n_lines,
+    by = line_spacing
+  )
+
+  hlines <- c(-rev(hlines), hlines)
 
   plot_data <- data %>%
-    group_by(band, Location, abs_increment) %>%
+    group_by(band, location, abs_increment) %>%
     summarise(
       value = mean(.data[[y_var]], na.rm = TRUE),
       .groups = "drop"
@@ -121,9 +191,8 @@ plot_spectral_facets <- function(data, y_var, y_lab){
           plot_data,
           x = "manipulation",
           y = "value",
-          color = "Location",
-          fill  = "Location",
-          add = "mean_se",
+          color = "location",
+          # add = "mean_se",
           linewidth = 1.2,
           alpha = 0.2,
           palette = tile_colors,
@@ -133,7 +202,7 @@ plot_spectral_facets <- function(data, y_var, y_lab){
         ) +
 
         geom_hline(
-          yintercept = c(-100, -50, 50, 100),
+          yintercept = hlines,
           linetype = "dashed",
           color = "grey85",
           linewidth = 0.6
@@ -148,12 +217,11 @@ plot_spectral_facets <- function(data, y_var, y_lab){
         labs(
           x = "Manipulation Degree [%]",
           y = y_lab,
-          color = "Location",
-          fill  = "Location"
+          color = "location",
+          fill  = "location"
         ) +
 
         theme_pubr(base_size = 14) +
-
         theme(
           legend.position = "bottom"
         )
@@ -170,8 +238,8 @@ plot_spectral_butterfly <- function(data, y_var, y_lab){
           aes(
             x = increment,
             y = .data[[y_var]],
-            color = band,
-            fill = band
+            color = colour,
+            fill = colour
           )
         ) +
         stat_summary(fun = mean, geom = "line", linewidth = 1.2) +
@@ -216,28 +284,28 @@ plot_location_band <- function(data, band_name, y_var, y_lab){
 
   # filter band
   plot_data <- data %>%
-    filter(Colour == band_name) %>%
+    filter(colour == band_name) %>%
     mutate(
-      Location = factor(Location)
+      location = factor(location)
     )
 
   # order legend (at increment 25 if available)
   legend_order <- legend_order %>%
   dplyr::arrange(desc(.data[[y_var]])) %>%
-  dplyr::pull(Location) %>%
+  dplyr::pull(location) %>%
   unique()
 
   plot_data <- plot_data %>%
-    mutate(Location = factor(Location, levels = legend_order))
+    mutate(location = factor(location, levels = legend_order))
 
   p <- ggplot(
           plot_data,
           aes(
             x = increment,
             y = .data[[y_var]],
-            color = Location,
-            fill = Location,
-            group = Location
+            color = location,
+            fill = location,
+            group = location
           )
         ) +
 
@@ -263,8 +331,8 @@ plot_location_band <- function(data, band_name, y_var, y_lab){
         labs(
           x = "Manipulation [%]",
           y = y_lab,
-          color = "Location",
-          fill = "Location"
+          color = "location",
+          fill = "location"
         ) +
 
         theme_minimal(base_size = 14) +
@@ -279,7 +347,6 @@ plot_location_band <- function(data, band_name, y_var, y_lab){
 
   return(p)
 }
-
 
 plot_location_band <- function(data, band_name, y_var, y_lab){
 
@@ -297,7 +364,7 @@ plot_location_band <- function(data, band_name, y_var, y_lab){
 
   # ---- filter band ----
   plot_data <- data %>%
-    dplyr::filter(Colour == band_name)
+    dplyr::filter(colour == band_name)
 
   # ---- legend order (safe fallback if increment 25 not present) ----
   legend_order <- plot_data %>%
@@ -309,12 +376,12 @@ plot_location_band <- function(data, band_name, y_var, y_lab){
 
   legend_order <- legend_order %>%
     dplyr::arrange(desc(.data[[y_var]])) %>%
-    dplyr::pull(Location) %>%
+    dplyr::pull(location) %>%
     unique()
 
   plot_data <- plot_data %>%
     dplyr::mutate(
-      Location = factor(Location, levels = legend_order)
+      location = factor(location, levels = legend_order)
     )
 
   # ---- plot ----
@@ -323,9 +390,9 @@ plot_location_band <- function(data, band_name, y_var, y_lab){
     aes(
       x = increment,
       y = .data[[y_var]],
-      color = Location,
-      fill = Location,
-      group = Location
+      color = location,
+      fill = location,
+      group = location
     )
   ) +
 
@@ -333,7 +400,7 @@ plot_location_band <- function(data, band_name, y_var, y_lab){
       aes(
         ymin = .data[[y_var]] - .data[[sd_var]],
         ymax = .data[[y_var]] + .data[[sd_var]],
-        group = Location
+        group = location
       ),
       alpha = 0.2,
       color = NA
@@ -352,8 +419,8 @@ plot_location_band <- function(data, band_name, y_var, y_lab){
     labs(
       x = "Manipulation [%]",
       y = y_lab,
-      color = "Location",
-      fill  = "Location"
+      color = "location",
+      fill  = "location"
     ) +
 
     theme_minimal(base_size = 14) +
@@ -389,9 +456,9 @@ plot_shuffle_byTile <- function(data, y_var, y_lab, show_average = FALSE, avg_nu
   
   # Label positions
   label_data <- data %>%
-    dplyr::group_by(Location, shuffle_percentage) %>%
+    dplyr::group_by(location, shuffle_percentage) %>%
     dplyr::summarise(value = mean(.data[[y_var]]), .groups = "drop") %>%
-    dplyr::group_by(Location) %>%
+    dplyr::group_by(location) %>%
     dplyr::filter(shuffle_percentage == max(shuffle_percentage))
   
   
@@ -399,8 +466,8 @@ plot_shuffle_byTile <- function(data, y_var, y_lab, show_average = FALSE, avg_nu
   p <- ggplot(data,
               aes(x = shuffle_percentage,
                   y = .data[[y_var]],
-                  color = Location,
-                  fill = Location)) +
+                  color = location,
+                  fill = location)) +
     
     stat_summary(fun = mean, geom = "line", linewidth = 1.2) +
     stat_summary(fun.data = mean_se, geom = "ribbon",
@@ -408,7 +475,7 @@ plot_shuffle_byTile <- function(data, y_var, y_lab, show_average = FALSE, avg_nu
     
     geom_text_repel(
       data = label_data,
-      aes(y = value, label = Location),
+      aes(y = value, label = location),
       direction = "y",
       hjust = 0,
       nudge_x = 1,
@@ -485,4 +552,6 @@ plot_shuffle_byTile <- function(data, y_var, y_lab, show_average = FALSE, avg_nu
 
 
 # GEOGRAPHICAL -----------------------------------------------------------
+
+
 

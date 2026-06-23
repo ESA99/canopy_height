@@ -19,38 +19,176 @@ increment = increment*100,
 abs_increment = abs(increment)
 )
 
-add_zero_step_rows <- function(df, band_translation) {
+spectral <- add_spectral_zero(spectral, band_translation, tile_label)
 
-  # 1. identify missing (tile, band) pairs for increment == 0
+plot_spectral_labels(spectral, y_var = "mean_change", y_lab = "Average Difference [m]")
+
+plot_spectral_facets(spectral, y_var = "mean_change", y_lab = "Average Difference [m]", 5, 3)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+add_zero_step_rows <- function(df, band_translation, tile_label) {
+
+  library(dplyr)
+
+  # Missing tile-band combinations at increment 0
   missing <- df %>%
     distinct(tile, band) %>%
     anti_join(
-      df %>% filter(increment == 0) %>% distinct(tile, band),
+      df %>%
+        filter(increment == 0) %>%
+        distinct(tile, band),
       by = c("tile", "band")
     )
 
-  if (nrow(missing) == 0) return(df)
+  if (nrow(missing) == 0) {
+    return(df)
+  }
 
-  # 2. build zero rows by copying structure
+  # Get one representative row per tile
+  tile_info <- df %>%
+    group_by(tile) %>%
+    slice(1) %>%
+    ungroup() %>%
+    select(-band, -Colour)
+
+  # Build missing baseline rows
   zero_rows <- missing %>%
-    mutate(increment = 0) %>%
-    left_join(df %>% filter(increment == 0) %>% select(-increment),
-              by = c("tile", "band"))
+    left_join(tile_info, by = "tile") %>%
+    left_join(
+      band_translation %>%
+        select(BandName, Colour),
+      by = c("band" = "BandName")
+    ) %>%
+    mutate(
+      mode = "spectral",
+      increment = 0,
+      abs_increment = 0,
+      decrease = "False",
+      original = TRUE,
+      correlation = 1,
+      Location = unname(tile_label[tile]),
 
-  # 3. IMPORTANT: fix Colour from band translation
-  zero_rows <- zero_rows %>%
-    left_join(band_translation, by = c("band" = "BandName")) %>%
-    mutate(Colour = Colour.y) %>%
-    select(-Colour.x, -Colour.y, BandNumber)
-
-  # 4. ensure numeric columns are 0 where missing
-  zero_rows <- zero_rows %>%
-    mutate(across(where(is.numeric), ~replace_na(.x, 0)))
+      mean_change = 0,
+      mean_abs_change = 0,
+      relative_mean_change = 0,
+      relative_mean_abs_change = 0,
+      mae = 0,
+      rmse = 0,
+      sd_change = 0,
+      relative_sd_change = 0
+    )
 
   bind_rows(df, zero_rows)
-}  
-spectral <- add_zero_step_rows(spectral, band_translation)
+}
+# spectral <- add_zero_step_rows(spectral, band_translation)
 
-### NOT YET DONE -> Location column etc... ###
 
-plot_spectral_labels(spectral, y_var = "mean_change", y_lab = "Average Difference [m]")
+add_spectral_zero <- function(df, band_translation, tile_label) {
+
+  message("Checking for missing baseline (increment = 0) rows...")
+
+  missing <- df %>%
+    distinct(tile, band) %>%
+    anti_join(
+      df %>%
+        filter(increment == 0) %>%
+        distinct(tile, band),
+      by = c("tile", "band")
+    )
+
+  if (nrow(missing) == 0) {
+    message("✓ No missing tile-band baseline rows found.")
+    return(df)
+  }
+
+  message(
+    sprintf(
+      "Found %s missing tile-band combinations.",
+      nrow(missing)
+    )
+  )
+
+  print(missing)
+
+  tile_info <- df %>%
+    group_by(tile) %>%
+    slice(1) %>%
+    ungroup() %>%
+    select(-band, -Colour)
+
+  zero_rows <- missing %>%
+    left_join(tile_info, by = "tile") %>%
+    left_join(
+      band_translation %>%
+        select(BandName, Colour),
+      by = c("band" = "BandName")
+    ) %>%
+    mutate(
+      mode = "spectral",
+      increment = 0,
+      abs_increment = 0,
+      decrease = "False",
+      original = TRUE,
+      correlation = 1,
+      Location = unname(tile_label[tile]),
+
+      mean_change = 0,
+      mean_abs_change = 0,
+      relative_mean_change = 0,
+      relative_mean_abs_change = 0,
+      mae = 0,
+      rmse = 0,
+      sd_change = 0,
+      relative_sd_change = 0
+    )
+
+  out <- bind_rows(df, zero_rows)
+
+  message(
+    sprintf(
+      "✓ Added %s baseline rows.",
+      nrow(zero_rows)
+    )
+  )
+
+  # verification
+  remaining_missing <- out %>%
+    distinct(tile, band) %>%
+    anti_join(
+      out %>%
+        filter(increment == 0) %>%
+        distinct(tile, band),
+      by = c("tile", "band")
+    )
+
+  if (nrow(remaining_missing) == 0) {
+    message(
+      sprintf(
+        "✓ Verification passed: %s tile-band combinations now have an increment=0 row.",
+        nrow(out %>% distinct(tile, band))
+      )
+    )
+  } else {
+    warning(
+      sprintf(
+        "Verification failed: %s combinations are still missing.",
+        nrow(remaining_missing)
+      )
+    )
+    print(remaining_missing)
+  }
+
+  out
+}
