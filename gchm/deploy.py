@@ -2,6 +2,7 @@ from osgeo import gdal, osr, ogr, gdalconst
 import os
 import sys
 import numpy as np
+# import rasterio
 import argparse
 from pathlib import Path
 import copy
@@ -13,7 +14,7 @@ import botocore
 import urllib3
 
 from gchm.models.architectures import Architectures
-from gchm.utils.transforms import Normalize, NormalizeVariance, denormalize, ModifyBands, Transformer
+from gchm.utils.transforms import ModifyBands, ShuffleRaster, ShiftLatitude, Normalize, NormalizeVariance, denormalize, Transformer
 from gchm.datasets.dataset_sentinel2_deploy import Sentinel2Deploy
 from gchm.utils.gdal_process import save_array_as_geotif
 from gchm.utils.parser import load_args_from_json, str2bool, str_or_none, str2int
@@ -48,9 +49,23 @@ def setup_parser():
     parser.add_argument("--remove_image_after_pred", type=str2bool, nargs='?', const=True, default=False,
                         help="if True: deletes the image after saving the prediction.")
     parser.add_argument("--sentinel2_dir", help="directory to save sentinel2 data (temporarily)")
-    parser.add_argument("--modify_bands", type=str2int, nargs="+", default=[])
-    parser.add_argument("--modify_percentage", type=float, default=None)
-    parser.add_argument("--modify_decrease", type=bool, default=False)
+    
+    ### CUSTOM ARGUMENTS FOR DEPLOYMENT ###
+    parser.add_argument("--model_id", type=int, default=1)
+    parser.add_argument("--modification_mode", type=str, default="")
+
+    parser.add_argument("--shuffle_percentage", type=float, default=0)
+    parser.add_argument("--shuffle_patch_size", type=int, default=1)
+    parser.add_argument("--global_shuffle", type=bool, default=False)
+    # parser.add_argument("--subtile_size", type=int, default=None)
+    
+
+    parser.add_argument("--spectral_bands", type=str2int, nargs="+", default=[])
+    parser.add_argument("--spectral_percentage", type=float, default=None)
+    parser.add_argument("--spectral_decrease", type=bool, default=False)
+    
+    parser.add_argument("--shift_distance", type=int, default=0)
+    parser.add_argument("--shift_direction", type=str, default="S")
 
     # fine-tune and re-weighting strategies
     parser.add_argument("--finetune_strategy", default='FT_Lm_SRCB',
@@ -124,7 +139,9 @@ if __name__ == "__main__":
     args, unknown = parser.parse_known_args()
 
     # sample model id from ensemble
-    args.model_id = np.random.choice(args.num_models)
+    print('####### My Model ID:',args.model_id)
+    # args.model_id = np.random.choice(args.num_models) # IF DEACTIVATED: custom model_id is used directly
+    print('######### Selected Model ID:',args.model_id, '#########')
     args.model_dir = os.path.join(args.model_dir, "model_{}".format(args.model_id), args.finetune_strategy)
     print("Sampled model_id: {} out of {} models in ensemble.".format(args.model_id, args.num_models))
     print("Using args.model_dir: ", args.model_dir)
@@ -220,17 +237,67 @@ if __name__ == "__main__":
     print('train_target_std', train_target_std)
 
     # setup input transforms
-    print(args.modify_bands)
-    print(args.modify_percentage)
-    print(args.modify_decrease)
-
-    if len(args.modify_bands):
-        input_transforms = Transformer(transforms=[
-            Normalize(mean=train_input_mean, std=train_input_std),
-            ModifyBands(bands=args.modify_bands, percentage=args.modify_percentage,decrease=args.modify_decrease)
-        ])
+    print('Shuffle percentage:',args.shuffle_percentage)
+    print('Patch size:',args.shuffle_patch_size)
+    if args.modification_mode == "shuffle" and args.global_shuffle:
+        print("Shuffle type: global")
+    elif args.modification_mode == "shuffle" and not args.global_shuffle:
+        print("Shuffle type: local")
     else:
-        input_transforms = Normalize(mean=train_input_mean, std=train_input_std)
+        print("Shuffle type: NONE")
+    # print('Subtile size:',args.subtile_size)
+    print('Bands:',args.spectral_bands)
+    print('Spectral modification:',args.spectral_percentage)
+    print('Spectral decrease:',args.spectral_decrease)
+    print('Shift distance:',args.shift_distance)
+    print('Shift direction:',args.shift_direction)
+
+    print('### Modification Mode:',args.modification_mode, '###')
+
+    transforms = []
+
+    if args.modification_mode == "spectral":
+        print("***** Spectral manipulation enabled. *****")
+        transforms.append(
+            ModifyBands(
+                bands=args.spectral_bands,
+                percentage=args.spectral_percentage,
+                decrease=args.spectral_decrease
+            )
+        )
+    elif args.modification_mode == "shuffle":
+
+        if args.global_shuffle:
+            print("Global Pixel shuffle enabled.")
+            # args.global_shuffle = True
+        else:
+            print(f"***** Local Pixel shuffeling enabled: {args.shuffle_patch_size}x{args.shuffle_patch_size} px patches within model subtiles (Default = 512x512) *****")
+            transforms.append(
+                        ShuffleRaster(
+                            percentage=args.shuffle_percentage,
+                            shuffle_patch_size=args.shuffle_patch_size,
+                            # subtile_size=args.subtile_size
+                        )
+                    )
+    
+    elif args.modification_mode == "geographical":
+        print("***** Geographical manipulation enabled. *****")
+        transforms.append(
+            ShiftLatitude(
+                distance_km=args.shift_distance,
+                direction=args.shift_direction
+            )
+        )
+    else:
+        print("***** No manipulation performed. *****")
+
+
+    transforms.append(
+        Normalize(mean=train_input_mean, std=train_input_std)
+    )
+
+    input_transforms = Transformer(transforms=transforms)
+
 
     # create dataset
     try:
@@ -240,7 +307,12 @@ if __name__ == "__main__":
                                   input_lat_lon=args.input_lat_lon,
                                   patch_size=args.deploy_patch_size,
                                   border=16,
-                                  from_aws=args.from_aws)
+                                  from_aws=args.from_aws,
+                                  global_shuffle=args.global_shuffle,
+                                  mode = args.modification_mode,
+                                  shuffle_percentage=args.shuffle_percentage,
+                                  shuffle_patch_size=args.shuffle_patch_size
+                                  )
         end = time.time()
         print("TIME LOADING BANDS:", time.strftime('%H:%M:%S', time.gmtime(end - start)))
     except RuntimeError:

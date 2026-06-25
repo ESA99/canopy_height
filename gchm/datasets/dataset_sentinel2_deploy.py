@@ -4,7 +4,7 @@ import numpy as np
 import math
 
 from gchm.utils.gdal_process import read_sentinel2_bands, create_latlon_mask, get_reference_band_ds_gdal
-
+from gchm.utils.transforms import ShuffleRaster
 
 class Sentinel2Deploy(Dataset):
     """
@@ -20,8 +20,13 @@ class Sentinel2Deploy(Dataset):
         border (int): Cropped patches will overlap by the amount of pixel set as border.
         from_aws (bool): Option to download the Sentinel-2 images from AWS S3.
     """
-    def __init__(self, path, input_transforms=None, input_lat_lon=False, patch_size=128, border=8, from_aws=False):
+    def __init__(self, path, input_transforms=None, input_lat_lon=False, patch_size=128, border=8, from_aws=False, 
+    global_shuffle = False, shuffle_percentage = 0, shuffle_patch_size = 1, mode = None):
 
+        self.global_shuffle = global_shuffle
+        self.mode = mode
+        self.shuffle_percentage = shuffle_percentage
+        self.shuffle_patch_size = shuffle_patch_size
         self.path = path
         self.from_aws = from_aws
         self.input_transforms = input_transforms
@@ -31,6 +36,10 @@ class Sentinel2Deploy(Dataset):
         self.patch_size_no_border = self.patch_size - 2 * self.border
         self.image, self.tile_info, self.scl, self.cloud = read_sentinel2_bands(data_path=self.path, from_aws=self.from_aws, channels_last=True)
         self.image_shape_original = self.image.shape
+        
+        if self.global_shuffle and self.mode == "shuffle":
+            self._global_px_shuffle()
+        
         # pad the image with channels in last dimension
         self.image = np.pad(self.image, ((self.border, self.border), (self.border, self.border), (0, 0)), mode='symmetric')
         self.patch_coords_dict = self._get_patch_coords()
@@ -50,6 +59,47 @@ class Sentinel2Deploy(Dataset):
         print('after padding: self.image.shape: ', self.image.shape)
         print('after padding: self.lat_mask.shape: ', self.lat_mask.shape)
         print('after padding: self.lon_mask.shape: ', self.lon_mask.shape)
+
+    def _global_px_shuffle(self):
+
+        print(
+            f"Global pixel shuffle in patches running "
+            f"(percentage={self.shuffle_percentage}, "
+            f"patch_size={self.shuffle_patch_size})"
+        )
+
+        shuffler = ShuffleRaster(
+            percentage=self.shuffle_percentage,
+            shuffle_patch_size=self.shuffle_patch_size
+        )
+
+        self.image = shuffler(self.image)
+
+
+    # # Geographical modification function
+    # def _apply_lat_shift(self):
+    #     if self.shift_distance == 0:
+    #         return
+
+    #     direction = self.shift_direction.upper()
+
+    #     if direction not in ["N", "S"]:
+    #         raise ValueError("shift_direction must be 'N' or 'S'")
+
+    #     sign = 1 if direction == "N" else -1
+
+    #     # convert km → degrees latitude
+    #     lat_shift_deg = sign * (self.shift_distance / 111.32)
+
+    #     print(
+    #         f"[Sentinel2Deploy] Shifting lat mask by "
+    #         f"{self.shift_distance} km {direction} "
+    #         f"({lat_shift_deg:.6f} degrees)"
+    #     )
+
+    #     self.lat_mask_base = self.lat_mask.copy()
+    #     # self.lat_mask = self.lat_mask_base + lat_shift_deg
+    #     self.lat_mask = self.lat_mask + lat_shift_deg
 
     def _get_patch_coords(self):
         img_rows, img_cols = self.image.shape[0:2]  # last dimension corresponds to channels

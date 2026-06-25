@@ -49,6 +49,31 @@ for tile_image_filename in ${tile_image_filenames}; do
     echo "tile image: ${count} / ${num_tile_image_filenames}"
     count=$((count + 1))
     
+    ARGS=()
+
+    [ -n "${MODEL_ID}" ] && ARGS+=("--model_id=${MODEL_ID}")
+    [ -n "${MODE}" ] && ARGS+=("--modification_mode=${MODE}")
+    
+    [ -n "${SHUFFLE_PERCENTAGE}" ] && ARGS+=("--shuffle_percentage=${SHUFFLE_PERCENTAGE}")
+    [ -n "${SHUFFLE_PATCH_SIZE}" ] && ARGS+=("--shuffle_patch_size=${SHUFFLE_PATCH_SIZE}")
+    if [ "${SHUFFLE_TYPE}" = "global" ]; then
+        ARGS+=("--global_shuffle=True")
+    else
+        ARGS+=("--global_shuffle=False")
+    fi
+    # [ -n "${SHUFFLE_SUBTILE_SIZE}" ] && ARGS+=("--subtile_size=${SHUFFLE_SUBTILE_SIZE}")
+    
+    # [ -n "${MODIFY_BANDS}" ] && ARGS+=("--spectral_bands=${MODIFY_BANDS}")
+    if [ -n "${MODIFY_BANDS}" ]; then
+        read -ra BAND_ARRAY <<< "${MODIFY_BANDS}"
+        ARGS+=(--spectral_bands "${BAND_ARRAY[@]}")
+    fi
+    [ -n "${MODIFY_PERCENTAGE}" ] && ARGS+=("--spectral_percentage=${MODIFY_PERCENTAGE}")
+    [ -n "${MODIFY_DECREASE}" ] && ARGS+=("--spectral_decrease=${MODIFY_DECREASE}")
+    
+    [ -n "${SHIFT_DISTANCE}" ] && ARGS+=("--shift_distance=${SHIFT_DISTANCE}")
+    [ -n "${SHIFT_DIRECTION}" ] && ARGS+=("--shift_direction=${SHIFT_DIRECTION}")
+
     python3 gchm/deploy.py --model_dir=${GCHM_MODEL_DIR} \
                       	   --deploy_image_path=${deploy_image_path} \
                       	   --deploy_dir=${GCHM_DEPLOY_DIR} \
@@ -60,9 +85,8 @@ for tile_image_filename in ${tile_image_filenames}; do
                       	   --download_from_aws=${GCHM_DOWNLOAD_FROM_AWS} \
                       	   --sentinel2_dir=${sentinel2_dir} \
                       	   --remove_image_after_pred="False" \
-                           --modify_bands=${MODIFY_BANDS} \
-                           --modify_percentage=${MODIFY_PERCENTAGE} \
-                           --modify_decrease=${MODIFY_DECREASE}
+                            "${ARGS[@]}"
+
 
     # check if proxy error
     exit_status=$?  # store the exit status for later use

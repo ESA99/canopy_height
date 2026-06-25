@@ -31,10 +31,13 @@ venv/
 plots/old/
 
 results/fallback/
+**/loop_backups/
 results/loop_backup/
 results/originals/
 results/preds/
 results/individual_results/
+results/archive
+results/runs/1_ARCHIVE
 
 # Quarto rendering files:
 documentation/Documentation_files/
@@ -46,3 +49,4 @@ temp/
 # Ignore everything in final_results but do not ignore loose files:
 final_results/*
 !final_results/*.*
+.positai
