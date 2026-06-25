@@ -126,7 +126,7 @@ add_spectral_zero <- function(df, band_translation, tile_label) {
       decrease = "False",
       original = TRUE,
       correlation = 1,
-      Location = unname(tile_label[tile]),
+      location = unname(tile_label[tile]),
 
       mean_change = 0,
       mean_abs_change = 0,

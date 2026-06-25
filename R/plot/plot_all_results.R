@@ -1,7 +1,8 @@
 ### Plot pixel shuffle differences ###
 
-invisible(lapply(c("terra","dplyr","purrr","ggplot2","ggrepel","viridis","tidyterra"), 
-                 require, character.only = TRUE))
+invisible(lapply(c("terra","dplyr","purrr","ggplot2","ggrepel",
+                   "viridis","tidyterra"), 
+                    require, character.only = TRUE))
 
 source("R/deploy/info_tables.R")
 source("R/plot/plot_functions.R")

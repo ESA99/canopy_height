@@ -12,7 +12,6 @@ source("R/deploy/info_tables.R")
 # merged <- bind_rows(g20, g21a, g21b)
 # write.csv(merged,"/home/emilio/canopy_height/results/2026-06-18_spectral_merge_ID2.csv")
 
-
 spectral <- read.csv("/home/emilio/canopy_height/results/2026-06-18_spectral_merge_ID2.csv")
 
 spectral <- spectral |>
@@ -24,17 +23,18 @@ model_ID = 2
 )
 
 spectral <- add_spectral_zero(spectral, band_translation, tile_label) %>%
-  rename(colour = Colour)
+  rename(colour = Colour) |>
+  select(-X)
 
-# write.csv(spectral,"/home/emilio/canopy_height/results/2026-06_spectral_main.csv")
+# write.csv(spectral,"/home/emilio/canopy_height/results/2026-06_spectral_main.csv", row.names = F)
 
 
 
 
 # Geographical -----------------------------------------------------------
 
-geo <- read.csv("/home/emilio/canopy_height/results/runs/2026-06-16_geographical_1/results.csv")
 # geo <- merge_backup_files("/results/runs/2026-06-04_geographical_1/loop_backups/", F)
+geo <- read.csv("/home/emilio/canopy_height/results/runs/2026-06-16_geographical_1/results.csv")
 
 geo <- add_location_column(geo, order.by.mean = FALSE)
 
@@ -50,16 +50,27 @@ geo <- geo %>% # Duplicate originals for N and S
   across(everything()),
   shift_direction = if (is.na(shift_direction)) c("N", "S") else shift_direction
 )
-# write.csv(geo,"/home/emilio/canopy_height/results/2026-06_geo_main.csv")
+
+# write.csv(geo,"/home/emilio/canopy_height/results/2026-06_geo_main.csv", row.names = F)
 
 
 # Shuffle ----------------------------------------------------------------
+sg1 <- read.csv("results/2026-06-22_shuffle_g1_results.csv")
+sg2 <- read.csv("results/2026-06-22_shuffle_g2_results.csv")
+sg3 <- read.csv("results/2026-06-22_shuffle_g3_results.csv")
+sg4 <- read.csv("results/2026-06-22_shuffle_g4_results.csv")
+sg5 <- read.csv("results/2026-06-22_shuffle_g5_results.csv")
+sg6 <- read.csv("results/2026-06-22_shuffle_g6_results.csv")
+# sg6 <- merge_backup_files("/home/emilio/canopy_height/results/runs/2026-06-22_shuffle_g6/loop_backups/")
+# write.csv(sg6,"/home/emilio/canopy_height/results/2026-06-22_shuffle_g6_results.csv")
 
-shuffle_results <- read.csv("results/2026-05-28_shuffle_1/results.csv") |>
+shuffle_results <- bind_rows(sg1, sg2, sg3, sg4, sg5, sg6)
+
+shuffle_results <- shuffle_results |>
   mutate(
-    Location = factor(tile, levels = names(tile_label), labels = tile_label)
-)
+  location = factor(tile, levels = names(tile_label), labels = tile_label)
+) |>
+  select(-X)
 
-
-# MERGE ------------------------------------------------------------------
+# write.csv(shuffle_results,"/home/emilio/canopy_height/results/2026-06_shuffle_main.csv", row.names = F)
 
