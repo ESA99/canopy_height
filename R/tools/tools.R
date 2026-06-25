@@ -218,14 +218,14 @@ add_spectral_zero <- function(df, band_translation, tile_label) {
 
 # SAVE PLOT by format ----------------------------------------------------
 
-save_geo_plot <- function(plotname, format = c("wide", "medium", "tall"), plot = ggplot2::last_plot()) {
+save_spectral_plot <- function(plotname, format = c("wide", "medium", "tall"), plot = ggplot2::last_plot()) {
   
   format <- match.arg(format)
   
   date_prefix <- format(Sys.Date(), "%Y-%m-%d")
   
   file_path <- paste0(
-    "plots/geographic/",
+    "plots/spectral/",
     date_prefix, "_", plotname, ".png"
   )
   
@@ -280,14 +280,14 @@ save_shuffle_plot <- function(plotname, format = c("wide", "medium", "tall"), pl
   message("Saved plot to: ", file_path)
 }
 
-save_spectral_plot <- function(plotname, format = c("wide", "medium", "tall"), plot = ggplot2::last_plot()) {
+save_geo_plot <- function(plotname, format = c("wide", "medium", "tall"), plot = ggplot2::last_plot()) {
   
   format <- match.arg(format)
   
   date_prefix <- format(Sys.Date(), "%Y-%m-%d")
   
   file_path <- paste0(
-    "plots/spectral/",
+    "plots/geographic/",
     date_prefix, "_", plotname, ".png"
   )
   
@@ -310,6 +310,10 @@ save_spectral_plot <- function(plotname, format = c("wide", "medium", "tall"), p
   
   message("Saved plot to: ", file_path)
 }
+
+
+
+
 
 # Wide save:
 # ggsave(paste0("plots/pixel_shuffle/",format(Sys.Date(), "%Y-%m-%d"),"_",filename ,"_wide.png"), width = 270, height = 175, units = "mm", dpi = 300, bg = "white")
