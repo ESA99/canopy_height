@@ -16,10 +16,15 @@ spectral <- read.csv("/home/emilio/canopy_height/results/2026-06-18_spectral_mer
 
 spectral <- spectral |>
   mutate(
-location = factor(tile, levels = names(tile_label), labels = tile_label),
-increment = increment*100,
-abs_increment = abs(increment),
-model_ID = 2
+    location = factor(tile, levels = names(tile_label), labels = tile_label),
+    increment = if_else(
+      decrease == "True",
+      -increment,
+      increment
+    ) * 100,
+    # increment = increment*100,
+    abs_increment = abs(increment),
+    model_ID = 2
 )
 
 spectral <- add_spectral_zero(spectral, band_translation, tile_label) %>%

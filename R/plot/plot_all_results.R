@@ -20,9 +20,10 @@ shuffle_results <- read.csv("results/2026-06_shuffle_main.csv")
 
 # Spectral ---------------------------------------------------------------
 
-plot_spectral_butterfly(spectral_results, y_var = "mean_change", y_lab = "Average Difference [m]")
-
 plot_spectral_labels(spectral_results, y_var = "relative_mean_change", y_lab = "Average Relative Difference [%]")
+plot_spectral_labels(spectral_results, y_var = "mean_change", y_lab = "Average Difference [m]")
+
+plot_spectral_butterfly(spectral_results, y_var = "mean_change", y_lab = "Average Difference [m]")
 
 plot_spectral_facets(spectral_results, y_var = "relative_mean_change", y_lab = "Average Relative Difference [%]")
 
