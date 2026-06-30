@@ -43,7 +43,7 @@ results/runs/1_ARCHIVE
 documentation/Documentation_files/
 documentation/masterthesis_files/
 
-# final_results/
+final_results/
 temp/
 
 # Ignore everything in final_results but do not ignore loose files:
