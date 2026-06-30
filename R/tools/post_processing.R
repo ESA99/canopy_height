@@ -56,7 +56,22 @@ geo <- geo %>% # Duplicate originals for N and S
   shift_direction = if (is.na(shift_direction)) c("N", "S") else shift_direction
 )
 
-# write.csv(geo,"/home/emilio/canopy_height/results/2026-06_geo_main.csv", row.names = F)
+geo <- geo %>%
+  left_join(
+    tile_coordinates,
+    by = c("tile" = "Name")
+  ) %>%
+  mutate(
+    lat_new = case_when(
+      shift_direction == "N" ~ lat + shift_distance / 111.32,
+      shift_direction == "S" ~ lat - shift_distance / 111.32,
+      TRUE ~ lat
+    ),
+    dist_equator = abs(lat_new)  * 111.32
+  )
+
+
+write.csv(geo,"results/2026-06_geo_main.csv", row.names = F)
 
 
 # Shuffle ----------------------------------------------------------------

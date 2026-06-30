@@ -28,6 +28,7 @@ plot_spectral_butterfly(spectral_results, y_var = "mean_change", y_lab = "Averag
 
 plot_spectral_facets(spectral_results, y_var = "mean_change",   y_lab = "Average Difference [m]")
 save_spectral_plot(filename, "tall")
+
 plot_spectral_facets(spectral_results, y_var = "relative_mean_change",   y_lab = "Average Relative Difference [%]")
 save_spectral_plot(filename, "tall")
 
@@ -88,13 +89,13 @@ plot_geo_latitude(geo_results,tile_coordinates, y_var = "mean_change", y_lab = "
 save_geo_plot(filename, "wide")
 
 
-plot_geo_equator_trend(geo_shifted, y_var = "mean_change", y_lab = "Mean change") #,tile_colors = tile_colors
+plot_geo_equator_trend(geo_results, y_var = "mean_change", y_lab = "Mean change") #,tile_colors = tile_colors
 save_geo_plot(filename, "medium")
 
-plot_geo_tile_trends(geo_shifted, y_var = "mean_change", y_lab = "Mean change")
+plot_geo_tile_trends(geo_results, y_var = "mean_change", y_lab = "Mean change")
 save_geo_plot(filename, "medium")
 
-plot_geo_main_trend(geo_shifted, y_var = "mean_change", y_lab = "Mean change")
+plot_geo_main_trend(geo_results, y_var = "mean_change", y_lab = "Mean change")
 save_geo_plot(filename, "medium")
 
 
