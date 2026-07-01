@@ -5,6 +5,12 @@ library(ggpubr)
 ### COLORS ###
 # All pallets were carefully selected to be colour blind friendly and intuitive to understand
 
+tile_colors <- c( "#332288", "#6699CC", "#88CCEE",  
+                  "#44AA99", "#117733", "#999933",  
+                  "#DDCC77", "#661100", "#CC6677", 
+                  "#882255",  "#AA4499"
+)
+
 spectral_colors <- c( Blue     = "#0072B2", Green    = "#009E73", 
                       Red      = "#D55E00", RedEdge  = "#CC79A7",
                       NIR      = "#9E0142", NIR2     = "#5E4FA2", 
@@ -16,12 +22,6 @@ spectral_interactions_colors <- c(ALL = "#009E73",
                                   Low = "#CC79A7", 
                                   RGB = "#882255", 
                                   Blue = "#88CCEE"
-)
-
-tile_colors <- c( "#332288", "#6699CC", "#88CCEE",  
-                  "#44AA99", "#117733", "#999933",  
-                  "#DDCC77", "#661100", "#CC6677", 
-                  "#882255",  "#AA4499"
 )
 
 
@@ -928,26 +928,12 @@ plot_geo_byTile <- function(data, y_var, y_lab) {
   return(p)
 }
 
-plot_geo_latitude <- function(data, tile_coordinates, y_var,  y_lab) {
-
-  plot_data <- data %>%
-    left_join(
-      tile_coordinates,
-      by = c("tile" = "Name")
-    ) %>%
-    mutate(
-      new_lat = case_when(
-        shift_direction == "N" ~ lat + shift_distance / 111.32,
-        shift_direction == "S" ~ lat - shift_distance / 111.32,
-        TRUE ~ lat
-      ),
-      dist_equator = abs(new_lat)
-    )
+plot_geo_latitude <- function(data, y_var,  y_lab) {
 
   p <- ggplot(
-          plot_data,
+          data,
           aes(
-            x = new_lat,
+            x = lat_new,
             y = .data[[y_var]],
             group = tile,
             colour = tile
@@ -963,7 +949,7 @@ plot_geo_latitude <- function(data, tile_coordinates, y_var,  y_lab) {
         ) +
 
         geom_point(
-          data = subset(plot_data, original),
+          data = subset(data, original),
           size = 3,
           shape = 21,
           stroke = 1.2,
@@ -989,13 +975,13 @@ plot_geo_tile_trends <- function(data, y_var, y_lab, tile_colors = NULL) {
   label_data <- data %>%
   group_by(tile, location) %>%
   do({
-    fit <- lm(.data[[y_var]] ~ dist_equator, data = .)
+    fit <- lm(.data[[y_var]] ~ abs_lat, data = .)
 
-    x_end <- max(.$dist_equator, na.rm = TRUE)
+    x_end <- max(.$abs_lat, na.rm = TRUE)
 
     data.frame(
-      dist_equator = x_end,
-      pred = predict(fit, newdata = data.frame(dist_equator = x_end))
+      abs_lat = x_end,
+      pred = predict(fit, newdata = data.frame(abs_lat = x_end))
     )
   }) %>%
   ungroup()
@@ -1003,7 +989,7 @@ plot_geo_tile_trends <- function(data, y_var, y_lab, tile_colors = NULL) {
   p <- ggplot(
           data,
           aes(
-            x = dist_equator,
+            x = abs_lat,
             y = .data[[y_var]]
           )
         ) +
@@ -1038,7 +1024,7 @@ plot_geo_tile_trends <- function(data, y_var, y_lab, tile_colors = NULL) {
         ggrepel::geom_text_repel(
           data = label_data,
           aes(
-            x = dist_equator,
+            x = abs_lat,
             y = pred,
             label = location,
             color = tile
@@ -1075,11 +1061,11 @@ plot_geo_tile_trends <- function(data, y_var, y_lab, tile_colors = NULL) {
 }
 
 plot_geo_equator_trend <- function(data, y_var, y_lab, tile_colors = NULL) {
-
+  
   p <- ggplot(
           data,
           aes(
-            x = dist_equator,
+            x = eq_dist_km,
             y = .data[[y_var]]
           )
         ) +
@@ -1095,7 +1081,7 @@ plot_geo_equator_trend <- function(data, y_var, y_lab, tile_colors = NULL) {
         # geom_smooth(method = "loess", se = TRUE, colour = "black", linewidth = 1.2) +
 
         labs(
-          x = "Absolute latitude distance from equator (°)",
+          x = "Absolute distance from equator (km)",
           y = y_lab,
           colour = "Tile"
         ) +
@@ -1113,11 +1099,11 @@ plot_geo_equator_trend <- function(data, y_var, y_lab, tile_colors = NULL) {
   return(p)
 }
 
-plot_geo_main_trend <- function(data,y_var, y_lab, use_summary = FALSE) {
+plot_geo_main_trend <- function(data, y_var, y_lab, use_summary = FALSE) {
 
   if (use_summary) {
     plot_data <- data %>%
-      group_by(dist_equator) %>%
+      group_by(abs(lat_new)) %>%
       summarise(
         value = mean(.data[[y_var]], na.rm = TRUE),
         .groups = "drop"
@@ -1128,7 +1114,7 @@ plot_geo_main_trend <- function(data,y_var, y_lab, use_summary = FALSE) {
     y_mapped <- y_var
   }
 
-  p <- ggplot(plot_data, aes(dist_equator, .data[[y_mapped]])) +
+  p <- ggplot(plot_data, aes(abs(lat_new), .data[[y_mapped]])) +
 
     geom_point(alpha = 0.15, size = 1) +
 

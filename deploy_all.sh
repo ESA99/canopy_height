@@ -1,11 +1,12 @@
 #!/bin/bash
 
 ### Full deployment with logs ###
-for manipulation in shuffle #spectral #geographical
+for manipulation in geographical #shuffle spectral
 do
     echo "[$(date '+%F %T')] Launching: $manipulation $g"
 
-    for g in g1 g2 g3 g4 g5 g6 #g20 g21a g21b 
+    # for g in g20 g21a g21b 
+    for g in g1 g2 g3 g4 g5 g6
     do
         mkdir -p logs
 

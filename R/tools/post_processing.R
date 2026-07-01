@@ -67,7 +67,8 @@ geo <- geo %>%
       shift_direction == "S" ~ lat - shift_distance / 111.32,
       TRUE ~ lat
     ),
-    dist_equator = abs(lat_new)  * 111.32
+    eq_dist_km = abs(lat_new)  * 111.32,
+    abs_lat = abs(lat_new)
   )
 
 

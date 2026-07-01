@@ -6,9 +6,9 @@ base_specs <- list(
   year = c("2020"),
   WC_year = c("2020"),
   tile = c("10TES", "17SNB", "20MMD", "32TMT", "32UQU", "33NTG", "34UFD", "35VML", "49NHC", "49UCP", "55HEV"),
-  manipulation = c("shuffle") 
+  # manipulation = c("shuffle") 
   # manipulation = c("spectral")
-  # manipulation = c("geographical")
+  manipulation = c("geographical")
 )
 
 # Tile + Manipulation variable adjustment via deploy_all.sh
@@ -36,7 +36,8 @@ param_specs <- list(
   ),
 
   geographical = list(
-    shift_distance = c(100, 200, 300, 500, 1000, 1500, 2000, 3000, 5000), 
+    # shift_distance = c(100, 200, 300, 500, 1000, 1500, 2000, 3000, 5000), 
+    shift_distance = c(6000, 7000, 8000, 10000, 12000, 15000), 
     shift_direction = c("N","S")
   )
 )
