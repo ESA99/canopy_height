@@ -88,6 +88,12 @@ plot_spectral_labels <- function(data, y_var, y_lab){
             "SWIR2", "Red", "SWIR1", "RedEdge"
           )
         ) +
+    
+        geom_hline(
+          yintercept = 0, 
+          linewidth = 0.7, 
+          colour = "grey45"
+        ) +
 
         scale_x_continuous(
           expand = expansion(mult = c(0.02, 0.15))
@@ -98,7 +104,7 @@ plot_spectral_labels <- function(data, y_var, y_lab){
           y = y_lab
         ) +
 
-        theme_minimal(base_size = 14) +
+        theme_bw(base_size = 14) +
         theme(legend.position = "none") +
         coord_cartesian(clip = "off")
 
@@ -463,6 +469,8 @@ plot_spectral_band <- function(data, band_name, y_var, y_lab, x_var = c("increme
 #   return(p)
 # }
 
+
+
 # SHUFFLE ----------------------------------------------------------------
 # Average with SD
 plot_shuffle <- function(data, y_var, y_lab){
@@ -510,14 +518,12 @@ plot_shuffle_byTile <- function(data, y_var, y_lab, show_average = FALSE, avg_nu
       show.legend = FALSE
     ) +
     
-    annotate(
-      "segment",
-      x = 0, xend = 80,
-      y = 0, yend = 0,
-      linetype = "dashed",
-      color = "grey60",
-      linewidth = 0.8
-    ) +
+    geom_hline(
+          yintercept = 0, 
+          linewidth = 0.8, 
+          linetype = "dashed",
+          colour = "grey60"
+        ) +
     
     scale_color_viridis_d(option = "D") +
     
@@ -678,7 +684,7 @@ plot_shuffle_heatmap <- function(data, value_var, y_lab = NULL) {
     theme_bw(base_size = 12) +
     theme(
       panel.grid = element_blank(),
-      legend.position = "right"
+      legend.position = "top"
     )
 
   filename <<- paste0("shuffle_heatmap_", value_var)
@@ -718,13 +724,14 @@ plot_shuffle_heatmap_discrete <- function(data, value_var, y_lab = NULL) {
 
       labs(
         x = "Shuffle percentage [%]",
-        y = "Patch size",
+        y = "Patch size [px]",
         fill = y_lab
       ) +
 
       theme_bw(base_size = 12) +
       theme(
-        panel.grid = element_blank()
+        panel.grid = element_blank(),
+        legend.position = "top"
       )
   
   filename <<- paste0("discrete_heatmap_", value_var)
@@ -798,7 +805,7 @@ plot_shuffle_heatmap_tiles <- function(data, value_var, y_lab = NULL) {
   if (is.null(y_lab)) y_lab <- value_var
 
   plot_data <- data %>%
-    dplyr::group_by(tile, shuffle_percentage, patch_size) %>%
+    dplyr::group_by(location, shuffle_percentage, patch_size) %>%
     dplyr::summarise(
       value = mean(.data[[value_var]], na.rm = TRUE),
       .groups = "drop"
@@ -823,11 +830,11 @@ plot_shuffle_heatmap_tiles <- function(data, value_var, y_lab = NULL) {
         midpoint = 0
       ) +
 
-      facet_wrap(~tile) +
+      facet_wrap(~location) +
 
       labs(
         x = "Shuffle percentage [%]",
-        y = "Patch size",
+        y = "Patch size [px]",
         fill = y_lab
       ) +
 
@@ -877,8 +884,15 @@ plot_geo_shift <- function(data,y_var, y_lab) {
           width = 0
         ) +
 
+        geom_hline(
+          yintercept = 0, 
+          linewidth = 0.7,
+          linetype = "solid",
+          colour = "grey70"
+        ) +
+    
         labs(
-          x = "Shift distance (km)",
+          x = "Shift distance [km]",
           y = y_lab,
           color = "Direction"
         ) +
@@ -915,8 +929,15 @@ plot_geo_byTile <- function(data, y_var, y_lab) {
           ~location
         ) +
 
+        geom_hline(
+          yintercept = 0, 
+          linewidth = 0.7,
+          linetype = "solid",
+          colour = "grey80"
+        ) +
+    
         labs(
-          x = "Shift distance (km)",
+          x = "Shift distance [km]",
           y = y_lab,
           color = "Direction"
         ) +
@@ -935,8 +956,8 @@ plot_geo_latitude <- function(data, y_var,  y_lab) {
           aes(
             x = lat_new,
             y = .data[[y_var]],
-            group = tile,
-            colour = tile
+            group = location,
+            colour = location
           )
         ) +
 
@@ -954,6 +975,13 @@ plot_geo_latitude <- function(data, y_var,  y_lab) {
           shape = 21,
           stroke = 1.2,
           fill = "white"
+        ) +
+    
+        geom_hline(
+          yintercept = 0, 
+          linewidth = 0.7,
+          linetype = "solid",
+          colour = "grey80"
         ) +
 
         labs(
@@ -1037,9 +1065,16 @@ plot_geo_tile_trends <- function(data, y_var, y_lab, tile_colors = NULL) {
           point.padding = 0.3,
           show.legend = FALSE
         ) +
+    
+        geom_hline(
+          yintercept = 0, 
+          linewidth = 0.7,
+          linetype = "solid",
+          colour = "grey70"
+        ) +
 
         labs(
-          x = "Distance to equator (° latitude)",
+          x = "Distance to equator [° latitude]",
           y = y_lab
         )
 
@@ -1061,7 +1096,7 @@ plot_geo_tile_trends <- function(data, y_var, y_lab, tile_colors = NULL) {
 }
 
 plot_geo_equator_trend <- function(data, y_var, y_lab, tile_colors = NULL) {
-  
+
   p <- ggplot(
           data,
           aes(
@@ -1071,7 +1106,7 @@ plot_geo_equator_trend <- function(data, y_var, y_lab, tile_colors = NULL) {
         ) +
 
         geom_point(
-          aes(colour = tile),
+          aes(colour = location),
           size = 2,
           alpha = 0.7
         ) +
@@ -1080,8 +1115,15 @@ plot_geo_equator_trend <- function(data, y_var, y_lab, tile_colors = NULL) {
 
         # geom_smooth(method = "loess", se = TRUE, colour = "black", linewidth = 1.2) +
 
+        geom_hline(
+          yintercept = 0, 
+          linewidth = 0.7,
+          linetype = "solid",
+          colour = "grey70"
+        ) +    
+    
         labs(
-          x = "Absolute distance from equator (km)",
+          x = "Absolute distance from equator [km]",
           y = y_lab,
           colour = "Tile"
         ) +
@@ -1097,6 +1139,7 @@ plot_geo_equator_trend <- function(data, y_var, y_lab, tile_colors = NULL) {
   filename <<- paste0("equator_trend_", y_var)
 
   return(p)
+
 }
 
 plot_geo_main_trend <- function(data, y_var, y_lab, use_summary = FALSE) {
@@ -1125,9 +1168,16 @@ plot_geo_main_trend <- function(data, y_var, y_lab, use_summary = FALSE) {
       linewidth = 1.1,
       se = TRUE
     ) +
-
+    
+    geom_hline(
+          yintercept = 0, 
+          linewidth = 0.7,
+          linetype = "solid",
+          colour = "grey70"
+    ) +
+    
     labs(
-      x = "Distance to equator (° latitude)",
+      x = "Distance to equator [° latitude]",
       y = y_lab
     ) +
 

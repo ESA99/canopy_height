@@ -64,10 +64,11 @@ plot_shuffle_byTile(shuffle_results, "relative_mean_abs_change", "Absolute avera
 # save_shuffle_plot(filename, "medium")
 
 
-plot_shuffle_heatmap(shuffle_results, "mean_change")
+plot_shuffle_heatmap(shuffle_results, "mean_change", "Average Difference [m]")
 # save_shuffle_plot(filename, "medium")
-plot_shuffle_heatmap_discrete(shuffle_results, "mean_change")
+plot_shuffle_heatmap_discrete(shuffle_results, "mean_change", "Average Difference [m]")
 # save_shuffle_plot(filename, "medium")
+# save_shuffle_plot(filename, "wide")
 plot_shuffle_heatmap_tiles(shuffle_results, "mean_change", "Average Difference [m]")
 # save_shuffle_plot(filename, "medium")
 
@@ -83,10 +84,11 @@ plot_geo_byTile(geo_results, y_var = "mean_change", y_lab = "Average Difference 
 plot_geo_latitude(geo_results, y_var = "mean_change", y_lab = "Average Difference [m]")
 # save_geo_plot(filename, "wide")
 
-plot_geo_tile_trends(geo_results, y_var = "mean_change", y_lab = "Mean change")
+plot_geo_tile_trends(geo_results, y_var = "mean_change", y_lab = "Average Difference [m]")
 # save_geo_plot(filename, "medium")
+# save_geo_plot(filename, "wide")
 
-plot_geo_equator_trend(geo_results, y_var = "mean_change", y_lab = "Mean change") #,tile_colors = tile_colors
+plot_geo_equator_trend(geo_results, y_var = "mean_change", y_lab = "Average difference [m]") #,tile_colors = tile_colors
 # save_geo_plot(filename, "medium")
 
 plot_geo_main_trend(geo_results, y_var = "mean_change", y_lab = "Mean change")
