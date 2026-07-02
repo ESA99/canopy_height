@@ -1,6 +1,8 @@
 # Plot functions for all manipulation types ------------------------------
 library(ggplot2)
 library(ggpubr)
+library(rcartocolor)
+source("R/tools/info_tables.R")
 
 ### COLORS ###
 # All pallets were carefully selected to be colour blind friendly and intuitive to understand
@@ -333,142 +335,6 @@ plot_spectral_band <- function(data, band_name, y_var, y_lab, x_var = c("increme
   return(p)
 }
 
-# plot_spectral_facets <- function(data, y_var, y_lab, line_spacing = 50, n_lines = 3) {
-
-#   # Create symmetric reference lines
-#   # hlines <- sort(c(-reference_lines, reference_lines))
-#     hlines <- seq(
-#     line_spacing,
-#     line_spacing * n_lines,
-#     by = line_spacing
-#   )
-
-#   hlines <- c(-rev(hlines), hlines)
-
-#   plot_data <- data %>%
-#     group_by(band, location, abs_increment) %>%
-#     summarise(
-#       value = mean(.data[[y_var]], na.rm = TRUE),
-#       .groups = "drop"
-#     ) %>%
-#     mutate(
-#       manipulation = abs_increment
-#     )
-
-#   p <- ggline(
-#           plot_data,
-#           x = "manipulation",
-#           y = "value",
-#           color = "location",
-#           # add = "mean_se",
-#           linewidth = 1.2,
-#           alpha = 0.2,
-#           palette = tile_colors,
-#           facet.by = "band",
-#           scales = "free",
-#           ncol = 2
-#         ) +
-
-#         geom_hline(
-#           yintercept = hlines,
-#           linetype = "dashed",
-#           color = "grey85",
-#           linewidth = 0.6
-#         ) +
-
-#         geom_hline(
-#           yintercept = 0,
-#           linetype = "dashed",
-#           color = "grey30"
-#         ) +
-
-#         labs(
-#           x = "Manipulation Degree [%]",
-#           y = y_lab,
-#           color = "location",
-#           fill  = "location"
-#         ) +
-
-#         theme_pubr(base_size = 14) +
-#         theme(
-#           legend.position = "bottom"
-#         )
-
-#   filename <<- paste0("facet_", y_var)
-
-#   return(p)
-# }
-
-# plot_spectral_band <- function(data, band_name, y_var, y_lab, x_var = c("increment", "abs_increment")) {
-
-#   x_var <- match.arg(x_var)
-
-#   plot_data <- data %>%
-#     filter(colour == band_name)
-
-#   label_data <- plot_data %>%
-#     group_by(location) %>%
-#     filter(.data[[x_var]] == max(.data[[x_var]], na.rm = TRUE)) %>%
-#     slice_tail(n = 1) %>%
-#     ungroup()
-
-#   p <- ggplot(
-#           plot_data,
-#           aes(
-#             x = .data[[x_var]],
-#             y = .data[[y_var]],
-#             group = location
-#           )
-#         ) +
-
-#         geom_line(
-#           colour = spectral_colors[[band_name]],
-#           linewidth = 1.1,
-#           alpha = 0.8
-#         ) +
-
-#         geom_point(
-#           colour = spectral_colors[[band_name]],
-#           size = 2
-#         ) +
-
-#         geom_text_repel(
-#           data = label_data,
-#           aes(label = location),
-#           direction = "y",
-#           hjust = 0,
-#           nudge_x = 0.5,
-#           segment.color = "grey70",
-#           size = 4,
-#           inherit.aes = TRUE
-#         ) +
-
-#         scale_x_continuous(
-#           expand = expansion(mult = c(0.02, 0.15))
-#         ) +
-
-#         labs(
-#           title = band_name,
-#           x = ifelse(
-#             x_var == "increment",
-#             "Manipulation [%]",
-#             "Manipulation Degree [%]"
-#           ),
-#           y = y_lab
-#         ) +
-
-#         theme_minimal(base_size = 14) +
-#         theme(
-#           legend.position = "none"
-#         ) +
-
-#         coord_cartesian(clip = "off")
-
-#   filename <<- paste0(y_var, "_", band_name, "_byTile")
-  
-#   return(p)
-# }
-
 
 
 # SHUFFLE ----------------------------------------------------------------
@@ -582,61 +448,7 @@ plot_shuffle_byTile <- function(data, y_var, y_lab, show_average = FALSE, avg_nu
   return(p)
 }
 
-
 ### HEATMAP  ###
-# plot_shuffle_heatmap <- function(data, value_var, y_lab = NULL) {
-
-#   if (is.null(y_lab)) y_lab <- value_var
-
-#   vals <- data[[value_var]]
-
-#   lims <- quantile(abs(vals), probs = 0.98, na.rm = TRUE)
-
-#   p <- ggplot(
-#     data,
-#     aes(
-#       x = shuffle_percentage,
-#       y = factor(patch_size),
-#       fill = .data[[value_var]]
-#     )
-#   ) +
-
-#     geom_tile(color = "white", linewidth = 0.2) +
-
-#     scale_fill_gradient2(
-#       low = "#2166AC",
-#       mid = "white",
-#       high = "#B2182B",
-#       midpoint = 0,
-#       limits = c(-lims, lims),
-#       oob = scales::squish
-#     ) +
-    
-#     # scale_fill_gradient2(
-#     #   low = "#2166AC",
-#     #   mid = "white",
-#     #   high = "#B2182B",
-#     #   midpoint = 0,
-#     #   trans = "pseudo_log"
-#     # )+
-
-#     labs(
-#       x = "Shuffle percentage [%]",
-#       y = "Patch size",
-#       fill = y_lab
-#     ) +
-
-#     theme_bw(base_size = 12) +
-#     theme(
-#       panel.grid = element_blank(),
-#       legend.position = "right"
-#     )
-
-#   filename <<- paste0("shuffle_heatmap_", value_var)
-
-#   return(p)
-# }
-
 plot_shuffle_heatmap <- function(data, value_var, y_lab = NULL) {
 
   if (is.null(y_lab)) y_lab <- value_var
@@ -983,6 +795,8 @@ plot_geo_latitude <- function(data, y_var,  y_lab) {
           linetype = "solid",
           colour = "grey80"
         ) +
+    
+        scale_color_manual(values = tile_meta$col) +
 
         labs(
           x = "Latitude after shift",
@@ -999,6 +813,8 @@ plot_geo_latitude <- function(data, y_var,  y_lab) {
 
 plot_geo_tile_trends <- function(data, y_var, y_lab, tile_colors = NULL) {
 
+  filename <<- paste0("tile_trends_", y_var)
+  
   # label positions (end of each line)
   label_data <- data %>%
   group_by(tile, location) %>%
@@ -1074,28 +890,26 @@ plot_geo_tile_trends <- function(data, y_var, y_lab, tile_colors = NULL) {
         ) +
 
         labs(
-          x = "Distance to equator [° latitude]",
+          # x = "Distance to equator [° latitude]",
+          x = "Absolute Latitude [°]",
           y = y_lab
-        )
-
-  if (!is.null(tile_colors)) {
-    p <- p + scale_color_manual(values = tile_colors)
-  }
-
-    p <- p +
-      theme_bw(base_size = 12) +
-      theme(
-        legend.position = "none",
-        plot.margin = margin(5.5, 50, 5.5, 5.5)
-      ) +
-      coord_cartesian(clip = "off")
-
-  filename <<- paste0("tile_trends_", y_var)
+        ) + 
+    
+        scale_color_manual(values = tile_meta$col) +
+    
+        theme_bw(base_size = 12) +
+        theme(
+          legend.position = "none",
+         plot.margin = margin(5.5, 50, 5.5, 5.5)
+        ) +
+        coord_cartesian(clip = "off")
 
   return(p)
 }
 
 plot_geo_equator_trend <- function(data, y_var, y_lab, tile_colors = NULL) {
+
+  filename <<- paste0("eq_trend_Col_lm_", y_var)
 
   p <- ggplot(
           data,
@@ -1121,6 +935,8 @@ plot_geo_equator_trend <- function(data, y_var, y_lab, tile_colors = NULL) {
           linetype = "solid",
           colour = "grey70"
         ) +    
+        
+        scale_color_manual(values = tile_meta$col)+
     
         labs(
           x = "Absolute distance from equator [km]",
@@ -1130,66 +946,263 @@ plot_geo_equator_trend <- function(data, y_var, y_lab, tile_colors = NULL) {
 
         theme_bw()
 
-  # apply manual palette only if provided
-  if (!is.null(tile_colors)) {
-    p <- p +
-      scale_color_manual(values = tile_colors)
-  }
-
-  filename <<- paste0("equator_trend_", y_var)
-
   return(p)
 
 }
 
-plot_geo_main_trend <- function(data, y_var, y_lab, use_summary = FALSE) {
+plot_geo_main_trend <- function(data, y_var, smooth = c("loess", "lm", "gam"), y_lab) {
 
-  if (use_summary) {
-    plot_data <- data %>%
-      group_by(abs(lat_new)) %>%
-      summarise(
-        value = mean(.data[[y_var]], na.rm = TRUE),
-        .groups = "drop"
+  filename <<- paste0("eq_trend_", smooth, "_", y_var)
+
+  smooth <- match.arg(smooth)
+
+  p <- ggplot(data, aes(abs(lat_new), .data[[y_var]])) +
+    geom_point(alpha = 0.15, size = 1)
+
+  if (smooth == "gam") {
+    p <- p +
+      geom_smooth(
+        method = "gam",
+        formula = y ~ s(x, k = 10),
+        colour = "darkgreen",
+        linewidth = 1.1,
+        se = TRUE
       )
-    y_mapped <- "value"
-  } else {
-    plot_data <- data
-    y_mapped <- y_var
+  } else if (smooth == "lm") {
+    p <- p +
+      geom_smooth(
+        method = "lm",
+        colour = "darkgreen",
+        linewidth = 1.1,
+        se = TRUE
+      )
+  } else if (smooth == "loess") {
+    p <- p +
+      geom_smooth(
+        method = "loess",
+        colour = "darkgreen",
+        linewidth = 1.1,
+        se = TRUE
+      )
   }
 
-  p <- ggplot(plot_data, aes(abs(lat_new), .data[[y_mapped]])) +
-
-    geom_point(alpha = 0.15, size = 1) +
-
-    geom_smooth(
-      method = "gam",
-      formula = y ~ s(x, k = 10),
-      color = "darkgreen",
-      linewidth = 1.1,
-      se = TRUE
-    ) +
-    
+  p +
     geom_hline(
-          yintercept = 0, 
-          linewidth = 0.7,
-          linetype = "solid",
-          colour = "grey70"
+      yintercept = 0,
+      linewidth = 0.7,
+      colour = "grey70"
     ) +
-    
     labs(
       x = "Distance to equator [° latitude]",
       y = y_lab
     ) +
-
     theme_bw()
 
-  filename <<- paste0("main_trend_eq_", y_var)
-
-  return(p)
 }
 
 
 
+
+
+# ALTERNATIVE PLOTS ------------------------------------------------------
+stop()
+stop()
+
+#### Spectral alternatives
+# plot_spectral_facets <- function(data, y_var, y_lab, line_spacing = 50, n_lines = 3) {
+
+#   # Create symmetric reference lines
+#   # hlines <- sort(c(-reference_lines, reference_lines))
+#     hlines <- seq(
+#     line_spacing,
+#     line_spacing * n_lines,
+#     by = line_spacing
+#   )
+
+#   hlines <- c(-rev(hlines), hlines)
+
+#   plot_data <- data %>%
+#     group_by(band, location, abs_increment) %>%
+#     summarise(
+#       value = mean(.data[[y_var]], na.rm = TRUE),
+#       .groups = "drop"
+#     ) %>%
+#     mutate(
+#       manipulation = abs_increment
+#     )
+
+#   p <- ggline(
+#           plot_data,
+#           x = "manipulation",
+#           y = "value",
+#           color = "location",
+#           # add = "mean_se",
+#           linewidth = 1.2,
+#           alpha = 0.2,
+#           palette = tile_colors,
+#           facet.by = "band",
+#           scales = "free",
+#           ncol = 2
+#         ) +
+
+#         geom_hline(
+#           yintercept = hlines,
+#           linetype = "dashed",
+#           color = "grey85",
+#           linewidth = 0.6
+#         ) +
+
+#         geom_hline(
+#           yintercept = 0,
+#           linetype = "dashed",
+#           color = "grey30"
+#         ) +
+
+#         labs(
+#           x = "Manipulation Degree [%]",
+#           y = y_lab,
+#           color = "location",
+#           fill  = "location"
+#         ) +
+
+#         theme_pubr(base_size = 14) +
+#         theme(
+#           legend.position = "bottom"
+#         )
+
+#   filename <<- paste0("facet_", y_var)
+
+#   return(p)
+# }
+
+# plot_spectral_band <- function(data, band_name, y_var, y_lab, x_var = c("increment", "abs_increment")) {
+
+#   x_var <- match.arg(x_var)
+
+#   plot_data <- data %>%
+#     filter(colour == band_name)
+
+#   label_data <- plot_data %>%
+#     group_by(location) %>%
+#     filter(.data[[x_var]] == max(.data[[x_var]], na.rm = TRUE)) %>%
+#     slice_tail(n = 1) %>%
+#     ungroup()
+
+#   p <- ggplot(
+#           plot_data,
+#           aes(
+#             x = .data[[x_var]],
+#             y = .data[[y_var]],
+#             group = location
+#           )
+#         ) +
+
+#         geom_line(
+#           colour = spectral_colors[[band_name]],
+#           linewidth = 1.1,
+#           alpha = 0.8
+#         ) +
+
+#         geom_point(
+#           colour = spectral_colors[[band_name]],
+#           size = 2
+#         ) +
+
+#         geom_text_repel(
+#           data = label_data,
+#           aes(label = location),
+#           direction = "y",
+#           hjust = 0,
+#           nudge_x = 0.5,
+#           segment.color = "grey70",
+#           size = 4,
+#           inherit.aes = TRUE
+#         ) +
+
+#         scale_x_continuous(
+#           expand = expansion(mult = c(0.02, 0.15))
+#         ) +
+
+#         labs(
+#           title = band_name,
+#           x = ifelse(
+#             x_var == "increment",
+#             "Manipulation [%]",
+#             "Manipulation Degree [%]"
+#           ),
+#           y = y_lab
+#         ) +
+
+#         theme_minimal(base_size = 14) +
+#         theme(
+#           legend.position = "none"
+#         ) +
+
+#         coord_cartesian(clip = "off")
+
+#   filename <<- paste0(y_var, "_", band_name, "_byTile")
+  
+#   return(p)
+# }
+
+
+# ### Shuffle Heatmap alternative
+# plot_shuffle_heatmap <- function(data, value_var, y_lab = NULL) {
+
+#   if (is.null(y_lab)) y_lab <- value_var
+
+#   vals <- data[[value_var]]
+
+#   lims <- quantile(abs(vals), probs = 0.98, na.rm = TRUE)
+
+#   p <- ggplot(
+#     data,
+#     aes(
+#       x = shuffle_percentage,
+#       y = factor(patch_size),
+#       fill = .data[[value_var]]
+#     )
+#   ) +
+
+#     geom_tile(color = "white", linewidth = 0.2) +
+
+#     scale_fill_gradient2(
+#       low = "#2166AC",
+#       mid = "white",
+#       high = "#B2182B",
+#       midpoint = 0,
+#       limits = c(-lims, lims),
+#       oob = scales::squish
+#     ) +
+    
+#     # scale_fill_gradient2(
+#     #   low = "#2166AC",
+#     #   mid = "white",
+#     #   high = "#B2182B",
+#     #   midpoint = 0,
+#     #   trans = "pseudo_log"
+#     # )+
+
+#     labs(
+#       x = "Shuffle percentage [%]",
+#       y = "Patch size",
+#       fill = y_lab
+#     ) +
+
+#     theme_bw(base_size = 12) +
+#     theme(
+#       panel.grid = element_blank(),
+#       legend.position = "right"
+#     )
+
+#   filename <<- paste0("shuffle_heatmap_", value_var)
+
+#   return(p)
+# }
+
+
+### Geo Alternatives
+# ### Alternative Tile Trend plot: Adjusted Label position ####
 # plot_geo_tile_trends <- function(data, y_var, y_lab, tile_colors = NULL) {
 
 #   # -----------------------------
@@ -1198,13 +1211,13 @@ plot_geo_main_trend <- function(data, y_var, y_lab, use_summary = FALSE) {
 #   label_data <- data %>%
 #     group_by(tile, location) %>%
 #     do({
-#       fit <- lm(.data[[y_var]] ~ dist_equator, data = .)
+#       fit <- lm(.data[[y_var]] ~ abs_lat, data = .)
 
-#       x_end <- max(.$dist_equator, na.rm = TRUE)
+#       x_end <- max(.$abs_lat, na.rm = TRUE)
 
 #       data.frame(
-#         dist_equator = x_end + 0.3,  # push labels slightly right
-#         pred = predict(fit, newdata = data.frame(dist_equator = x_end))
+#         abs_lat = x_end + 0.3,  # push labels slightly right
+#         pred = predict(fit, newdata = data.frame(abs_lat = x_end))
 #       )
 #     }) %>%
 #     ungroup()
@@ -1215,7 +1228,7 @@ plot_geo_main_trend <- function(data, y_var, y_lab, use_summary = FALSE) {
 #   p <- ggplot(
 #     data,
 #     aes(
-#       x = dist_equator,
+#       x = abs_lat,
 #       y = .data[[y_var]]
 #     )
 #   ) +
@@ -1250,7 +1263,7 @@ plot_geo_main_trend <- function(data, y_var, y_lab, use_summary = FALSE) {
 #     ggrepel::geom_text_repel(
 #       data = label_data,
 #       aes(
-#         x = dist_equator,
+#         x = abs_lat,
 #         y = pred,
 #         label = location,
 #         color = tile
@@ -1262,6 +1275,13 @@ plot_geo_main_trend <- function(data, y_var, y_lab, use_summary = FALSE) {
 #       point.padding = 0.3,
 #       max.overlaps = Inf,
 #       show.legend = FALSE
+#     ) +
+    
+#     geom_hline(
+#       yintercept = 0, 
+#       linewidth = 0.7,
+#       linetype = "solid",
+#       colour = "grey70"
 #     ) +
 
 #     # axes
@@ -1290,3 +1310,5 @@ plot_geo_main_trend <- function(data, y_var, y_lab, use_summary = FALSE) {
 
 #   return(p)
 # }
+
+

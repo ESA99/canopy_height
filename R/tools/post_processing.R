@@ -1,18 +1,31 @@
 # DATA Post Processing
 source("R/tools/tools.R")
-source("R/deploy/info_tables.R")
+source("R/tools/info_tables.R")
 
+
+
+# Merge ------------------------------------------------------------------
+
+library(tidyverse)
+
+files <- list.files("results", pattern = "\\.csv$", full.names = TRUE) |>
+  stringr::str_subset("2026-07-01") |>
+  stringr::str_subset("geographical")
+
+df <- purrr::map_dfr(files, readr::read_csv)
+
+df <- purrr::map_dfr(
+  files,
+  ~ readr::read_csv(.x) |>
+    mutate(
+      group = stringr::str_split(basename(.x), "_", simplify = TRUE)[, 3]
+    )
+)
 
 # Spectral ---------------------------------------------------------------
 
-# g20 <- read.csv("/home/emilio/canopy_height/results/runs/2026-06-18_spectral_g20/results.csv")
-# g21a <- read.csv("/home/emilio/canopy_height/results/runs/2026-06-18_spectral_g21a/results.csv")
-# g21b <- read.csv("/home/emilio/canopy_height/results/runs/2026-06-18_spectral_g21b/results.csv")
-
-# merged <- bind_rows(g20, g21a, g21b)
-# write.csv(merged,"/home/emilio/canopy_height/results/2026-06-18_spectral_merge_ID2.csv")
-
-spectral <- read.csv("/home/emilio/canopy_height/results/2026-06-18_spectral_merge_ID2.csv")
+spectral <- df
+# spectral <- read.csv("/home/emilio/canopy_height/results/2026-06-18_spectral_merge_ID2.csv")
 
 spectral <- spectral |>
   mutate(
@@ -39,7 +52,8 @@ spectral <- add_spectral_zero(spectral, band_translation, tile_label) %>%
 # Geographical -----------------------------------------------------------
 
 # geo <- merge_backup_files("/results/runs/2026-06-04_geographical_1/loop_backups/", F)
-geo <- read.csv("/home/emilio/canopy_height/results/runs/2026-06-16_geographical_1/results.csv")
+# geo <- read.csv("/home/emilio/canopy_height/results/runs/2026-06-16_geographical_1/results.csv")
+geo <- df
 
 geo <- add_location_column(geo, order.by.mean = FALSE)
 
@@ -72,7 +86,12 @@ geo <- geo %>%
   )
 
 
-write.csv(geo,"results/2026-06_geo_main.csv", row.names = F)
+# write.csv(geo,"results/2026-06_geo_main.csv", row.names = F)
+
+# geo_main <- read.csv("results/2026-06_geo_main_5000.csv")
+# geo_full <- bind_rows(geo_main, geo)
+# write.csv(geo_full,"results/2026-06_geo_main.csv", row.names = F)
+
 
 
 # Shuffle ----------------------------------------------------------------

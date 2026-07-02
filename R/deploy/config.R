@@ -6,8 +6,8 @@ options(repos = c(CRAN = "https://cloud.r-project.org"))
 packages <- c(
   "sf", "terra", "remotes", "tmap",
   "rnaturalearth", "rnaturalearthdata",
-  "dplyr", "leaflet",
-  "viridis", "cols4all", "colorspace", "transport"
+  "dplyr", "leaflet", "readr",
+  "viridis", "cols4all", "colorspace", "rcartocolor", "transport"
   # ,"plyr"
 )
 

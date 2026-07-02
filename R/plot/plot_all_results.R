@@ -4,7 +4,7 @@ invisible(lapply(c("terra","dplyr","purrr","ggplot2","ggrepel",
                    "viridis","tidyterra"), 
                     require, character.only = TRUE))
 
-source("R/deploy/info_tables.R")
+source("R/tools/info_tables.R")
 source("R/plot/plot_functions.R")
 source("R/tools/tools.R")
 
@@ -91,8 +91,8 @@ plot_geo_tile_trends(geo_results, y_var = "mean_change", y_lab = "Average Differ
 plot_geo_equator_trend(geo_results, y_var = "mean_change", y_lab = "Average difference [m]") #,tile_colors = tile_colors
 # save_geo_plot(filename, "medium")
 
-plot_geo_main_trend(geo_results, y_var = "mean_change", y_lab = "Mean change")
-# save_geo_plot(filename, "medium")
-
-
+plot_geo_main_trend(geo_results, y_var = "mean_change", smooth = "lm", y_lab = "Mean change [m]")
+plot_geo_main_trend(geo_results, y_var = "mean_change", smooth = "loess", y_lab = "Mean change [m]")
+plot_geo_main_trend(geo_results, y_var = "mean_change", smooth = "gam", y_lab = "Mean change [m]")
+# save_geo_plot(filename, "wide")
 
