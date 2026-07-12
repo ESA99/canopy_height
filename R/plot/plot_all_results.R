@@ -85,14 +85,20 @@ plot_geo_latitude(geo_results, y_var = "mean_change", y_lab = "Average Differenc
 # save_geo_plot(filename, "wide")
 
 plot_geo_tile_trends(geo_results, y_var = "mean_change", y_lab = "Average Difference [m]")
+plot_geo_tile_trends(geo_results, y_var = "relative_mean_change", y_lab = "Average Relative Difference [%]")
 # save_geo_plot(filename, "medium")
 # save_geo_plot(filename, "wide")
 
-plot_geo_equator_trend(geo_results, y_var = "mean_change", y_lab = "Average difference [m]") #,tile_colors = tile_colors
+plot_geo_equator_trend(geo_results, y_var = "mean_change", y_lab = "Average difference [m]")
+plot_geo_equator_trend(geo_results, y_var = "mean_change", y_lab = "Average difference [m]", tile_colors = tile_colors)
 # save_geo_plot(filename, "medium")
 
 plot_geo_main_trend(geo_results, y_var = "mean_change", smooth = "lm", y_lab = "Mean change [m]")
 plot_geo_main_trend(geo_results, y_var = "mean_change", smooth = "loess", y_lab = "Mean change [m]")
 plot_geo_main_trend(geo_results, y_var = "mean_change", smooth = "gam", y_lab = "Mean change [m]")
 # save_geo_plot(filename, "wide")
+
+### Statistic: global equator trend
+lm(mean_change ~ eq_dist_km, geo_results)
+# -1.362 m per 1000 km
 
