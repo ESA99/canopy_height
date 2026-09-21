@@ -2,6 +2,8 @@
 library(ggplot2)
 library(ggpubr)
 library(rcartocolor)
+library(dplyr)
+library(ggrepel)
 source("R/tools/info_tables.R")
 
 ### COLORS ###
@@ -773,28 +775,35 @@ plot_geo_latitude <- function(data, y_var,  y_lab) {
           )
         ) +
 
+        geom_hline( # 0 line
+            yintercept = 0, 
+            linewidth = 0.7,
+            linetype = "solid",
+            colour = "grey55"
+          ) +
+
         geom_line(
           linewidth = 1
         ) +
+          
+        # geom_point( # Ticks on the lines
+        #   shape = 3,
+        #   size = 1.5
+        # ) +
 
-        geom_point(
-          size = 2
-        ) +
-
-        geom_point(
+        geom_point( # Original tile points
           data = subset(data, original),
-          size = 3,
+          size = 2.5,
           shape = 21,
-          stroke = 1.2,
-          fill = "white"
+          stroke = 1.5,
+          fill = "grey95"
+          # , show.legend = FALSE
         ) +
     
-        geom_hline(
-          yintercept = 0, 
-          linewidth = 0.7,
-          linetype = "solid",
-          colour = "grey80"
-        ) +
+        # scale_shape_manual( # ?
+        #   name = NULL,
+        #   values = c("Original" = 21)
+        # ) +
     
         scale_color_manual(values = tile_meta$col) +
 
