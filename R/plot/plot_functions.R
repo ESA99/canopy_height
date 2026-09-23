@@ -52,7 +52,13 @@ plot_spectral_labels <- function(data, y_var, y_lab){
             fill = colour
           )
         ) +
-
+    
+        geom_hline(
+          yintercept = 0, 
+          linewidth = 0.7, 
+          colour = "grey45"
+        ) +
+    
         stat_summary(
           fun = mean,
           geom = "line",
@@ -91,12 +97,6 @@ plot_spectral_labels <- function(data, y_var, y_lab){
             "Blue", "NIR2", "NIR", "Green",
             "SWIR2", "Red", "SWIR1", "RedEdge"
           )
-        ) +
-    
-        geom_hline(
-          yintercept = 0, 
-          linewidth = 0.7, 
-          colour = "grey45"
         ) +
 
         scale_x_continuous(
@@ -808,7 +808,7 @@ plot_geo_latitude <- function(data, y_var,  y_lab) {
         scale_color_manual(values = tile_meta$col) +
 
         labs(
-          x = "Latitude after shift",
+          x = "Latitude after shift [°]",
           y = y_lab,
           colour = "Tile"
         ) +
