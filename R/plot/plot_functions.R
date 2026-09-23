@@ -120,7 +120,7 @@ plot_spectral_labels <- function(data, y_var, y_lab){
 plot_spectral_facets <- function(data, y_var, y_lab) {
 
   plot_data <- data %>%
-    group_by(band, location, abs_increment) %>%
+    group_by(colour, location, abs_increment) %>%
     summarise(
       value = mean(.data[[y_var]], na.rm = TRUE),
       .groups = "drop"
@@ -159,7 +159,7 @@ plot_spectral_facets <- function(data, y_var, y_lab) {
     linewidth = 1.2,
     alpha = 0.2,
     palette = tile_colors,
-    facet.by = "band",
+    facet.by = "colour",
     scales = "free_y",
     ncol = 2
   ) +
@@ -185,8 +185,8 @@ plot_spectral_facets <- function(data, y_var, y_lab) {
     labs(
       x = "Manipulation Degree [%]",
       y = y_lab,
-      color = "location",
-      fill  = "location"
+      color = "Sample Tile",
+      fill  = "Sample Tile"
     ) +
 
     theme_pubr(base_size = 14) +
@@ -232,7 +232,9 @@ plot_spectral_butterfly <- function(data, y_var, y_lab){
         ) +
         labs(
           x = "Manipulation [%]",
-          y = y_lab
+          y = y_lab,
+          fill = "Band",
+          color = "Band"
         ) +
         theme_minimal(base_size = 14)
 
