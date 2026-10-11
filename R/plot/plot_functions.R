@@ -158,7 +158,7 @@ plot_spectral_facets <- function(data, y_var, y_lab) {
     color = "location",
     linewidth = 1.2,
     alpha = 0.2,
-    palette = tile_colors,
+    palette = tile_meta$col,
     facet.by = "colour",
     scales = "free_y",
     ncol = 2
@@ -196,6 +196,113 @@ plot_spectral_facets <- function(data, y_var, y_lab) {
     )
 
   filename <<- paste0("facet_", y_var)
+
+  return(p)
+}
+
+plot_spectral_facets_sel <- function(data, y_var, y_lab, sel_bands = NULL) {
+
+  plot_data <- data %>%
+    {if (is.null(sel_bands)) . else filter(., band %in% sel_bands)} %>%
+    group_by(colour, band, location, abs_increment) %>%
+    summarise(
+      value = mean(.data[[y_var]], na.rm = TRUE),
+      .groups = "drop"
+    ) %>%
+    mutate(
+      manipulation = abs_increment,
+      # facet ordered by band, but displayed as colour name
+      facet_lab = factor(
+        paste0(band, "_", colour),
+        levels = paste0(sort(unique(band)), "_", colour[match(sort(unique(band)), band)])
+      )
+    )
+  
+  # map each band level to its colour name (1:1 assumed)
+  band_colour_map <- plot_data %>%
+    distinct(band, colour) %>%
+    mutate(band = factor(band, levels = sort(unique(band)))) %>%
+    arrange(band)
+
+  levels(plot_data$facet_lab) <- band_colour_map$colour
+
+  # ---- range ----
+  y_range <- range(plot_data$value, na.rm = TRUE)
+  pad <- 0.03 * diff(y_range)
+
+  y_min <- y_range[1] - pad
+  y_max <- y_range[2] + pad
+
+  # ---- automatic reference grid ----
+  raw_step <- (y_max - y_min) / 4
+
+  nice_step <- 10^floor(log10(raw_step))
+  if (raw_step / nice_step >= 5) nice_step <- nice_step * 5
+  else if (raw_step / nice_step >= 2) nice_step <- nice_step * 2
+
+  ref_lines <- seq(
+    floor(y_min / nice_step) * nice_step,
+    ceiling(y_max / nice_step) * nice_step,
+    by = nice_step
+  )
+
+  dashed_lines <- ref_lines[abs(ref_lines) > 1e-9]
+
+  p <- ggline(
+    plot_data,
+    x = "manipulation",
+    y = "value",
+    color = "location",
+    linewidth = 1.2,
+    alpha = 0.2,
+    palette =  tile_meta$col,
+    facet.by = "facet_lab",
+    scales = "free_y",
+    ncol = 2
+  ) +
+
+    geom_hline(
+      yintercept = dashed_lines,
+      linetype = "dashed",
+      color = "grey85",
+      linewidth = 0.6
+    ) +
+
+    geom_hline(
+      yintercept = 0,
+      linetype = "solid",
+      color = "grey20",
+      linewidth = 0.8
+    ) +
+
+    scale_y_continuous(
+      expand = c(0, 0)
+    ) +
+
+    labs(
+      x = "Manipulation Degree [%]",
+      y = y_lab,
+      color = "Sample Tile",
+      fill  = "Sample Tile"
+    ) +
+    
+    guides(
+      color = guide_legend(
+        nrow = 2,
+        byrow = TRUE
+      )
+    ) +
+
+    theme_pubr(base_size = 14) +
+    theme(
+      legend.position = "bottom",
+      panel.spacing = unit(0.6, "lines")
+      #legend.text = element_text(size = 10),
+      #legend.key.size = unit(0.35, "cm"),
+      #legend.margin = margin(t = -5)
+    )
+
+  filename <<- paste0("facet_", y_var, "_sel")
 
   return(p)
 }
@@ -337,6 +444,352 @@ plot_spectral_band <- function(data, band_name, y_var, y_lab, x_var = c("increme
   filename <<- paste0(y_var, "_", band_name, "_byTile")
 
   return(p)
+}
+
+
+
+# GEOGRAPHICAL -----------------------------------------------------------
+
+plot_geo_shift <- function(data,y_var, y_lab) {
+
+  p <- ggplot(
+          data,
+          aes(
+            x = shift_distance,
+            y = .data[[y_var]],
+            color = shift_direction
+          )
+        ) +
+
+        stat_summary(
+          fun = mean,
+          geom = "line",
+          linewidth = 1
+        ) +
+
+        stat_summary(
+          fun = mean,
+          geom = "point",
+          size = 2
+        ) +
+
+        stat_summary(
+          fun.data = mean_se,
+          geom = "errorbar",
+          width = 0
+        ) +
+
+        geom_hline(
+          yintercept = 0, 
+          linewidth = 0.7,
+          linetype = "solid",
+          colour = "grey70"
+        ) +
+    
+        labs(
+          x = "Shift distance [km]",
+          y = y_lab,
+          color = "Direction"
+        ) +
+
+        theme_bw()
+
+  filename <<- paste0("shift_", y_var)
+
+  return(p)
+}
+
+plot_geo_byTile <- function(data, y_var, y_lab) {
+
+  p <- ggplot(
+          data,
+          aes(
+            x = shift_distance,
+            y = .data[[y_var]],
+            color = shift_direction,
+            group = interaction(location, shift_direction)
+          )
+        ) +
+
+        geom_line(
+          alpha = 0.5,
+          linewidth = 0.5
+        ) +
+
+        geom_point(
+          size = 2
+        ) +
+
+        facet_wrap(
+          ~location
+        ) +
+
+        geom_hline(
+          yintercept = 0, 
+          linewidth = 0.7,
+          linetype = "solid",
+          colour = "grey80"
+        ) +
+    
+        labs(
+          x = "Shift distance [km]",
+          y = y_lab,
+          color = "Direction"
+        ) +
+
+        theme_minimal(base_size = 14)
+
+  filename <<- paste0("shift_facet_", y_var)
+
+  return(p)
+}
+
+plot_geo_latitude <- function(data, y_var,  y_lab) {
+
+  p <- ggplot(
+          data,
+          aes(
+            x = lat_new,
+            y = .data[[y_var]],
+            group = location,
+            colour = location
+          )
+        ) +
+
+        geom_hline( # 0 line
+            yintercept = 0, 
+            linewidth = 0.7,
+            linetype = "solid",
+            colour = "grey55"
+          ) +
+
+        geom_line(
+          linewidth = 1
+        ) +
+          
+        # geom_point( # Ticks on the lines
+        #   shape = 3,
+        #   size = 1.5
+        # ) +
+
+        geom_point( # Original tile points
+          data = subset(data, original),
+          size = 2.5,
+          shape = 21,
+          stroke = 1.5,
+          fill = "grey95"
+          # , show.legend = FALSE
+        ) +
+    
+        # scale_shape_manual( # ?
+        #   name = NULL,
+        #   values = c("Original" = 21)
+        # ) +
+    
+        scale_color_manual(values = tile_meta$col) +
+
+        labs(
+          x = "Latitude after shift [°]",
+          y = y_lab,
+          colour = "Sample Tile"
+        ) +
+    
+        theme_pubr(base_size = 14) +
+    
+        theme_bw()
+
+  filename <<- paste0("latitude_", y_var)
+
+  return(p)
+}
+
+plot_geo_tile_trends <- function(data, y_var, y_lab, tile_colors = NULL) {
+
+  filename <<- paste0("tile_trends_", y_var)
+  
+  # label positions (end of each line)
+  label_data <- data %>%
+  group_by(tile, location) %>%
+  do({
+    fit <- lm(.data[[y_var]] ~ abs_lat, data = .)
+
+    x_end <- max(.$abs_lat, na.rm = TRUE)
+
+    data.frame(
+      abs_lat = x_end,
+      pred = predict(fit, newdata = data.frame(abs_lat = x_end))
+    )
+  }) %>%
+  ungroup()
+
+  p <- ggplot(
+          data,
+          aes(
+            x = abs_lat,
+            y = .data[[y_var]]
+          )
+        ) +
+
+        # points
+        geom_point(
+          aes(color = tile),
+          alpha = 0.4,
+          size = 1.5
+        ) +
+
+        # per-tile trend lines
+        geom_smooth(
+          aes(color = tile, group = tile),
+          method = "lm",
+          se = FALSE,
+          linewidth = 0.9,
+          alpha = 0.8
+        ) +
+
+        # global trend
+        geom_smooth(
+          aes(group = 1),
+          method = "lm",
+          se = TRUE,
+          color = "black",
+          linewidth = 0.6,
+          alpha = 0.2
+        ) +
+
+        # labels = LOCATION
+        ggrepel::geom_text_repel(
+          data = label_data,
+          aes(
+            x = abs_lat,
+            y = pred,
+            label = location,
+            color = tile
+          ),
+          direction = "y",
+          nudge_x = 0.2,
+          segment.color = "grey70",
+          size = 3.5,
+          box.padding = 0.5,
+          point.padding = 0.3,
+          show.legend = FALSE
+        ) +
+    
+        geom_hline(
+          yintercept = 0, 
+          linewidth = 0.7,
+          linetype = "solid",
+          colour = "grey70"
+        ) +
+
+        labs(
+          # x = "Distance to equator [° latitude]",
+          x = "Absolute Latitude [°]",
+          y = y_lab
+        ) + 
+    
+        scale_color_manual(values = tile_meta$col) +
+    
+        theme_bw(base_size = 12) +
+        theme(
+          legend.position = "none",
+         plot.margin = margin(5.5, 50, 5.5, 5.5)
+        ) +
+        coord_cartesian(clip = "off")
+
+  return(p)
+}
+
+plot_geo_equator_trend <- function(data, y_var, y_lab, tile_colors = NULL) {
+
+  filename <<- paste0("eq_trend_Col_lm_", y_var)
+
+  p <- ggplot(
+          data,
+          aes(
+            x = eq_dist_km,
+            y = .data[[y_var]]
+          )
+        ) +
+
+        geom_point(
+          aes(colour = location),
+          size = 2,
+          alpha = 0.7
+        ) +
+        
+        geom_smooth(method = "lm", se = TRUE, colour = "black", linewidth = 1.2) +
+
+        # geom_smooth(method = "loess", se = TRUE, colour = "black", linewidth = 1.2) +
+
+        geom_hline(
+          yintercept = 0, 
+          linewidth = 0.7,
+          linetype = "solid",
+          colour = "grey70"
+        ) +    
+        
+        scale_color_manual(values = tile_meta$col)+
+    
+        labs(
+          x = "Absolute distance from equator [km]",
+          y = y_lab,
+          colour = "Tile"
+        ) +
+
+        theme_bw()
+
+  return(p)
+
+}
+
+plot_geo_main_trend <- function(data, y_var, smooth = c("loess", "lm", "gam"), y_lab) {
+
+  filename <<- paste0("eq_trend_", smooth, "_", y_var)
+
+  smooth <- match.arg(smooth)
+
+  p <- ggplot(data, aes(abs(lat_new), .data[[y_var]])) +
+    geom_point(alpha = 0.15, size = 1)
+
+  if (smooth == "gam") {
+    p <- p +
+      geom_smooth(
+        method = "gam",
+        formula = y ~ s(x, k = 10),
+        colour = "darkgreen",
+        linewidth = 1.1,
+        se = TRUE
+      )
+  } else if (smooth == "lm") {
+    p <- p +
+      geom_smooth(
+        method = "lm",
+        colour = "darkgreen",
+        linewidth = 1.1,
+        se = TRUE
+      )
+  } else if (smooth == "loess") {
+    p <- p +
+      geom_smooth(
+        method = "loess",
+        colour = "darkgreen",
+        linewidth = 1.1,
+        se = TRUE
+      )
+  }
+
+  p +
+    geom_hline(
+      yintercept = 0,
+      linewidth = 0.7,
+      colour = "grey70"
+    ) +
+    labs(
+      x = "Distance to equator [° latitude]",
+      y = y_lab
+    ) +
+    theme_bw()
+
 }
 
 
@@ -664,350 +1117,6 @@ plot_shuffle_heatmap_tiles <- function(data, value_var, y_lab = NULL) {
   filename <<- paste0("tile_heatmap_", value_var)
 
   return(p)
-
-}
-
-
-
-# GEOGRAPHICAL -----------------------------------------------------------
-
-plot_geo_shift <- function(data,y_var, y_lab) {
-
-  p <- ggplot(
-          data,
-          aes(
-            x = shift_distance,
-            y = .data[[y_var]],
-            color = shift_direction
-          )
-        ) +
-
-        stat_summary(
-          fun = mean,
-          geom = "line",
-          linewidth = 1
-        ) +
-
-        stat_summary(
-          fun = mean,
-          geom = "point",
-          size = 2
-        ) +
-
-        stat_summary(
-          fun.data = mean_se,
-          geom = "errorbar",
-          width = 0
-        ) +
-
-        geom_hline(
-          yintercept = 0, 
-          linewidth = 0.7,
-          linetype = "solid",
-          colour = "grey70"
-        ) +
-    
-        labs(
-          x = "Shift distance [km]",
-          y = y_lab,
-          color = "Direction"
-        ) +
-
-        theme_bw()
-
-  filename <<- paste0("shift_", y_var)
-
-  return(p)
-}
-
-plot_geo_byTile <- function(data, y_var, y_lab) {
-
-  p <- ggplot(
-          data,
-          aes(
-            x = shift_distance,
-            y = .data[[y_var]],
-            color = shift_direction,
-            group = interaction(location, shift_direction)
-          )
-        ) +
-
-        geom_line(
-          alpha = 0.5,
-          linewidth = 0.5
-        ) +
-
-        geom_point(
-          size = 2
-        ) +
-
-        facet_wrap(
-          ~location
-        ) +
-
-        geom_hline(
-          yintercept = 0, 
-          linewidth = 0.7,
-          linetype = "solid",
-          colour = "grey80"
-        ) +
-    
-        labs(
-          x = "Shift distance [km]",
-          y = y_lab,
-          color = "Direction"
-        ) +
-
-        theme_minimal(base_size = 14)
-
-  filename <<- paste0("shift_facet_", y_var)
-
-  return(p)
-}
-
-plot_geo_latitude <- function(data, y_var,  y_lab) {
-
-  p <- ggplot(
-          data,
-          aes(
-            x = lat_new,
-            y = .data[[y_var]],
-            group = location,
-            colour = location
-          )
-        ) +
-
-        geom_hline( # 0 line
-            yintercept = 0, 
-            linewidth = 0.7,
-            linetype = "solid",
-            colour = "grey55"
-          ) +
-
-        geom_line(
-          linewidth = 1
-        ) +
-          
-        # geom_point( # Ticks on the lines
-        #   shape = 3,
-        #   size = 1.5
-        # ) +
-
-        geom_point( # Original tile points
-          data = subset(data, original),
-          size = 2.5,
-          shape = 21,
-          stroke = 1.5,
-          fill = "grey95"
-          # , show.legend = FALSE
-        ) +
-    
-        # scale_shape_manual( # ?
-        #   name = NULL,
-        #   values = c("Original" = 21)
-        # ) +
-    
-        scale_color_manual(values = tile_meta$col) +
-
-        labs(
-          x = "Latitude after shift [°]",
-          y = y_lab,
-          colour = "Tile"
-        ) +
-
-        theme_bw()
-
-  filename <<- paste0("latitude_", y_var)
-
-  return(p)
-}
-
-plot_geo_tile_trends <- function(data, y_var, y_lab, tile_colors = NULL) {
-
-  filename <<- paste0("tile_trends_", y_var)
-  
-  # label positions (end of each line)
-  label_data <- data %>%
-  group_by(tile, location) %>%
-  do({
-    fit <- lm(.data[[y_var]] ~ abs_lat, data = .)
-
-    x_end <- max(.$abs_lat, na.rm = TRUE)
-
-    data.frame(
-      abs_lat = x_end,
-      pred = predict(fit, newdata = data.frame(abs_lat = x_end))
-    )
-  }) %>%
-  ungroup()
-
-  p <- ggplot(
-          data,
-          aes(
-            x = abs_lat,
-            y = .data[[y_var]]
-          )
-        ) +
-
-        # points
-        geom_point(
-          aes(color = tile),
-          alpha = 0.4,
-          size = 1.5
-        ) +
-
-        # per-tile trend lines
-        geom_smooth(
-          aes(color = tile, group = tile),
-          method = "lm",
-          se = FALSE,
-          linewidth = 0.9,
-          alpha = 0.8
-        ) +
-
-        # global trend
-        geom_smooth(
-          aes(group = 1),
-          method = "lm",
-          se = TRUE,
-          color = "black",
-          linewidth = 0.6,
-          alpha = 0.2
-        ) +
-
-        # labels = LOCATION
-        ggrepel::geom_text_repel(
-          data = label_data,
-          aes(
-            x = abs_lat,
-            y = pred,
-            label = location,
-            color = tile
-          ),
-          direction = "y",
-          nudge_x = 0.2,
-          segment.color = "grey70",
-          size = 3.5,
-          box.padding = 0.5,
-          point.padding = 0.3,
-          show.legend = FALSE
-        ) +
-    
-        geom_hline(
-          yintercept = 0, 
-          linewidth = 0.7,
-          linetype = "solid",
-          colour = "grey70"
-        ) +
-
-        labs(
-          # x = "Distance to equator [° latitude]",
-          x = "Absolute Latitude [°]",
-          y = y_lab
-        ) + 
-    
-        scale_color_manual(values = tile_meta$col) +
-    
-        theme_bw(base_size = 12) +
-        theme(
-          legend.position = "none",
-         plot.margin = margin(5.5, 50, 5.5, 5.5)
-        ) +
-        coord_cartesian(clip = "off")
-
-  return(p)
-}
-
-plot_geo_equator_trend <- function(data, y_var, y_lab, tile_colors = NULL) {
-
-  filename <<- paste0("eq_trend_Col_lm_", y_var)
-
-  p <- ggplot(
-          data,
-          aes(
-            x = eq_dist_km,
-            y = .data[[y_var]]
-          )
-        ) +
-
-        geom_point(
-          aes(colour = location),
-          size = 2,
-          alpha = 0.7
-        ) +
-        
-        geom_smooth(method = "lm", se = TRUE, colour = "black", linewidth = 1.2) +
-
-        # geom_smooth(method = "loess", se = TRUE, colour = "black", linewidth = 1.2) +
-
-        geom_hline(
-          yintercept = 0, 
-          linewidth = 0.7,
-          linetype = "solid",
-          colour = "grey70"
-        ) +    
-        
-        scale_color_manual(values = tile_meta$col)+
-    
-        labs(
-          x = "Absolute distance from equator [km]",
-          y = y_lab,
-          colour = "Tile"
-        ) +
-
-        theme_bw()
-
-  return(p)
-
-}
-
-plot_geo_main_trend <- function(data, y_var, smooth = c("loess", "lm", "gam"), y_lab) {
-
-  filename <<- paste0("eq_trend_", smooth, "_", y_var)
-
-  smooth <- match.arg(smooth)
-
-  p <- ggplot(data, aes(abs(lat_new), .data[[y_var]])) +
-    geom_point(alpha = 0.15, size = 1)
-
-  if (smooth == "gam") {
-    p <- p +
-      geom_smooth(
-        method = "gam",
-        formula = y ~ s(x, k = 10),
-        colour = "darkgreen",
-        linewidth = 1.1,
-        se = TRUE
-      )
-  } else if (smooth == "lm") {
-    p <- p +
-      geom_smooth(
-        method = "lm",
-        colour = "darkgreen",
-        linewidth = 1.1,
-        se = TRUE
-      )
-  } else if (smooth == "loess") {
-    p <- p +
-      geom_smooth(
-        method = "loess",
-        colour = "darkgreen",
-        linewidth = 1.1,
-        se = TRUE
-      )
-  }
-
-  p +
-    geom_hline(
-      yintercept = 0,
-      linewidth = 0.7,
-      colour = "grey70"
-    ) +
-    labs(
-      x = "Distance to equator [° latitude]",
-      y = y_lab
-    ) +
-    theme_bw()
 
 }
 
