@@ -33,7 +33,7 @@ plot_spectral_facets(spectral_results, y_var = "relative_mean_change",   y_lab =
 plot_spectral_facets_sel(spectral_results,
   y_var  = "mean_change", y_lab = "Average Difference [m]",
   sel_bands = c("B03", "B04", "B05", "B08") )
-# save_spectral_plot(filename, "wide")
+ save_spectral_plot(filename, "wide")
 
 plot_spectral_band(spectral_results, band_name = "Green",  
   y_var = "mean_change", y_lab = "Average Difference [m]",
@@ -56,6 +56,9 @@ plot_geo_byTile(geo_results, y_var = "mean_change", y_lab = "Average Difference 
 
 plot_geo_latitude(geo_results, y_var = "mean_change", y_lab = "Average Difference [m]")
 # save_geo_plot(filename, "wide")
+
+plot_geo_northsouth(geo_results, y_var = "mean_change", y_lab = "Average Difference [m]")
+ save_geo_plot(filename, "medium")
 
 plot_geo_tile_trends(geo_results, y_var = "mean_change", y_lab = "Average Difference [m]")
 plot_geo_tile_trends(geo_results, y_var = "relative_mean_change", y_lab = "Average Relative Difference [%]")

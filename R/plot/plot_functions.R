@@ -293,7 +293,7 @@ plot_spectral_facets_sel <- function(data, y_var, y_lab, sel_bands = NULL) {
       )
     ) +
 
-    theme_pubr(base_size = 14) +
+    theme_pubr(base_size = 18) +
     theme(
       legend.position = "bottom",
       panel.spacing = unit(0.6, "lines")
@@ -562,6 +562,13 @@ plot_geo_latitude <- function(data, y_var,  y_lab) {
             linetype = "solid",
             colour = "grey55"
           ) +
+    
+        geom_vline(
+          xintercept = 0,
+          linewidth = 0.5,
+          linetype = "solid",
+          color = "grey55"
+        )+
 
         geom_line(
           linewidth = 1
@@ -587,6 +594,19 @@ plot_geo_latitude <- function(data, y_var,  y_lab) {
         # ) +
     
         scale_color_manual(values = tile_meta$col) +
+    
+        scale_x_continuous(
+          name = "Latitude after shift [°]",
+          breaks = scales::breaks_pretty(n = 10),
+          labels = function(x) {
+            ifelse(
+              x < 0,
+              paste0(abs(x), "°S"),
+              ifelse(x > 0, paste0(x, "°N"), "0°")
+            )
+          },
+          expand = expansion(mult = c(0.01, 0.01))
+        ) +
 
         labs(
           x = "Latitude after shift [°]",
@@ -594,11 +614,65 @@ plot_geo_latitude <- function(data, y_var,  y_lab) {
           colour = "Sample Tile"
         ) +
     
-        theme_pubr(base_size = 14) +
+        #theme_pubr(base_size = 18) +
     
-        theme_bw()
+        theme_bw(base_size = 14)
 
   filename <<- paste0("latitude_", y_var)
+
+  return(p)
+}
+
+plot_geo_northsouth <- function(data, y_var, y_lab) {
+
+  data <- data |>
+    dplyr::arrange(location, lat_new)
+
+  p <- ggplot(
+    data,
+    aes(
+      x = .data[[y_var]],
+      y = lat_new,
+      group = location,
+      colour = location
+    )
+  ) +
+
+    geom_vline(
+      xintercept = 0,
+      linewidth = 0.7,
+      linetype = "solid",
+      colour = "grey55"
+    ) +
+
+    geom_path(linewidth = 1) +
+
+    geom_point(
+      data = subset(data, original),
+      size = 2.5,
+      shape = 21,
+      stroke = 1.5,
+      fill = "grey95"
+    ) +
+
+    scale_color_manual(values = tile_meta$col) +
+    
+    scale_y_continuous(
+      name = "Latitude after shift [°]",
+      breaks = scales::breaks_pretty(n = 12),
+      expand = expansion(mult = c(0.01, 0.01))
+    ) +
+
+    labs(
+      x = y_lab,
+      y = "Latitude after shift [°]",
+      colour = "Sample Tile"
+    ) +
+
+    theme_pubr(base_size = 14) +
+    theme_bw()
+
+  filename <<- paste0("northsouth_", y_var)
 
   return(p)
 }
