@@ -106,7 +106,10 @@ plot_shuffle_heatmap(shuffle_results, "mean_change", "Average Difference [m]")
 plot_shuffle_heatmap_discrete(shuffle_results, "mean_change", "Average Difference [m]")
 # save_shuffle_plot(filename, "medium")
 # save_shuffle_plot(filename, "wide")
-plot_shuffle_heatmap_tiles(shuffle_results, "mean_change", "Average Difference [m]")
-# save_shuffle_plot(filename, "medium")
+# save_shuffle_plot(filename, "tall")
 
-
+plot_shuffle_heatmap_tiles(shuffle_results, "mean_change",y_lab = "Average Difference [m]",
+  ncol = 3, n_breaks_side = 3,
+  legend_breaks = c(-20, -10, -5, -2, 0, 1, 2, 4))
+  
+save_shuffle_plot(filename, "custom", w = 230, h = 250)

@@ -249,7 +249,7 @@ save_spectral_plot <- function(plotname, format = c("wide", "medium", "tall"), p
   message("Saved plot to: ", file_path)
 }
 
-save_shuffle_plot <- function(plotname, format = c("wide", "medium", "tall"), plot = ggplot2::last_plot()) {
+save_shuffle_plot <- function(plotname, format = c("wide", "medium", "tall", "custom"), w = 200, h = 200, plot = ggplot2::last_plot()) {
   
   format <- match.arg(format)
   
@@ -264,7 +264,8 @@ save_shuffle_plot <- function(plotname, format = c("wide", "medium", "tall"), pl
     format,
     wide   = list(width = 270, height = 175),
     medium = list(width = 250, height = 200),
-    tall   = list(width = 200, height = 250)
+    tall   = list(width = 200, height = 250),
+    custom = list(width = w, height = h)
   )
   
   ggsave(
