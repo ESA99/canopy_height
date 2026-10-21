@@ -34,6 +34,10 @@ plot_spectral_facets_sel(spectral_results,
   y_var  = "mean_change", y_lab = "Average Difference [m]",
   sel_bands = c("B03", "B04", "B05", "B08") )
 # save_spectral_plot(filename, "wide")
+plot_spectral_facets_sel(spectral_results,
+  y_var  = "mean_change", y_lab = "Average Difference [m]",
+  sel_bands = c("B02", "B8A", "B11", "B12") )
+# save_spectral_plot(filename, "wide")
 
 plot_spectral_band(spectral_results, band_name = "Green",  
   y_var = "mean_change", y_lab = "Average Difference [m]",

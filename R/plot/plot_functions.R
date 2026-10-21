@@ -204,7 +204,7 @@ plot_spectral_facets_sel <- function(data, y_var, y_lab, sel_bands = NULL) {
 
   plot_data <- data %>%
     {if (is.null(sel_bands)) . else filter(., band %in% sel_bands)} %>%
-    group_by(colour, band, location, abs_increment) %>%
+    group_by(colour, band, bandnumber, location, abs_increment) %>%
     summarise(
       value = mean(.data[[y_var]], na.rm = TRUE),
       .groups = "drop"
@@ -214,15 +214,15 @@ plot_spectral_facets_sel <- function(data, y_var, y_lab, sel_bands = NULL) {
       # facet ordered by band, but displayed as colour name
       facet_lab = factor(
         paste0(band, "_", colour),
-        levels = paste0(sort(unique(band)), "_", colour[match(sort(unique(band)), band)])
+        levels = unique( paste0(band[order(bandnumber)],"_",colour[order(bandnumber)] ) )
       )
     )
   
   # map each band level to its colour name (1:1 assumed)
   band_colour_map <- plot_data %>%
-    distinct(band, colour) %>%
-    mutate(band = factor(band, levels = sort(unique(band)))) %>%
-    arrange(band)
+    distinct(band, bandnumber, colour) %>%
+    # mutate(band = factor(band, levels = sort(unique(band)))) %>%
+    arrange(bandnumber)
 
   levels(plot_data$facet_lab) <- band_colour_map$colour
 

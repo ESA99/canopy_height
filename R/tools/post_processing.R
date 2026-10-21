@@ -37,6 +37,7 @@ spectral <- spectral |>
     ) * 100,
     # increment = increment*100,
     abs_increment = abs(increment),
+    bandnumber = band_translation$BandNumber,
     model_ID = 2
 )
 
