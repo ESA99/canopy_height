@@ -1222,9 +1222,9 @@ plot_shuffle_heatmap_tiles <- function(data, value_var, y_lab = NULL, ncol = 3, 
     ) +
 
     ggplot2::scale_fill_gradient2(
-      low = "#2166AC",
+      low = "#B35845",
       mid = "#F7F7F2",
-      high = "#B35845",
+      high = "#2166AC",
       midpoint = 0,
       trans = scales::transform_asinh(),
       limits = c(min(finite_values), max(finite_values)),
