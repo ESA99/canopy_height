@@ -65,7 +65,7 @@ plot_geo_northsouth(geo_results, y_var = "mean_change", y_lab = "Average Differe
  save_geo_plot(filename, "medium")
 
 plot_geo_tile_trends(geo_results, y_var = "mean_change", y_lab = "Average Difference [m]")
-plot_geo_tile_trends(geo_results, y_var = "relative_mean_change", y_lab = "Average Relative Difference [%]")
+# plot_geo_tile_trends(geo_results, y_var = "relative_mean_change", y_lab = "Average Relative Difference [%]")
 # save_geo_plot(filename, "medium")
 # save_geo_plot(filename, "wide")
 
