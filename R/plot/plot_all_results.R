@@ -117,3 +117,10 @@ plot_shuffle_heatmap_tiles(shuffle_results, "mean_change",y_lab = "Average Diffe
   legend_breaks = c(-20, -10, -5, -2, 0, 1, 2, 4))
   
 save_shuffle_plot(filename, "custom", w = 230, h = 250)
+
+
+plot_shuffle_heatmap_tiles_numbers(
+shuffle_results,"mean_change",
+ncol = 3, number_size = 3.2)
+
+save_shuffle_plot(filename, "custom", w = 310, h = 360)

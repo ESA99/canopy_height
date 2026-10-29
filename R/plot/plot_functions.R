@@ -1040,6 +1040,7 @@ plot_shuffle_heatmap_discrete <- function(data, value_var, y_lab = NULL) {
   if (is.null(y_lab)) y_lab <- value_var
 
   plot_data <- data %>%
+    dplyr::filter(shuffle_percentage != 0) %>%
     dplyr::group_by(shuffle_percentage, patch_size) %>%
     dplyr::summarise(
       value = mean(.data[[value_var]], na.rm = TRUE),
@@ -1059,9 +1060,11 @@ plot_shuffle_heatmap_discrete <- function(data, value_var, y_lab = NULL) {
       geom_tile(color = "white", linewidth = 0.3) +
 
       scale_fill_gradient2(
-        low = "#2166AC",
-        mid = "#FFFFE5",
-        high = "#B2182B",
+        low = "#AC2167",
+        # low = "#2166AC",
+        mid = "#F7F7F2",
+        high = "#2166AC",
+        # high = "#B2182B",
         midpoint = 0
       ) +
 
@@ -1222,7 +1225,8 @@ plot_shuffle_heatmap_tiles <- function(data, value_var, y_lab = NULL, ncol = 3, 
     ) +
 
     ggplot2::scale_fill_gradient2(
-      low = "#B35845",
+      # low = "#B35845",
+      low = "#AC2167",
       mid = "#F7F7F2",
       high = "#2166AC",
       midpoint = 0,
@@ -1292,6 +1296,209 @@ plot_shuffle_heatmap_tiles <- function(data, value_var, y_lab = NULL, ncol = 3, 
       legend.margin = ggplot2::margin(t = 6, b = 2),
 
       plot.margin = ggplot2::margin(8, 10, 8, 10)
+    )
+
+  filename <<- paste0("tile_heatmap_", value_var)
+
+  return(p)
+}
+
+plot_shuffle_heatmap_tiles_numbers <- function( data, value_var, y_lab = NULL, ncol = 3, n_breaks_side = 3, legend_breaks = NULL, number_size = 2.8) {
+
+  if (is.null(y_lab)) y_lab <- value_var
+
+  plot_data <- data %>%
+    dplyr::filter(shuffle_percentage != 0) %>%
+    dplyr::group_by(location, shuffle_percentage, patch_size) %>%
+    dplyr::summarise(
+      value = mean(.data[[value_var]], na.rm = TRUE),
+      .groups = "drop"
+    ) %>%
+    dplyr::mutate(
+      shuffle_percentage = factor(
+        shuffle_percentage,
+        levels = sort(unique(shuffle_percentage))
+      ),
+      patch_size = factor(
+        patch_size,
+        levels = sort(unique(patch_size))
+      )
+    )
+
+  finite_values <- plot_data$value[is.finite(plot_data$value)]
+
+  if (length(finite_values) == 0) {
+    stop("No finite values available to plot.")
+  }
+
+  max_abs <- max(abs(finite_values))
+  if (max_abs == 0) max_abs <- 1
+
+  # Automatic legend breaks, with zero always included
+  if (is.null(legend_breaks)) {
+
+    neg_max <- abs(min(finite_values))
+    pos_max <- max(finite_values)
+
+    neg_breaks <- if (neg_max > 0) {
+      pretty(c(-neg_max, 0), n = n_breaks_side + 1)
+    } else {
+      numeric(0)
+    }
+
+    pos_breaks <- if (pos_max > 0) {
+      pretty(c(0, pos_max), n = n_breaks_side + 1)
+    } else {
+      numeric(0)
+    }
+
+    legend_breaks <- sort(unique(c(
+      neg_breaks[neg_breaks < 0],
+      0,
+      pos_breaks[pos_breaks > 0]
+    )))
+
+  } else {
+    legend_breaks <- sort(unique(c(legend_breaks, 0)))
+  }
+
+  legend_breaks <- legend_breaks[
+    legend_breaks >= -max_abs &
+      legend_breaks <= max_abs
+  ]
+
+  # Format labels to one decimal place and choose contrasting text
+  plot_data <- plot_data %>%
+    dplyr::mutate(
+      tile_label = ifelse(
+        is.finite(value),
+        sprintf("%.1f", value),
+        ""
+      ),
+      label_color = ifelse(
+        abs(value) >= max_abs * 0.55,
+        "white",
+        "black"
+      )
+    )
+
+  p <- ggplot2::ggplot(
+    plot_data,
+    ggplot2::aes(
+      x = shuffle_percentage,
+      y = patch_size,
+      fill = value
+    )
+  ) +
+
+    ggplot2::geom_tile(
+      color = "white",
+      linewidth = 0.25
+    ) +
+
+    # Readable, bold labels in every tile
+    ggplot2::geom_text(
+      ggplot2::aes(
+        label = tile_label,
+        color = label_color
+      ),
+      size = number_size,
+      fontface = "bold"
+    ) +
+
+    ggplot2::scale_color_identity() +
+
+    ggplot2::scale_fill_gradient2(
+      low = "#AC2167",
+      mid = "#F7F7F2",
+      high = "#2166AC",
+      midpoint = 0,
+      trans = scales::transform_asinh(),
+      limits = c(min(finite_values), max(finite_values)),
+      breaks = legend_breaks,
+      labels = scales::label_number(
+        accuracy = 1,
+        trim = TRUE
+      ),
+      oob = scales::squish,
+      name = y_lab,
+      guide = ggplot2::guide_colourbar(
+        title.position = "left",
+        label.position = "bottom",
+        barwidth = grid::unit(8, "cm"),
+        barheight = grid::unit(0.35, "cm"),
+        ticks = TRUE,
+        nbin = 256
+      )
+    ) +
+
+    ggplot2::facet_wrap(~location, ncol = ncol) +
+
+    ggplot2::labs(
+      x = "Shuffle percentage [%]",
+      y = "Patch size [px]"
+    ) +
+
+    ggplot2::theme_minimal(base_size = 12) +
+
+    ggplot2::theme(
+      panel.grid = ggplot2::element_blank(),
+
+      strip.text = ggplot2::element_text(
+        face = "bold",
+        size = 10,
+        margin = ggplot2::margin(2, 0, 2, 0)
+      ),
+
+      strip.background = ggplot2::element_rect(
+        fill = "#EEEEEE",
+        color = NA
+      ),
+
+      panel.spacing = grid::unit(0.5, "lines"),
+
+      # Bold axis titles
+      axis.title.x = ggplot2::element_text(
+        face = "bold",
+        size = 12,
+        margin = ggplot2::margin(t = 8)
+      ),
+
+      axis.title.y = ggplot2::element_text(
+        face = "bold",
+        size = 12,
+        margin = ggplot2::margin(r = 8)
+      ),
+
+      # Bold tick labels
+      axis.text.x = ggplot2::element_text(
+        size = 8,
+        angle = 45,
+        hjust = 1,
+        vjust = 1,
+        face = "bold"
+      ),
+
+      axis.text.y = ggplot2::element_text(
+        size = 9,
+        face = "bold"
+      ),
+
+      legend.position = "bottom",
+      legend.direction = "horizontal",
+
+      legend.title = ggplot2::element_text(
+        size = 10,
+        face = "bold"
+      ),
+
+      legend.text = ggplot2::element_text(
+        size = 9
+      ),
+
+      legend.margin = ggplot2::margin(t = 4, b = 2),
+
+      plot.margin = ggplot2::margin(6, 8, 6, 8)
     )
 
   filename <<- paste0("tile_heatmap_", value_var)
