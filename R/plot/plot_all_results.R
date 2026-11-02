@@ -43,11 +43,14 @@ plot_spectral_band(spectral_results, band_name = "Green",
   y_var = "mean_change", y_lab = "Average Difference [m]",
   x_var = "increment")
 
-plot_spectral_band( spectral_results, band_name = "RedEdge", 
+plot_spectral_band(spectral_results, band_name = "RedEdge", 
   y_var = "mean_change", y_lab = "Average Difference [m]", 
   x_var = "abs_increment")
-
 # save_spectral_plot(filename, "medium")
+
+plot_spectral_trends(spectral_results, y_var = "mean_change", y_lab = "Average Difference (m)")
+save_spectral_plot(filename, "wide")
+
 
 
 # Geographical -----------------------------------------------------------

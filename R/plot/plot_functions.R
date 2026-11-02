@@ -446,7 +446,31 @@ plot_spectral_band <- function(data, band_name, y_var, y_lab, x_var = c("increme
   return(p)
 }
 
+plot_spectral_trends <- function(data, y_var, y_lab) {
 
+  filename <<- paste0("band-trends_", y_var)
+
+  ggplot(data, aes(
+    x = abs_increment,
+    y = .data[[y_var]],
+    colour = colour
+  )) +
+    geom_point(alpha = 0.3, size = 1) +
+    geom_smooth(
+      aes(group = colour),
+      method = "lm",
+      linewidth = 1.1,
+      se = TRUE
+    ) +
+    scale_colour_manual(values = spectral_colors) +
+    labs(
+      x = "Manipulation degree [%]",
+      y = y_lab,
+      colour = "Band"
+    ) +
+    theme_minimal()
+
+}
 
 # GEOGRAPHICAL -----------------------------------------------------------
 
