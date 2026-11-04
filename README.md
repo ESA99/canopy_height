@@ -1,4 +1,4 @@
-# Canopy height mapping from optical remote sensing data: reassessing deep learning methods
+# Canopy Height Mapping from Optical Remote Sensing Data: Understanding the Mechanisms Behind Deep Learning Predictions
 
 **Status: 05.05.26**
 

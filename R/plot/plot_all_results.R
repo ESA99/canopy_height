@@ -117,13 +117,13 @@ plot_shuffle_heatmap_discrete(shuffle_results, "mean_change", "Average Differenc
 
 plot_shuffle_heatmap_tiles(shuffle_results, "mean_change",y_lab = "Average Difference [m]",
   ncol = 3, n_breaks_side = 3,
-  legend_breaks = c(-20, -10, -5, -2, 0, 1, 2, 4))
-  
-save_shuffle_plot(filename, "custom", w = 230, h = 250)
+  legend_breaks = c(-25, -20, -15, -10, -5, 0, 2, 5))
+
+# save_shuffle_plot(filename, "custom", w = 230, h = 250)
 
 
 plot_shuffle_heatmap_tiles_numbers(
 shuffle_results,"mean_change",
 ncol = 3, number_size = 3.2)
 
-save_shuffle_plot(filename, "custom", w = 310, h = 360)
+# save_shuffle_plot(filename, "custom", w = 310, h = 360)

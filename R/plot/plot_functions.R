@@ -1248,21 +1248,54 @@ plot_shuffle_heatmap_tiles <- function(data, value_var, y_lab = NULL, ncol = 3, 
       linewidth = 0.3
     ) +
 
-    ggplot2::scale_fill_gradient2(
-      # low = "#B35845",
-      low = "#AC2167",
-      mid = "#F7F7F2",
-      high = "#2166AC",
-      midpoint = 0,
-      trans = scales::transform_asinh(),
+    # ggplot2::scale_fill_gradient2(
+    #   # low = "#B35845",
+    #   low = "#AC2167",
+    #   mid = "#F7F7F2",
+    #   high = "#2166AC",
+    #   midpoint = 0,
+    #   # trans = scales::transform_asinh(),
+    #   limits = c(min(finite_values), max(finite_values)),
+    #   breaks = legend_breaks,
+    #   labels = scales::label_number(
+    #     accuracy = 1,
+    #     trim = TRUE
+    #   ),
+    #   oob = scales::squish,
+    #   name = y_lab,
+    #   guide = ggplot2::guide_colourbar(
+    #     title.position = "left",
+    #     label.position = "bottom",
+    #     barwidth = grid::unit(9, "cm"),
+    #     barheight = grid::unit(0.4, "cm"),
+    #     ticks = TRUE,
+    #     nbin = 256
+    #   )
+    # ) +
+
+    ggplot2::scale_fill_gradientn(
+      colours = c(
+        "#AC2167",  # Strong negative
+        "#D95F02",  # Intermediate negative
+        "#F0D94E",  # Weak negative
+        "#F7F7F2",  # ZERO
+        "#5b86b1"   #  positive
+      ),
+
+      values = scales::rescale(c(
+        min(finite_values),
+        min(finite_values) * 2/3,
+        min(finite_values) * 1/3,
+        0,
+        max(finite_values)
+      )),
+
       limits = c(min(finite_values), max(finite_values)),
       breaks = legend_breaks,
-      labels = scales::label_number(
-        accuracy = 1,
-        trim = TRUE
-      ),
+      labels = scales::label_number(accuracy = 1, trim = TRUE),
       oob = scales::squish,
       name = y_lab,
+
       guide = ggplot2::guide_colourbar(
         title.position = "left",
         label.position = "bottom",
@@ -1271,7 +1304,7 @@ plot_shuffle_heatmap_tiles <- function(data, value_var, y_lab = NULL, ncol = 3, 
         ticks = TRUE,
         nbin = 256
       )
-    ) +
+    )+
 
     ggplot2::facet_wrap(~location, ncol = ncol) +
 
