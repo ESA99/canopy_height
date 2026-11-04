@@ -37,7 +37,8 @@ param_specs <- list(
 
   geographical = list(
     # shift_distance = c(100, 200, 300, 500, 1000, 1500, 2000, 3000, 5000), 
-    shift_distance = c(6000, 7000, 8000, 10000, 12000, 15000), 
+    # shift_distance = c(6000, 7000, 8000, 10000, 12000, 15000), 
+    shift_distance = c(100, 200, 300, 500, 1000, 1500, 2000, 3000, 5000, 6000, 7000, 8000, 10000, 12000, 15000), 
     shift_direction = c("N","S")
   )
 )

@@ -12,7 +12,8 @@ tile_groups <- list(
   g6 = c("33NTG", "34UFD"),
   g20  = c("32TMT", "33NTG", "35VML", "49NHC"), 
   g21a = c("10TES", "17SNB", "20MMD", "49UCP"),
-  g21b = c("32UQU", "55HEV", "34UFD")
+  g21b = c("32UQU", "55HEV", "34UFD"),
+  single = c("32UQU")
 )
 
 tiles <- tile_groups[[tile_group]]
