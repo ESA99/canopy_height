@@ -59,7 +59,7 @@ write_metadata <- function(config, param_specs, run_dir) {
     prediction_tifs = PRED_TIF,
     pred_tif_location = ifelse(PRED_TIF, PRED_TIF_LOCATION, NA),
     difference_tifs = DIFF_TIF,
-    diff_tif_location = ifelse(DIFF_TIF, EXPORT_TIF_LOC, NA)
+    diff_tif_location = ifelse(DIFF_TIF, DIFF_TIF_LOCATION, NA)
   )
 
   jsonlite::write_json(metadata,

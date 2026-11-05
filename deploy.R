@@ -98,7 +98,7 @@ for (v in seq_len(nrow(variables)) ) {
   cat("### run_tile_deploy_merge.sh finished. ###\n")
 
   # Organize files and delete temp's
-  paths <- organize_prediction_files(scenario)
+  paths <- organize_prediction_files(scenario) # NOTE: Pred files are not moved to PRED_TIF_LOCATION but $out_dir at the moment...
   
   ## COMPUTE METRICS
   loop_results <- compute_metrics(scenario, paths$result_path, paths$new_destination)
