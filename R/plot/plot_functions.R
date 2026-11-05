@@ -1279,7 +1279,7 @@ plot_shuffle_heatmap_tiles <- function(data, value_var, y_lab = NULL, ncol = 3, 
         "#ee9300",  # Intermediate negative
         "#F0D94E",  # Weak negative
         "#F7F7F2",  # ZERO
-        "#5b86b1"   #  positive
+        "#8cc6ff"   #  positive
       ),
 
       values = scales::rescale(c(
