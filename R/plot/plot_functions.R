@@ -1275,8 +1275,8 @@ plot_shuffle_heatmap_tiles <- function(data, value_var, y_lab = NULL, ncol = 3, 
 
     ggplot2::scale_fill_gradientn(
       colours = c(
-        "#AC2167",  # Strong negative
-        "#D95F02",  # Intermediate negative
+        "#a34600",  # Intermediate negative
+        "#ee9300",  # Intermediate negative
         "#F0D94E",  # Weak negative
         "#F7F7F2",  # ZERO
         "#5b86b1"   #  positive
@@ -1284,8 +1284,8 @@ plot_shuffle_heatmap_tiles <- function(data, value_var, y_lab = NULL, ncol = 3, 
 
       values = scales::rescale(c(
         min(finite_values),
-        min(finite_values) * 2/3,
-        min(finite_values) * 1/3,
+        -7,
+        -3,
         0,
         max(finite_values)
       )),
